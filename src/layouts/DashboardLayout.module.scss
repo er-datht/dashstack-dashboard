@@ -1,0 +1,23 @@
+@use '../assets/styles/variables' as *;
+@use '../assets/styles/mixins' as *;
+
+// DashboardLayout-specific SCSS styles
+// Currently using Tailwind CSS for all styling
+// This file is a placeholder for future custom SCSS styles
+
+.layout {
+  // Custom layout styles can be added here
+}
+
+.main {
+  // Custom main content area styles
+  // margin-left: $sidebar-width-expanded;
+  // padding-top: $topnav-height;
+
+  // &--collapsed {
+  //   margin-left: $sidebar-width-collapsed;
+  // }
+}
+
+// Note: This module demonstrates how to integrate SCSS with Tailwind
+// You can add custom styles here while keeping Tailwind utilities in the component

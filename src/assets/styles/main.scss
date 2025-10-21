@@ -1,0 +1,14 @@
+// Main SCSS Entry Point
+// This file orchestrates all SCSS modules
+
+// 1. Variables (must be first)
+@use 'variables' as *;
+
+// 2. Mixins
+@use 'mixins' as *;
+
+// 3. Global Styles
+@use 'globals';
+
+// Note: Component-specific styles are imported in their respective component files
+// This keeps the main bundle lean and allows for better code splitting

@@ -1,0 +1,218 @@
+@use "sass:map";
+@use "variables" as *;
+@use "mixins" as *;
+
+// Global Reset & Base Styles
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  font-family: $font-family-base;
+  font-size: font-size(base);
+  line-height: map.get($line-heights, normal);
+  @include theme-aware(color, color(gray-900), color(gray-100));
+  @include theme-aware(background-color, color(bg-light), color(bg-dark));
+  @include transition(background-color, map.get($transitions, slow));
+}
+
+// Code Fonts
+code,
+kbd,
+pre,
+samp {
+  font-family: $font-family-mono;
+}
+
+// Links
+a {
+  color: inherit;
+  text-decoration: none;
+  @include transition(color);
+
+  @include hover {
+    color: color(primary-600);
+  }
+}
+
+// Images
+img,
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+// Buttons
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+// Focus Visible (Keyboard Navigation)
+:focus-visible {
+  outline: 2px solid color(primary-500);
+  outline-offset: 2px;
+}
+
+// Selection
+::selection {
+  background-color: color(primary-200);
+  color: color(primary-900);
+
+  :global(.dark) & {
+    background-color: color(primary-800);
+    color: color(primary-100);
+  }
+}
+
+// Dark Mode Class
+:global(.dark) {
+  color-scheme: dark;
+}
+
+// Utility Classes
+.container {
+  @include container;
+}
+
+.flex-center {
+  @include flex-center;
+}
+
+.flex-between {
+  @include flex-between;
+}
+
+.truncate {
+  @include truncate;
+}
+
+.visually-hidden {
+  @include visually-hidden;
+}
+
+// Loading State
+.loading {
+  @include loading-shimmer;
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+// Animation Utility Classes
+.animate-fadeIn {
+  animation: fadeIn map.get($transitions, base) ease-in-out;
+}
+
+.animate-slideInUp {
+  animation: slideInUp map.get($transitions, slow) ease-out;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
