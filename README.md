@@ -1,139 +1,253 @@
-# React Dashboard Project
+# Dashstack React Dashboard
 
-A modern, production-ready React dashboard application built with TypeScript, Vite, and Tailwind CSS. Features a complete dashboard layout with navigation, routing, theme switching, and a scalable project structure.
+A modern, production-ready React 19 + TypeScript dashboard built with Vite, Tailwind CSS 4, SCSS Modules, React Router v7, React Query, and i18next. Includes a fully structured layout, theming, lazy loaded routes, internationalization, API service abstractions, and optimistic UI updates.
 
 ## Features
 
-- ⚡️ **Vite** - Lightning-fast development with HMR
-- ⚛️ **React 19** - Latest React with React Compiler enabled
-- 🎨 **Tailwind CSS 4** - Modern utility-first CSS framework
-- 💎 **TypeScript** - Type-safe development
-- 🎭 **SCSS Modules** - Component-scoped styling with Sass
-- 🔄 **React Router v7** - Client-side routing with protected routes
-- 🌓 **Dark Mode** - System-aware theme switching
-- 📱 **Responsive Design** - Mobile-first dashboard layout
-- 🎯 **Lucide Icons** - Beautiful, consistent icon set
-- 🏗️ **Scalable Architecture** - Well-organized project structure
+- ⚡ Vite 7 for fast HMR, TS build integration
+- ⚛ React 19 with React Compiler (experimental performance optimizations)
+- 🧠 React Query (data fetching, caching, optimistic updates)
+- 🌐 i18next internationalization (English + Japanese) with language detection
+- 🧭 React Router v7 with code-split lazy routes
+- 🌓 Light / Dark theme + system preference via `ThemeContext`
+- 🎨 Tailwind CSS 4 + SCSS Modules (utility + component scope styling)
+- 🧩 Modular architecture (services, hooks, types, contexts)
+- 📦 API abstraction layer (`src/services/api.ts`)
+- ✅ ESLint + TypeScript + recommended configs
+- 📊 Example chart (Recharts) + dashboard widgets
+- ⭐ Todos module with optimistic mutations
+
+## Tech Stack
+
+React 19, TypeScript 5.9, Vite 7, Tailwind CSS 4, SCSS Modules, React Router v7, React Query, i18next, Lucide Icons, Recharts.
 
 ## Project Structure
 
 ```
 src/
-├── assets/          # Static assets and global styles
-├── components/      # Reusable UI components (Sidebar, TopNav)
-├── config/          # Application configuration
-├── constants/       # App-wide constants
-├── contexts/        # React contexts (ThemeContext)
-├── hoc/            # Higher-order components (withAuth)
-├── hooks/          # Custom React hooks (useLocalStorage)
-├── layouts/        # Layout components (DashboardLayout)
-├── pages/          # Page components (Dashboard, Products, Orders, etc.)
-├── routes/         # Route definitions
-├── services/       # API services
-├── types/          # TypeScript type definitions
-└── utils/          # Utility functions
+├── assets/              # Static assets + global styles (SCSS)
+├── components/          # Reusable UI pieces (Sidebar, TopNav, Charts, etc.)
+├── configs/             # App level config (api, app-config)
+├── constants/           # Static values / environment helpers
+├── contexts/            # React contexts (ThemeContext)
+├── hoc/                 # Higher-order components (withAuth)
+├── hooks/               # Custom hooks (useTodos, useTheme, useReactQuery)
+├── layouts/             # Layout wrappers (DashboardLayout)
+├── pages/               # Route pages (Dashboard, Products, Todo, ...)
+├── routes/              # Centralized routing (`AppRoutes.tsx`, `routes.ts`)
+├── services/            # API & domain service layers (api, todos)
+├── types/               # TypeScript type definitions per domain
+└── utils/               # Small pure utility helpers (formatters, cn)
 ```
+
+## Available Pages / Routes
+
+| Route            | Description                        |
+| ---------------- | ---------------------------------- |
+| `/dashboard`     | Main dashboard overview            |
+| `/products`      | Products listing UI                |
+| `/favorites`     | Favorites module                   |
+| `/inbox`         | Inbox / messaging placeholder      |
+| `/orders`        | Orders management                  |
+| `/product-stock` | Inventory / stock view             |
+| `/pricing`       | Pricing tables                     |
+| `/calendar`      | Calendar page                      |
+| `/todo`          | Todos CRUD with optimistic updates |
+| `/contact`       | Contact form page                  |
+| `/invoice`       | Invoice layout example             |
+| `/ui-element`    | UI elements showcase               |
+| `/team`          | Team members listing               |
+| `/table`         | Generic data table page            |
+| `/settings`      | User / app settings                |
+| `/login`         | Auth entry point (public)          |
+
+Route constants: `src/routes/routes.ts` • Configuration + lazy loading: `src/routes/AppRoutes.tsx`.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
-- npm, yarn, or pnpm
+Node.js 18+ (LTS recommended).
 
-### Installation
+### Installation & Scripts (npm)
 
 ```bash
-# Install dependencies
+# Install deps
 npm install
 
-# Start development server
+# Dev server
 npm run dev
 
-# Build for production
+# Type check + build
 npm run build
 
 # Preview production build
 npm run preview
 
-# Run linter
+# Lint all sources
 npm run lint
 ```
 
-## Tech Stack
+### Installation & Scripts (Yarn)
 
-- **React 19** with React Compiler for optimized performance
-- **TypeScript** for type safety
-- **Vite** for fast builds and HMR
-- **Tailwind CSS 4** for styling
-- **Sass** for advanced styling with CSS Modules
-- **React Router v7** for routing
-- **Lucide React** for icons
-- **ESLint** for code quality
+```bash
+# Install deps
+yarn
+
+# Dev server
+yarn dev
+
+# Type check + build
+yarn build
+
+# Preview production build
+yarn preview
+
+# Lint all sources
+yarn lint
+```
+
+## Environment Setup
+
+Configure runtime values via `.env` files (e.g. API base URL) without listing actual secrets or endpoints here. Reference patterns in `src/constants/environment.ts` and access them with `import.meta.env`.
+
+### Create your local .env file
+
+1. Copy the example file:
+   ```bash
+   cp .env.example .env
+   ```
+2. Open `.env` and provide the required values (leave empty only if intentionally unused).
+3. Restart the dev server if it was running so Vite reloads env variables.
+4. Never commit your populated `.env` (the example remains tracked).
+
+`.env.example` documents required keys; keep it updated when introducing new env variables.
+
+## Internationalization (i18n)
+
+Configuration: `i18n.ts` (language detector + HTTP backend loading from `public/locales`).
+Supported languages: `en`, `jp`.
+Switching UI: `LanguageSwitcher` component.
+Translation namespaces: common, navigation, auth, dashboard, products, orders, settings, todo, theme, errors, messages.
+Add a new namespace: add JSON file under `public/locales/<lng>/<namespace>.json` and extend `ns` array in `i18n.ts` if needed.
+
+## Theming
+
+`ThemeContext.tsx` provides dark/light + system detection. Consume via `useTheme()` hook. SCSS variables and Tailwind classes support theme switching (`dark:` variants).
+
+## Data Fetching (React Query)
+
+Custom wrapper: `src/hooks/useReactQuery.ts` exports pre-bound `useQuery`, `useMutation`, `useQueryClient` with sensible defaults.
+Example domain hook: `useTodos.ts` (fetch, create, update, delete with optimistic cache updates and error rollback).
+Devtools available via `@tanstack/react-query-devtools` (add `<ReactQueryDevtools />` to your root if desired).
+
+## Todos Module
+
+Service: `src/services/todos.ts` (maps external API shape to internal `TodoItem`).
+Optimistic updates: implemented in mutations inside `useTodos.ts` (cache update, rollback on error).
+Usage:
+
+```tsx
+const { todos, addTodo, updateTodo, deleteTodo } = useTodos();
+```
+
+## API Layer
+
+Generic fetch abstraction: `src/services/api.ts` (`apiService.get/post/put/patch/delete`).
+Extend by adding domain-specific service modules (e.g. `products.ts`, `orders.ts`). Handle transformation from API DTOs to internal types for consistency.
+
+## Adding a New Page
+
+1. Create folder under `src/pages/NewPage/index.tsx`.
+2. Export component as default.
+3. Add lazy import + `<Route path="new-page" element={<NewPage />} />` in `AppRoutes.tsx` inside the Dashboard layout route.
+4. Add navigation item in `src/components/Sidebar/navigationData.ts`.
+
+## Styling
+
+- Global SCSS: `src/assets/styles/main.scss` + partials (`_variables.scss`, `_mixins.scss`, `_globals.scss`).
+- Tailwind utilities for layout & responsive behavior.
+- Component styles via `*.module.scss` co-located with components.
+
+## Icons
+
+Using Lucide React (`lucide-react`). Import individual icons for tree-shaking:
+
+```tsx
+import { Home, Settings } from "lucide-react";
+```
+
+## ESLint & TypeScript
+
+Config: `eslint.config.js`. Recommended to upgrade to type-aware configs (see section below). For stricter React rules, optionally install:
+
+```bash
+npm install eslint-plugin-react-x eslint-plugin-react-dom -D
+```
+
+Configuration example (type-aware + React rules) shown in README earlier.
 
 ## React Compiler
 
-The React Compiler is enabled on this project. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+Enabled via Babel plugin in `vite.config.ts`:
 
-Note: This may impact Vite dev & build performance but provides runtime optimizations.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```ts
+react({
+  babel: { plugins: [["babel-plugin-react-compiler"]] },
+});
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Provides runtime optimizations; may incur slightly slower builds.
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+## Internationalization Example
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```tsx
+import { useTranslation } from "react-i18next";
+const { t } = useTranslation("dashboard");
+return <h1>{t("title")}</h1>;
 ```
+
+## Formatting & Utilities
+
+- `utils/formatters.ts` for number/date formatting.
+- `utils/cn.ts` for conditional classNames composition.
+
+## Folder Naming Consistency
+
+Note: Use `configs/` (plural) as per actual directory for configuration modules.
+
+## Performance Practices
+
+- All pages lazy loaded (code-splitting by route).
+- React Compiler for optimized rendering.
+- Optimistic React Query mutations reduce perceived latency.
+- Minimal global state; domain state via server cache.
+
+## Future Enhancements (Ideas)
+
+- Auth integration (JWT / OAuth provider).
+- Role-based route guards.
+- Persisted React Query cache.
+- E2E tests (Playwright / Cypress).
+- Component testing (Vitest + Testing Library).
+- Accessibility audit.
+
+## Contributing
+
+1. Fork + create feature branch: `git checkout -b feature/my-change`
+2. Install deps & run `npm run dev` or `yarn dev`
+3. Ensure lint passes: `npm run lint` or `yarn lint`
+4. Open PR with clear description.
+
+## License
+
+Add a license file (MIT recommended). Update this section accordingly.
+
+## Acknowledgements
+
+- JSONPlaceholder (sample API)
+- React & Vite teams
+
+---
+
+For questions or improvements, open an issue. Enjoy building.
