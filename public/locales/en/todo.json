@@ -1,0 +1,33 @@
+{
+  "title": "To-Do",
+  "description": "Manage your tasks and to-do lists here.",
+  "addPlaceholder": "Add a new task...",
+  "addButton": "Add Task",
+  "emptyState": "No tasks yet. Add one to get started!",
+  "emptyFilteredState": "No tasks found for this filter.",
+  "completedTasks": "completed tasks",
+  "activeTasks": "active tasks",
+  "loading": "Loading todos...",
+  "error": "Failed to load todos",
+  "errorAdding": "Failed to add todo",
+  "errorUpdating": "Failed to update todo",
+  "errorDeleting": "Failed to delete todo",
+  "filters": {
+    "all": "All",
+    "active": "Active",
+    "completed": "Completed",
+    "starred": "Starred"
+  },
+  "actions": {
+    "complete": "Mark as complete",
+    "incomplete": "Mark as incomplete",
+    "star": "Star task",
+    "unstar": "Unstar task",
+    "delete": "Delete task"
+  },
+  "pagination": {
+    "showing": "Showing {{from}} to {{to}} of {{total}} tasks",
+    "previous": "Previous page",
+    "next": "Next page"
+  }
+}

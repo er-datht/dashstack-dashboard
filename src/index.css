@@ -1,15 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  /* Custom Colors */
+  /* Custom Colors - Primary: #4880FF */
   --color-background: #f8f9fc;
 
-  /* You can add more custom design tokens here */
-  /* Example:
-  --color-primary: #3b82f6;
-  --color-secondary: #8b5cf6;
-  --spacing-custom: 1.5rem;
-  */
+  /* Primary Color Palette - Based on #4880FF */
+  --color-primary-50: #eff4ff;
+  --color-primary-100: #dbe6ff;
+  --color-primary-200: #bfd2ff;
+  --color-primary-300: #93b4ff;
+  --color-primary-400: #6691ff;
+  --color-primary-500: #4880ff;
+  --color-primary-600: #2b5ff7;
+  --color-primary-700: #1e47e3;
+  --color-primary-800: #1d3bb7;
+  --color-primary-900: #1d3590;
+  --color-primary-950: #162157;
+
+  /* Convenience aliases */
+  --color-primary: var(--color-primary-500);
+  --color-primary-dark: var(--color-primary-600);
+  --color-primary-light: var(--color-primary-400);
 }
 
 /* Dark mode variant */
