@@ -20,6 +20,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { ROUTES } from "../../routes/routes";
+import { THEMES } from "../../constants/common";
 import type { TFunction } from "i18next";
 
 export type NavItem = {
@@ -140,8 +141,8 @@ export const getBottomItems = (t: TFunction, theme: string): NavItem[] => [
   },
   {
     id: "theme",
-    label: theme === "dark" ? t("settings:lightMode") : t("settings:darkMode"),
-    icon: theme === "dark" ? Sun : Moon,
+    label: theme === THEMES.DARK ? t("settings:lightMode") : t("settings:darkMode"),
+    icon: theme === THEMES.DARK ? Sun : Moon,
   },
   {
     id: "logout",

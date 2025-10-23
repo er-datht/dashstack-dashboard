@@ -7,7 +7,7 @@ export default function DashboardLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#f8f9fc] dark:bg-[#0f1015] transition-colors duration-300">
+    <div className="min-h-screen bg-[#f5f5f7] dark:bg-[#1e2129] transition-colors duration-300">
       <Sidebar
         isCollapsed={sidebarCollapsed}
         onCollapsedChange={setSidebarCollapsed}

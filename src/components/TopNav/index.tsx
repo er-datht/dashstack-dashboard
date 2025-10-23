@@ -10,7 +10,7 @@ export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
   const { t } = useTranslation();
   return (
     <header
-      className={`fixed top-0 right-0 h-[69px] bg-white dark:bg-[#1a1d24] border-b border-gray-200 dark:border-gray-700 z-30 transition-all duration-300 ${
+      className={`fixed top-0 right-0 h-[69px] bg-[#ffffff] dark:bg-[#15171d] border-b border-gray-200 dark:border-gray-700 z-30 transition-all duration-300 ${
         sidebarCollapsed ? "left-20" : "left-64"
       }`}
     >

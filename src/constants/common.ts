@@ -1,3 +1,9 @@
+// Theme Constants
+export const THEMES = {
+  LIGHT: "light",
+  DARK: "dark",
+} as const;
+
 // Status Constants
 export const STATUS = {
   IDLE: "idle",
