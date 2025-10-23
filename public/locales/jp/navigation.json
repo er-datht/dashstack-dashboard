@@ -1,0 +1,21 @@
+{
+  "dashboard": "ダッシュボード",
+  "products": "商品",
+  "orders": "注文",
+  "settings": "設定",
+  "logout": "ログアウト",
+  "profile": "プロフィール",
+  "help": "ヘルプ",
+  "notifications": "通知",
+  "inbox": "受信トレイ",
+  "pages": "ページ",
+  "pricing": "価格",
+  "calendar": "カレンダー",
+  "todo": "To-Do",
+  "contact": "連絡先",
+  "uiElement": "UI要素",
+  "team": "チーム",
+  "table": "テーブル",
+  "expandSidebar": "サイドバーを展開",
+  "collapseSidebar": "サイドバーを折りたたむ"
+}

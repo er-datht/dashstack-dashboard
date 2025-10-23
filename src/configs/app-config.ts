@@ -42,16 +42,6 @@ export const appConfig = {
     enableNotifications: true,
     enableAnalytics: false,
   },
-
-  // Routes
-  routes: {
-    home: "/",
-    dashboard: "/dashboard",
-    login: "/login",
-    products: "/products",
-    orders: "/orders",
-    settings: "/settings",
-  },
 } as const;
 
 export type AppConfig = typeof appConfig;

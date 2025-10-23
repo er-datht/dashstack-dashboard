@@ -1,14 +1,14 @@
 /**
- * Global Type Definitions
- * Centralized location for TypeScript types and interfaces used across the application
+ * Common Type Definitions
+ * Shared types and interfaces used across the application
  */
 
 // Common Types
 export type ID = string | number;
 
-export type Status = 'idle' | 'loading' | 'success' | 'error';
+export type Status = "idle" | "loading" | "success" | "error";
 
-export type Theme = 'light' | 'dark';
+export type Theme = "light" | "dark";
 
 // API Response Types
 export type ApiResponse<T> = {
@@ -34,14 +34,14 @@ export type User = {
   updatedAt: string;
 };
 
-export type UserRole = 'admin' | 'user' | 'guest';
+export type UserRole = "admin" | "user" | "guest";
 
 // Pagination Types
 export type PaginationParams = {
   page: number;
   limit: number;
   sortBy?: string;
-  order?: 'asc' | 'desc';
+  order?: "asc" | "desc";
 };
 
 export type PaginatedResponse<T> = {
@@ -61,5 +61,3 @@ export type FormField = {
   error?: string;
   touched?: boolean;
 };
-
-// Add more types as needed

@@ -3,8 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import classNames from "classnames";
-import { useTheme } from "../../contexts/ThemeContext";
-import { cn } from "../../utils";
+import { useTheme } from "../../hooks/useTheme";
+import { cn } from "../../utils/cn";
 import NavItemComponent from "./NavItem";
 import {
   getNavSections,

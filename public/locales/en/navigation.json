@@ -1,0 +1,21 @@
+{
+  "dashboard": "Dashboard",
+  "products": "Products",
+  "orders": "Orders",
+  "settings": "Settings",
+  "logout": "Logout",
+  "profile": "Profile",
+  "help": "Help",
+  "notifications": "Notifications",
+  "inbox": "Inbox",
+  "pages": "PAGES",
+  "pricing": "Pricing",
+  "calendar": "Calendar",
+  "todo": "To-Do",
+  "contact": "Contact",
+  "uiElement": "UI Element",
+  "team": "Team",
+  "table": "Table",
+  "expandSidebar": "Expand sidebar",
+  "collapseSidebar": "Collapse sidebar"
+}

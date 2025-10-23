@@ -1,0 +1,11 @@
+{
+  "404": "ページが見つかりません",
+  "500": "内部サーバーエラー",
+  "networkError": "ネットワークエラー",
+  "unauthorized": "不正なアクセス",
+  "forbidden": "アクセスが禁止されています",
+  "badRequest": "不正なリクエスト",
+  "somethingWentWrong": "問題が発生しました",
+  "tryAgain": "もう一度お試しください",
+  "contactSupport": "問題が解決しない場合は、サポートにお問い合わせください"
+}
