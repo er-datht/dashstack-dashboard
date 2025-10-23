@@ -1,0 +1,94 @@
+@use "../../assets/styles/variables" as *;
+@use "../../assets/styles/mixins" as *;
+
+.sidebar-wrapper {
+  // Add a border to the sidebar with explicit theme styling
+  .ps-sidebar-container {
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-right-color: color(border-light);
+  }
+
+  // Ensure smooth transitions
+  .ps-sidebar-root {
+    transition: width 300ms ease-in-out, background-color 300ms ease-in-out;
+  }
+
+  // Custom scrollbar for the menu
+  .ps-menu-root {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(156, 163, 175, 0.3);
+      border-radius: 3px;
+
+      &:hover {
+        background-color: rgba(156, 163, 175, 0.5);
+      }
+    }
+  }
+
+  // Icon styling
+  .ps-menu-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+  }
+
+  // Active menu item icon color
+  .ps-active .ps-menu-icon svg {
+    color: #ffffff;
+  }
+
+  // Collapsed state - center icons perfectly
+  .ps-collapsed {
+    .ps-menu-button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px !important;
+    }
+
+    .ps-menu-icon {
+      margin: 0 !important;
+    }
+
+    .ps-menu-label {
+      display: none;
+    }
+  }
+
+  // Submenu styling
+  .ps-submenu-content {
+    background-color: transparent !important;
+  }
+
+  // Ensure menu items have proper spacing
+  .ps-menu-button {
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 200ms ease-in-out;
+  }
+
+  // Theme button special styling (no active state)
+  .theme-button {
+    .ps-menu-button {
+      background-color: transparent !important;
+    }
+  }
+}
+
+// Dark mode styles - target html.dark class to match Tailwind's dark mode variant
+html.dark .sidebar-wrapper .ps-sidebar-container {
+  border-right-color: color(border-dark);
+}

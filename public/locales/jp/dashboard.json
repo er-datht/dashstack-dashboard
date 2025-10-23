@@ -26,5 +26,22 @@
   "upFromPastWeek": "先週より増加",
   "downFromYesterday": "昨日より減少",
   "welcomeTitle": "DashStackへようこそ",
-  "welcomeMessage": "これはあなたの管理ダッシュボードです。サイドバーナビゲーションを使用して、さまざまなセクションを探索してください。"
+  "welcomeMessage": "これはあなたの管理ダッシュボードです。サイドバーナビゲーションを使用して、さまざまなセクションを探索してください。",
+  "salesDetailsTitle": "売上詳細",
+  "noDataAvailable": "データがありません",
+  "loadingChartData": "チャートデータを読み込んでいます...",
+  "months": {
+    "january": "1月",
+    "february": "2月",
+    "march": "3月",
+    "april": "4月",
+    "may": "5月",
+    "june": "6月",
+    "july": "7月",
+    "august": "8月",
+    "september": "9月",
+    "october": "10月",
+    "november": "11月",
+    "december": "12月"
+  }
 }

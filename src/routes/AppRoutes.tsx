@@ -1,53 +1,73 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import DashboardLayout from "../layouts/DashboardLayout";
-import Dashboard from "../pages/Dashboard";
-import Products from "../pages/Products";
-import Favorites from "../pages/Favorites";
-import Inbox from "../pages/Inbox";
-import Orders from "../pages/Orders";
-import ProductStock from "../pages/ProductStock";
-import Pricing from "../pages/Pricing";
-import Calendar from "../pages/Calendar";
-import Todo from "../pages/Todo";
-import Contact from "../pages/Contact";
-import Invoice from "../pages/Invoice";
-import UiElement from "../pages/UiElement";
-import Team from "../pages/Team";
-import Table from "../pages/Table";
-import Settings from "../pages/Settings";
-import Login from "../pages/Login";
 import { ROUTES } from "./routes";
+
+// Lazy load all page components
+const Dashboard = lazy(() => import("../pages/Dashboard"));
+const Products = lazy(() => import("../pages/Products"));
+const Favorites = lazy(() => import("../pages/Favorites"));
+const Inbox = lazy(() => import("../pages/Inbox"));
+const Orders = lazy(() => import("../pages/Orders"));
+const ProductStock = lazy(() => import("../pages/ProductStock"));
+const Pricing = lazy(() => import("../pages/Pricing"));
+const Calendar = lazy(() => import("../pages/Calendar"));
+const Todo = lazy(() => import("../pages/Todo"));
+const Contact = lazy(() => import("../pages/Contact"));
+const Invoice = lazy(() => import("../pages/Invoice"));
+const UiElement = lazy(() => import("../pages/UiElement"));
+const Team = lazy(() => import("../pages/Team"));
+const Table = lazy(() => import("../pages/Table"));
+const Settings = lazy(() => import("../pages/Settings"));
+const Login = lazy(() => import("../pages/Login"));
+
+// Loading fallback component
+const LoadingFallback = () => {
+  const { t } = useTranslation("common");
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900">
+      <div className="text-center">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary-600 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+        <p className="mt-4 text-gray-600 dark:text-gray-400">{t("loading")}</p>
+      </div>
+    </div>
+  );
+};
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
-        <Route path={ROUTES.LOGIN} element={<Login />} />
+      <Suspense fallback={<LoadingFallback />}>
+        <Routes>
+          {/* Public Routes */}
+          <Route path={ROUTES.LOGIN} element={<Login />} />
 
-        {/* Protected Routes with Dashboard Layout */}
-        <Route path={ROUTES.ROOT} element={<DashboardLayout />}>
-          <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="products" element={<Products />} />
-          <Route path="favorites" element={<Favorites />} />
-          <Route path="inbox" element={<Inbox />} />
-          <Route path="orders" element={<Orders />} />
-          <Route path="product-stock" element={<ProductStock />} />
-          <Route path="pricing" element={<Pricing />} />
-          <Route path="calendar" element={<Calendar />} />
-          <Route path="todo" element={<Todo />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="invoice" element={<Invoice />} />
-          <Route path="ui-element" element={<UiElement />} />
-          <Route path="team" element={<Team />} />
-          <Route path="table" element={<Table />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
+          {/* Protected Routes with Dashboard Layout */}
+          <Route path={ROUTES.ROOT} element={<DashboardLayout />}>
+            <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="products" element={<Products />} />
+            <Route path="favorites" element={<Favorites />} />
+            <Route path="inbox" element={<Inbox />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="product-stock" element={<ProductStock />} />
+            <Route path="pricing" element={<Pricing />} />
+            <Route path="calendar" element={<Calendar />} />
+            <Route path="todo" element={<Todo />} />
+            <Route path="contact" element={<Contact />} />
+            <Route path="invoice" element={<Invoice />} />
+            <Route path="ui-element" element={<UiElement />} />
+            <Route path="team" element={<Team />} />
+            <Route path="table" element={<Table />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
 
-        {/* Catch all - redirect to dashboard */}
-        <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
-      </Routes>
+          {/* Catch all - redirect to dashboard */}
+          <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

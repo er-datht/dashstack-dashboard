@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { LayoutDashboard } from 'lucide-react';
+import SalesDetailsChart from '../../components/SalesDetailsChart';
 
 export default function Dashboard() {
   const { t } = useTranslation('dashboard');
@@ -126,6 +127,9 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Sales Details Chart */}
+      <SalesDetailsChart className="mb-6" />
 
       {/* Content Placeholder */}
       <div className="bg-white dark:bg-[#1a1d24] p-6 rounded-lg shadow-sm">

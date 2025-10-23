@@ -2,16 +2,23 @@ import { useState, useMemo, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import classNames from "classnames";
+import {
+  Sidebar as ProSidebar,
+  Menu,
+  MenuItem,
+} from "react-pro-sidebar";
+import { Tooltip } from "react-tooltip";
 import { useTheme } from "../../hooks/useTheme";
 import { cn } from "../../utils/cn";
-import NavItemComponent from "./NavItem";
+import { THEMES } from "../../constants/common";
 import {
   getNavSections,
   getBottomItems,
   type NavItem,
   type NavSection,
 } from "./navigationData";
+import "./sidebar-custom.scss";
+import "react-tooltip/dist/react-tooltip.css";
 
 type SidebarProps = {
   isCollapsed?: boolean;
@@ -79,99 +86,55 @@ export default function Sidebar({
     [allNavItems, navigate, toggleTheme]
   );
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent, itemId: string): void => {
-      const currentIndex = allNavItems.findIndex((item) => item.id === itemId);
-      let nextIndex: number;
-      let nextItem: NavItem | undefined;
-
-      switch (e.key) {
-        case "ArrowDown":
-          e.preventDefault();
-          nextIndex = (currentIndex + 1) % allNavItems.length;
-          nextItem = allNavItems[nextIndex];
-          document
-            .querySelector<HTMLButtonElement>(`[data-nav-id="${nextItem.id}"]`)
-            ?.focus();
-          break;
-
-        case "ArrowUp":
-          e.preventDefault();
-          nextIndex =
-            (currentIndex - 1 + allNavItems.length) % allNavItems.length;
-          nextItem = allNavItems[nextIndex];
-          document
-            .querySelector<HTMLButtonElement>(`[data-nav-id="${nextItem.id}"]`)
-            ?.focus();
-          break;
-
-        case "Home":
-          e.preventDefault();
-          nextItem = allNavItems[0];
-          document
-            .querySelector<HTMLButtonElement>(`[data-nav-id="${nextItem.id}"]`)
-            ?.focus();
-          break;
-
-        case "End":
-          e.preventDefault();
-          nextItem = allNavItems[allNavItems.length - 1];
-          document
-            .querySelector<HTMLButtonElement>(`[data-nav-id="${nextItem.id}"]`)
-            ?.focus();
-          break;
-      }
-    },
-    [allNavItems]
-  );
-
-  // Reusable NavItem render function
-  const renderNavItem = useCallback(
+  // Render menu item with active state and icon
+  const renderMenuItem = useCallback(
     (item: NavItem) => {
       const isActive = activeItemId === item.id;
       const isThemeButton = item.id === "theme";
+      const Icon = item.icon;
 
       return (
-        <NavItemComponent
+        <MenuItem
           key={item.id}
-          id={item.id}
-          label={item.label}
-          icon={item.icon}
-          isActive={isActive}
-          isCollapsed={isCollapsed}
-          isThemeButton={isThemeButton}
-          onItemClick={handleItemClick}
-          onKeyDown={handleKeyDown}
-        />
+          active={isActive && !isThemeButton}
+          icon={<Icon className="w-5 h-5" />}
+          onClick={() => handleItemClick(item.id)}
+          className={cn({
+            "theme-button": isThemeButton,
+          })}
+          data-tooltip-id={isCollapsed ? "sidebar-tooltip" : undefined}
+          data-tooltip-content={isCollapsed ? item.label : undefined}
+        >
+          {item.label}
+        </MenuItem>
       );
     },
-    [activeItemId, isCollapsed, handleItemClick, handleKeyDown]
+    [activeItemId, handleItemClick, isCollapsed]
   );
 
   return (
-    <aside
-      aria-label="Main navigation"
-      role="complementary"
-      className={classNames(
-        "fixed left-0 top-0 h-screen bg-[#f8f9fc] dark:bg-[#1a1d24] border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out z-40",
-        {
-          "w-20": isCollapsed,
-          "w-64": !isCollapsed,
-        }
-      )}
-    >
-      <div className="flex flex-col h-full">
+    <div className={cn("sidebar-wrapper", { "dark-mode": theme === THEMES.DARK })}>
+      <ProSidebar
+        collapsed={isCollapsed}
+        width="256px"
+        collapsedWidth="80px"
+        backgroundColor={theme === THEMES.DARK ? "#15171d" : "#ffffff"}
+        rootStyles={{
+          border: "none",
+          height: "100vh",
+          position: "fixed",
+          left: 0,
+          top: 0,
+          zIndex: 40,
+        }}
+      >
         {/* Logo Section */}
         <div
           className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 h-[69px]"
           role="banner"
         >
           {isCollapsed ? (
-            <div
-              className={cn("flex items-center", {
-                "mr-1": isCollapsed,
-              })}
-            >
+            <div className={cn("flex items-center", { "mr-1": isCollapsed })}>
               <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
                 D
               </span>
@@ -217,43 +180,113 @@ export default function Sidebar({
         </div>
 
         {/* Navigation Sections */}
-        <nav
-          id="sidebar-navigation"
-          aria-label="Primary navigation"
-          className="flex-1 overflow-y-auto py-4 px-3"
-        >
-          {navSections.map((section, sectionIndex) => (
-            <div key={sectionIndex} className="mb-6">
-              {!isCollapsed && section.title && (
-                <h3
-                  id={`nav-section-${sectionIndex}`}
-                  className="px-3 mb-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-                >
-                  {section.title}
-                </h3>
-              )}
-              <ul
-                className="space-y-1"
-                aria-labelledby={
-                  !isCollapsed && section.title
-                    ? `nav-section-${sectionIndex}`
-                    : undefined
-                }
-              >
-                {section.items.map(renderNavItem)}
-              </ul>
-            </div>
-          ))}
-        </nav>
+        <div className="flex-1 overflow-y-auto py-4">
+          <Menu
+            menuItemStyles={{
+              button: ({ active }) => ({
+                backgroundColor: active
+                  ? theme === THEMES.DARK
+                    ? "#3b82f6"
+                    : "#2563eb"
+                  : "transparent",
+                color: active
+                  ? "#ffffff"
+                  : theme === THEMES.DARK
+                  ? "#d1d5db"
+                  : "#374151",
+                "&:hover": {
+                  backgroundColor: active
+                    ? theme === THEMES.DARK
+                      ? "#3b82f6"
+                      : "#2563eb"
+                    : theme === THEMES.DARK
+                    ? "#374151"
+                    : "#e5e7eb",
+                  color: active
+                    ? "#ffffff"
+                    : theme === THEMES.DARK
+                    ? "#d1d5db"
+                    : "#374151",
+                },
+                borderRadius: "8px",
+                margin: "4px 12px",
+                padding: "10px 12px",
+              }),
+            }}
+          >
+            {navSections.map((section, sectionIndex) => (
+              <div key={sectionIndex}>
+                {!isCollapsed && section.title && (
+                  <div className="px-6 mb-2 mt-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {section.title}
+                  </div>
+                )}
+                {section.items.map(renderMenuItem)}
+              </div>
+            ))}
+          </Menu>
+        </div>
 
         {/* Bottom Section */}
-        <nav
-          aria-label="Secondary navigation"
-          className="border-t border-gray-200 dark:border-gray-700 p-3"
-        >
-          <ul className="space-y-1">{bottomItems.map(renderNavItem)}</ul>
-        </nav>
-      </div>
-    </aside>
+        <div className="border-t border-gray-200 dark:border-gray-700 py-3">
+          <Menu
+            menuItemStyles={{
+              button: ({ active }) => ({
+                backgroundColor: active
+                  ? theme === THEMES.DARK
+                    ? "#3b82f6"
+                    : "#2563eb"
+                  : "transparent",
+                color: active
+                  ? "#ffffff"
+                  : theme === THEMES.DARK
+                  ? "#d1d5db"
+                  : "#374151",
+                "&:hover": {
+                  backgroundColor: active
+                    ? theme === THEMES.DARK
+                      ? "#3b82f6"
+                      : "#2563eb"
+                    : theme === THEMES.DARK
+                    ? "#374151"
+                    : "#e5e7eb",
+                  color: active
+                    ? "#ffffff"
+                    : theme === THEMES.DARK
+                    ? "#d1d5db"
+                    : "#374151",
+                },
+                borderRadius: "8px",
+                margin: "4px 12px",
+                padding: "10px 12px",
+              }),
+            }}
+          >
+            {bottomItems.map(renderMenuItem)}
+          </Menu>
+        </div>
+      </ProSidebar>
+
+      {/* Tooltip for collapsed sidebar */}
+      {isCollapsed && (
+        <Tooltip
+          id="sidebar-tooltip"
+          place="right"
+          variant={theme === THEMES.DARK ? "light" : "dark"}
+          offset={12}
+          style={{
+            backgroundColor: theme === THEMES.DARK ? "#374151" : "#1f2937",
+            color: theme === THEMES.DARK ? "#f9fafb" : "#ffffff",
+            borderRadius: "6px",
+            padding: "8px 12px",
+            fontSize: "14px",
+            fontWeight: "500",
+            boxShadow:
+              "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+            zIndex: 1000,
+          }}
+        />
+      )}
+    </div>
   );
 }
