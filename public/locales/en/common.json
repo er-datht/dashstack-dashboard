@@ -29,5 +29,8 @@
   "name": "Name",
   "description": "Description",
   "total": "Total",
-  "noData": "No data available"
+  "noData": "No data available",
+  "pagination": {
+    "showing": "Showing {{from}} to {{to}} of {{total}} entries"
+  }
 }

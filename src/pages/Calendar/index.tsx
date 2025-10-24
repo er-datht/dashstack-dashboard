@@ -17,7 +17,7 @@ export default function Calendar() {
       </div>
 
       {/* Content */}
-      <div className="bg-white dark:bg-[#1a1d24] p-6 rounded-lg shadow-sm">
+      <div className="bg-white dark:bg-surface-dark p-6 rounded-lg shadow-sm">
         <p className="text-gray-600 dark:text-gray-400">
           {t('calendar.description', 'View and manage your events and schedules here.')}
         </p>

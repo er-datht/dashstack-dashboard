@@ -16,11 +16,9 @@ import {
   Settings,
   LogOut,
   Moon,
-  Sun,
   type LucideIcon,
 } from "lucide-react";
 import { ROUTES } from "../../routes/routes";
-import { THEMES } from "../../constants/common";
 import type { TFunction } from "i18next";
 
 export type NavItem = {
@@ -132,7 +130,7 @@ export const getNavSections = (t: TFunction): NavSection[] => [
   },
 ];
 
-export const getBottomItems = (t: TFunction, theme: string): NavItem[] => [
+export const getBottomItems = (t: TFunction): NavItem[] => [
   {
     id: "settings",
     label: t("navigation:settings"),
@@ -141,8 +139,8 @@ export const getBottomItems = (t: TFunction, theme: string): NavItem[] => [
   },
   {
     id: "theme",
-    label: theme === THEMES.DARK ? t("settings:lightMode") : t("settings:darkMode"),
-    icon: theme === THEMES.DARK ? Sun : Moon,
+    label: t("settings:theme", "Theme"),
+    icon: Moon, // Default icon, will be dynamically rendered in BottomSection
   },
   {
     id: "logout",

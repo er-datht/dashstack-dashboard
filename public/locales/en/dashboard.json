@@ -28,7 +28,18 @@
   "welcomeTitle": "Welcome to DashStack",
   "welcomeMessage": "This is your admin dashboard. Use the sidebar navigation to explore different sections.",
   "salesDetailsTitle": "Sales Details",
+  "dealDetailsTitle": "Deal Details",
   "noDataAvailable": "No data available",
+  "dealDetails": {
+    "headers": {
+      "productName": "Product Name",
+      "location": "Location",
+      "dateTime": "Date - Time",
+      "amount": "Amount",
+      "price": "Price",
+      "status": "Status"
+    }
+  },
   "loadingChartData": "Loading chart data...",
   "months": {
     "january": "January",
@@ -43,5 +54,10 @@
     "october": "October",
     "november": "November",
     "december": "December"
+  },
+  "status": {
+    "delivered": "Delivered",
+    "pending": "Pending",
+    "rejected": "Rejected"
   }
 }

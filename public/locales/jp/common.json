@@ -29,5 +29,8 @@
   "name": "名前",
   "description": "説明",
   "total": "合計",
-  "noData": "データがありません"
+  "noData": "データがありません",
+  "pagination": {
+    "showing": "{{total}}件中 {{from}}〜{{to}}件を表示"
+  }
 }

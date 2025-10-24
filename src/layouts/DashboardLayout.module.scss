@@ -1,4 +1,3 @@
-@use '../assets/styles/variables' as *;
 @use '../assets/styles/mixins' as *;
 
 // DashboardLayout-specific SCSS styles
@@ -11,11 +10,11 @@
 
 .main {
   // Custom main content area styles
-  // margin-left: $sidebar-width-expanded;
-  // padding-top: $topnav-height;
+  // margin-left: var(--sidebar-width-expanded);
+  // padding-top: var(--topnav-height);
 
   // &--collapsed {
-  //   margin-left: $sidebar-width-collapsed;
+  //   margin-left: var(--sidebar-width-collapsed);
   // }
 }
 

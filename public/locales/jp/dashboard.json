@@ -28,7 +28,18 @@
   "welcomeTitle": "DashStackへようこそ",
   "welcomeMessage": "これはあなたの管理ダッシュボードです。サイドバーナビゲーションを使用して、さまざまなセクションを探索してください。",
   "salesDetailsTitle": "売上詳細",
+  "dealDetailsTitle": "取引詳細",
   "noDataAvailable": "データがありません",
+  "dealDetails": {
+    "headers": {
+      "productName": "製品名",
+      "location": "所在地",
+      "dateTime": "日付 - 時刻",
+      "amount": "数量",
+      "price": "価格",
+      "status": "ステータス"
+    }
+  },
   "loadingChartData": "チャートデータを読み込んでいます...",
   "months": {
     "january": "1月",
@@ -43,5 +54,10 @@
     "october": "10月",
     "november": "11月",
     "december": "12月"
+  },
+  "status": {
+    "delivered": "配送済み",
+    "pending": "保留中",
+    "rejected": "却下"
   }
 }

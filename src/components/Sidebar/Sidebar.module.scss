@@ -1,2 +1,96 @@
-@use "../../assets/styles/variables" as *;
 @use "../../assets/styles/mixins" as *;
+
+.sidebarWrapper {
+  // Flexbox layout for fixed header/footer pattern
+  .sidebarContentWrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  // Logo section - fixed at top
+  .logoSection {
+    flex-shrink: 0;
+  }
+
+  // Navigation section - scrollable middle area
+  .navigationSection {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  // Bottom section - fixed at bottom
+  .bottomSection {
+    flex-shrink: 0;
+  }
+
+  // Add a border to the sidebar with explicit theme styling
+  .ps-sidebar-container {
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-right-color: var(--color-border-light);
+  }
+
+  // Ensure smooth transitions
+  .ps-sidebar-root {
+    transition: width 300ms ease-in-out, background-color 300ms ease-in-out;
+  }
+
+  // Icon styling
+  .ps-menu-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+  }
+
+  // Active menu item icon color
+  .ps-active .ps-menu-icon svg {
+    color: var(--color-white);
+  }
+
+  // Collapsed state - center icons perfectly
+  .ps-collapsed {
+    .ps-menu-button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px !important;
+    }
+
+    .ps-menu-icon {
+      margin: 0 !important;
+    }
+
+    .ps-menu-label {
+      display: none;
+    }
+  }
+
+  // Submenu styling
+  .ps-submenu-content {
+    background-color: var(--color-transparent) !important;
+  }
+
+  // Ensure menu items have proper spacing
+  .ps-menu-button {
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 200ms ease-in-out;
+  }
+
+  // Theme button special styling (no active state)
+  .theme-button {
+    .ps-menu-button {
+      background-color: var(--color-transparent) !important;
+    }
+  }
+
+  // Dark mode styles - target html.dark class to match Tailwind's dark mode variant
+  :global(.dark) & {
+    .ps-sidebar-container {
+      border-right-color: var(--color-border-dark);
+    }
+  }
+}
