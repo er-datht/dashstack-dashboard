@@ -29,7 +29,7 @@
   .ps-sidebar-container {
     border-right-width: 1px;
     border-right-style: solid;
-    border-right-color: var(--color-border-light);
+    border-right-color: var(--color-border);
   }
 
   // Ensure smooth transitions
@@ -84,13 +84,6 @@
   .theme-button {
     .ps-menu-button {
       background-color: var(--color-transparent) !important;
-    }
-  }
-
-  // Dark mode styles - target html.dark class to match Tailwind's dark mode variant
-  :global(.dark) & {
-    .ps-sidebar-container {
-      border-right-color: var(--color-border-dark);
     }
   }
 }

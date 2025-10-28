@@ -5,10 +5,6 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   padding: var(--spacing-6);
-
-  :global(.dark) & {
-    background: var(--color-surface-dark);
-  }
 }
 
 .header {
@@ -45,7 +41,7 @@
   gap: var(--spacing-2);
   padding: var(--spacing-2) var(--spacing-3);
   background: var(--color-transparent);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
   color: var(--color-gray-700);
@@ -63,7 +59,6 @@
   }
 
   :global(.dark) & {
-    border-color: var(--color-border-dark);
     color: var(--color-gray-300);
 
     &:hover {
@@ -74,8 +69,8 @@
 }
 
 .dropdownIcon {
-  width: 1rem;
-  height: 1rem;
+  width: 16px;
+  height: 16px;
   transition: transform var(--transition-base);
 
   &.open {
@@ -92,15 +87,10 @@
   max-height: 300px;
   overflow-y: auto;
   background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   z-index: var(--z-index-dropdown);
-
-  :global(.dark) & {
-    background: var(--color-surface-dark);
-    border-color: var(--color-border-dark);
-  }
 }
 
 .dropdownItem {
@@ -216,8 +206,8 @@
 }
 
 .loadingSpinner {
-  width: 2rem;
-  height: 2rem;
+  width: 32px;
+  height: 32px;
   color: var(--color-primary-600);
   animation: spin 1s linear infinite;
 
@@ -285,7 +275,7 @@
     min-width: 36px;
     height: 36px;
     padding: var(--spacing-2) var(--spacing-3);
-    border: 1px solid var(--color-border-light);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-transparent);
     color: var(--color-gray-700);
@@ -300,7 +290,6 @@
     }
 
     :global(.dark) & {
-      border-color: var(--color-border-dark);
       color: var(--color-gray-300);
 
       &:hover {

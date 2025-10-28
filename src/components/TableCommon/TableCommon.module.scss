@@ -59,7 +59,7 @@
 
 .tableRow {
   transition: background var(--transition-base);
-  border-bottom: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border);
 
   &:last-child {
     border-bottom: none;
@@ -74,8 +74,6 @@
   }
 
   :global(.dark) & {
-    border-bottom-color: var(--color-border-dark);
-
     &:hover {
       background: var(--color-gray-800);
     }
@@ -123,8 +121,8 @@
 }
 
 .spinner {
-  width: 2rem;
-  height: 2rem;
+  width: 32px;
+  height: 32px;
   color: var(--color-primary-600);
   animation: spin 0.8s linear infinite;
 
@@ -175,7 +173,7 @@
       font-weight: var(--font-weight-medium);
       color: var(--color-gray-700);
       background: var(--color-gray-50);
-      border: 1px solid var(--color-border-light);
+      border: 1px solid var(--color-border);
       border-radius: var(--radius-md);
       cursor: pointer;
       transition: all var(--transition-base);
@@ -190,7 +188,6 @@
       :global(.dark) & {
         color: var(--color-gray-300);
         background: var(--color-gray-800);
-        border-color: var(--color-border-dark);
 
         &:hover {
           background: var(--color-gray-700);
@@ -240,12 +237,11 @@
 
         &:hover {
           background: var(--color-gray-50);
-          border-color: var(--color-border-light);
+          border-color: var(--color-border);
           color: var(--color-gray-700);
 
           :global(.dark) & {
             background: var(--color-gray-800);
-            border-color: var(--color-border-dark);
             color: var(--color-gray-300);
           }
         }
