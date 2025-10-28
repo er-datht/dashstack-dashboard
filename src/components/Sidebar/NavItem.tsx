@@ -1,4 +1,5 @@
 import { type LucideIcon } from "lucide-react";
+import { cn } from "../../utils/cn";
 
 type NavItemProps = {
   id: string;
@@ -27,31 +28,17 @@ export default function NavItem({
         data-nav-id={id}
         onClick={() => onItemClick(id)}
         onKeyDown={(e) => onKeyDown(e, id)}
-        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer ${
+        className={cn(
+          "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer",
           isActive && !isThemeButton
-            ? "bg-primary-600 dark:bg-primary-500 text-white shadow-sm"
-            : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-        } ${isCollapsed ? "justify-center" : ""}`}
+            ? "bg-sidebar-menu-active-bg text-sidebar-menu-active-text shadow-sm"
+            : "text-sidebar-menu-inactive hover:bg-sidebar-menu-hover",
+          isCollapsed && "justify-center"
+        )}
         title={isCollapsed ? label : undefined}
       >
-        <Icon
-          className={`w-5 h-5 shrink-0 ${
-            isActive && !isThemeButton
-              ? "text-white"
-              : "text-gray-600 dark:text-gray-400"
-          }`}
-        />
-        {!isCollapsed && (
-          <span
-            className={`text-sm font-medium ${
-              isActive && !isThemeButton
-                ? "text-white"
-                : "text-gray-700 dark:text-gray-300"
-            }`}
-          >
-            {label}
-          </span>
-        )}
+        <Icon className="w-5 h-5 shrink-0" />
+        {!isCollapsed && <span className="text-sm font-medium">{label}</span>}
       </button>
     </li>
   );

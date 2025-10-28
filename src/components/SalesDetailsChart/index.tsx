@@ -1,7 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useTheme } from "../../hooks/useTheme";
-import { THEME_COLORS } from "../../constants/common";
 import { ChevronDown, Loader2 } from "lucide-react";
 import {
   AreaChart,
@@ -13,13 +11,13 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import classnames from "classnames";
+import { useTheme } from "../../hooks/useTheme";
 import type {
   SalesDetailsChartProps,
   MonthData,
   SalesDataPoint,
 } from "./types";
 import styles from "./SalesDetailsChart.module.scss";
-import { isDarkTheme } from "../../utils/theme";
 
 // Sample data matching the screenshot pattern
 const generateSalesData = (): MonthData[] => {
@@ -132,7 +130,7 @@ const CustomTooltip = ({
       const localeCode = locale === "jp" ? "ja-JP" : "en-US";
       return (
         <div className={styles.customTooltip}>
-          <p className={styles.tooltipValue}>
+          <p className={classnames("icon-brand", styles.tooltipValue)}>
             {data.value.toLocaleString(localeCode, {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
@@ -172,18 +170,29 @@ const SalesDetailsChart = ({ className = "" }: SalesDetailsChartProps) => {
 
   // Dynamic colors based on theme
   const chartColors = useMemo(() => {
-    return {
-      grid: isDarkTheme(theme)
-        ? THEME_COLORS.GRAY[700]
-        : THEME_COLORS.GRAY[200],
-      axis: isDarkTheme(theme)
-        ? THEME_COLORS.GRAY[500]
-        : THEME_COLORS.GRAY[400],
-      line: THEME_COLORS.PRIMARY,
-      dotStroke: isDarkTheme(theme)
-        ? THEME_COLORS.SURFACE_DARK
-        : THEME_COLORS.SURFACE,
-    };
+    switch (theme) {
+      case "dark":
+        return {
+          grid: "#374151",
+          axis: "#6b7280",
+          line: "#3b82f6",
+          dotStroke: "#1e293b",
+        };
+      case "forest":
+        return {
+          grid: "#166534",
+          axis: "#14532d",
+          line: "#22c55e",
+          dotStroke: "#0f2817",
+        };
+      default: // light
+        return {
+          grid: "#e5e7eb",
+          axis: "#9ca3af",
+          line: "#3b82f6",
+          dotStroke: "#ffffff",
+        };
+    }
   }, [theme]);
 
   const handleMonthSelect = (month: string) => {
@@ -200,15 +209,20 @@ const SalesDetailsChart = ({ className = "" }: SalesDetailsChartProps) => {
   };
 
   return (
-    <div className={classnames(styles.chartContainer, className)}>
+    <div className={classnames("card", styles.chartContainer, className)}>
       {/* Header */}
       <div className={styles.header}>
-        <h2 className={styles.title}>{t("salesDetailsTitle")}</h2>
+        <h2 className={classnames("text-primary", styles.title)}>
+          {t("salesDetailsTitle")}
+        </h2>
 
         {/* Month Dropdown */}
         <div className={styles.dropdown}>
           <button
-            className={styles.dropdownButton}
+            className={classnames(
+              "text-primary hover-bg-muted hover-border-primary",
+              styles.dropdownButton
+            )}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
             disabled={isLoading}
@@ -226,9 +240,15 @@ const SalesDetailsChart = ({ className = "" }: SalesDetailsChartProps) => {
               {salesData.map((monthData) => (
                 <button
                   key={monthData.month}
-                  className={classnames(styles.dropdownItem, {
-                    [styles.active]: monthData.month === selectedMonth,
-                  })}
+                  className={classnames(
+                    "text-primary hover-bg-muted",
+                    styles.dropdownItem,
+                    {
+                      [styles.active]: monthData.month === selectedMonth,
+                      "bg-sidebar-menu-active text-sidebar-menu-active":
+                        monthData.month === selectedMonth,
+                    }
+                  )}
                   onClick={() => handleMonthSelect(monthData.month)}
                 >
                   {t(`months.${monthData.month}`)}
@@ -243,11 +263,15 @@ const SalesDetailsChart = ({ className = "" }: SalesDetailsChartProps) => {
       <div className={styles.chartWrapper}>
         {isLoading ? (
           <div className={styles.loadingState}>
-            <Loader2 className={styles.loadingSpinner} />
-            <p className={styles.loadingText}>{t("loadingChartData")}</p>
+            <Loader2
+              className={classnames("icon-brand", styles.loadingSpinner)}
+            />
+            <p className={classnames("text-secondary", styles.loadingText)}>
+              {t("loadingChartData")}
+            </p>
           </div>
         ) : currentMonthData.length === 0 ? (
-          <div className={styles.emptyState}>
+          <div className={classnames("text-secondary", styles.emptyState)}>
             <p>{t("noDataAvailable")}</p>
           </div>
         ) : (
@@ -266,12 +290,12 @@ const SalesDetailsChart = ({ className = "" }: SalesDetailsChartProps) => {
                 >
                   <stop
                     offset="5%"
-                    stopColor={THEME_COLORS.PRIMARY}
+                    stopColor={chartColors.line}
                     stopOpacity={0.3}
                   />
                   <stop
                     offset="95%"
-                    stopColor={THEME_COLORS.PRIMARY}
+                    stopColor={chartColors.line}
                     stopOpacity={0.05}
                   />
                 </linearGradient>
@@ -285,16 +309,16 @@ const SalesDetailsChart = ({ className = "" }: SalesDetailsChartProps) => {
                 dataKey="volume"
                 tickFormatter={formatXAxis}
                 stroke={chartColors.axis}
-                className="text-xs"
-                tickLine={false}
+                tick={{ fill: "currentColor" }}
+                className="text-xs text-primary"
               />
               <YAxis
                 tickFormatter={formatYAxis}
                 stroke={chartColors.axis}
-                className="text-xs"
-                tickLine={false}
+                tick={{ fill: "currentColor" }}
                 domain={[0, 100]}
                 ticks={[20, 40, 60, 80, 100]}
+                className="text-xs text-primary"
               />
               <Tooltip content={<CustomTooltip locale={i18n.language} />} />
               <Area

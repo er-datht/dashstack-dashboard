@@ -1,7 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useTheme } from "../../hooks/useTheme";
-import { THEME_COLORS } from "../../constants/common";
 import { ChevronDown, Loader2 } from "lucide-react";
 import {
   AreaChart,
@@ -13,14 +11,30 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import classnames from "classnames";
+import { useTheme } from "../../hooks/useTheme";
+import type { Theme } from "../../contexts/ThemeContext";
 import type { RevenueChartProps, MonthData } from "./types";
 import styles from "./RevenueChart.module.scss";
-import { isDarkTheme } from "../../utils/theme";
 
-// Revenue chart colors based on requirements
-const REVENUE_COLORS = {
-  SALES: "#FF8F6D", // Orange/Coral
-  PROFIT: "#DBA5FF", // Purple/Lavender
+// Revenue chart colors - theme adaptive
+const getRevenueColors = (theme: Theme) => {
+  switch (theme) {
+    case "dark":
+      return {
+        SALES: "#FB923C", // Slightly adjusted orange for dark mode
+        PROFIT: "#C084FC", // Slightly adjusted purple for dark mode
+      };
+    case "forest":
+      return {
+        SALES: "#FB923C", // Orange visible on forest background
+        PROFIT: "#C084FC", // Purple visible on forest background
+      };
+    default: // light
+      return {
+        SALES: "#FF8F6D", // Original coral
+        PROFIT: "#DBA5FF", // Original lavender
+      };
+  }
 };
 
 // Sample data matching the screenshot pattern
@@ -375,10 +389,10 @@ const CustomTooltip = ({
               className={styles.tooltipDot}
               style={{ backgroundColor: entry.color }}
             />
-            <span className={styles.tooltipLabel}>
+            <span className={classnames("text-secondary", styles.tooltipLabel)}>
               {entry.dataKey === "sales" ? "Sales" : "Profit"}:
             </span>
-            <span className={styles.tooltipValue}>
+            <span className={classnames("text-primary", styles.tooltipValue)}>
               {entry.value.toLocaleString(localeCode, {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
@@ -419,15 +433,27 @@ const RevenueChart = ({ className = "" }: RevenueChartProps) => {
 
   // Dynamic colors based on theme
   const chartColors = useMemo(() => {
-    return {
-      grid: isDarkTheme(theme)
-        ? THEME_COLORS.GRAY[700]
-        : THEME_COLORS.GRAY[200],
-      axis: isDarkTheme(theme)
-        ? THEME_COLORS.GRAY[500]
-        : THEME_COLORS.GRAY[400],
-    };
+    switch (theme) {
+      case "dark":
+        return {
+          grid: "#374151",
+          axis: "#6b7280",
+        };
+      case "forest":
+        return {
+          grid: "#166534",
+          axis: "#14532d",
+        };
+      default: // light
+        return {
+          grid: "#e5e7eb",
+          axis: "#9ca3af",
+        };
+    }
   }, [theme]);
+
+  // Revenue colors based on theme
+  const revenueColors = useMemo(() => getRevenueColors(theme), [theme]);
 
   const handleMonthSelect = (month: string) => {
     setSelectedMonth(month);
@@ -443,16 +469,21 @@ const RevenueChart = ({ className = "" }: RevenueChartProps) => {
   };
 
   return (
-    <div className={classnames(styles.chartContainer, className)}>
+    <div className={classnames("card", styles.chartContainer, className)}>
       {/* Header */}
       <div className={styles.header}>
-        <h2 className={styles.title}>{t("revenueTitle")}</h2>
+        <h2 className={classnames("text-primary", styles.title)}>
+          {t("revenueTitle")}
+        </h2>
 
         <div className={styles.headerControls}>
           {/* Month Dropdown */}
           <div className={styles.dropdown}>
             <button
-              className={styles.dropdownButton}
+              className={classnames(
+                "text-primary hover-bg-muted hover-border-primary",
+                styles.dropdownButton
+              )}
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
               disabled={isLoading}
@@ -471,9 +502,15 @@ const RevenueChart = ({ className = "" }: RevenueChartProps) => {
                 {revenueData.map((monthData) => (
                   <button
                     key={monthData.month}
-                    className={classnames(styles.dropdownItem, {
-                      [styles.active]: monthData.month === selectedMonth,
-                    })}
+                    className={classnames(
+                      "text-primary hover-bg-muted",
+                      styles.dropdownItem,
+                      {
+                        [styles.active]: monthData.month === selectedMonth,
+                        "bg-sidebar-menu-active text-sidebar-menu-active":
+                          monthData.month === selectedMonth,
+                      }
+                    )}
                     onClick={() => handleMonthSelect(monthData.month)}
                   >
                     {t(`months.${monthData.month}`)}
@@ -489,11 +526,13 @@ const RevenueChart = ({ className = "" }: RevenueChartProps) => {
       <div className={styles.chartWrapper}>
         {isLoading ? (
           <div className={styles.loadingState}>
-            <Loader2 className={styles.loadingSpinner} />
-            <p className={styles.loadingText}>{t("loadingChartData")}</p>
+            <Loader2 className={classnames("icon-brand", styles.loadingSpinner)} />
+            <p className={classnames("text-secondary", styles.loadingText)}>
+              {t("loadingChartData")}
+            </p>
           </div>
         ) : currentMonthData.length === 0 ? (
-          <div className={styles.emptyState}>
+          <div className={classnames("text-secondary", styles.emptyState)}>
             <p>{t("noDataAvailable")}</p>
           </div>
         ) : (
@@ -508,12 +547,12 @@ const RevenueChart = ({ className = "" }: RevenueChartProps) => {
                   <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
                     <stop
                       offset="5%"
-                      stopColor={REVENUE_COLORS.SALES}
+                      stopColor={revenueColors.SALES}
                       stopOpacity={0.8}
                     />
                     <stop
                       offset="95%"
-                      stopColor={REVENUE_COLORS.SALES}
+                      stopColor={revenueColors.SALES}
                       stopOpacity={0.1}
                     />
                   </linearGradient>
@@ -521,12 +560,12 @@ const RevenueChart = ({ className = "" }: RevenueChartProps) => {
                   <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
                     <stop
                       offset="5%"
-                      stopColor={REVENUE_COLORS.PROFIT}
+                      stopColor={revenueColors.PROFIT}
                       stopOpacity={0.8}
                     />
                     <stop
                       offset="95%"
-                      stopColor={REVENUE_COLORS.PROFIT}
+                      stopColor={revenueColors.PROFIT}
                       stopOpacity={0.1}
                     />
                   </linearGradient>
@@ -541,14 +580,16 @@ const RevenueChart = ({ className = "" }: RevenueChartProps) => {
                   dataKey="volume"
                   tickFormatter={formatXAxis}
                   stroke={chartColors.axis}
-                  className="text-xs"
+                  tick={{ fill: "currentColor" }}
+                  className="text-xs text-primary"
                   tickLine={false}
                   domain={[0, "dataMax"]}
                 />
                 <YAxis
                   tickFormatter={formatYAxis}
                   stroke={chartColors.axis}
-                  className="text-xs"
+                  tick={{ fill: "currentColor" }}
+                  className="text-xs text-primary"
                   tickLine={false}
                   domain={[0, 100]}
                   ticks={[0, 20, 40, 60, 80, 100]}
@@ -558,7 +599,7 @@ const RevenueChart = ({ className = "" }: RevenueChartProps) => {
                 <Area
                   type="monotone"
                   dataKey="salesPercentage"
-                  stroke={REVENUE_COLORS.SALES}
+                  stroke={revenueColors.SALES}
                   strokeWidth={2}
                   fill="url(#colorSales)"
                   fillOpacity={0.8}
@@ -567,7 +608,7 @@ const RevenueChart = ({ className = "" }: RevenueChartProps) => {
                 <Area
                   type="monotone"
                   dataKey="profitPercentage"
-                  stroke={REVENUE_COLORS.PROFIT}
+                  stroke={revenueColors.PROFIT}
                   strokeWidth={2}
                   fill="url(#colorProfit)"
                   fillOpacity={0.8}
@@ -583,16 +624,20 @@ const RevenueChart = ({ className = "" }: RevenueChartProps) => {
         <div className={styles.legendItem}>
           <div
             className={styles.legendDot}
-            style={{ backgroundColor: REVENUE_COLORS.SALES }}
+            style={{ backgroundColor: revenueColors.SALES }}
           />
-          <span className={styles.legendLabel}>{t("revenueChartSales")}</span>
+          <span className={classnames("text-primary", styles.legendLabel)}>
+            {t("revenueChartSales")}
+          </span>
         </div>
         <div className={styles.legendItem}>
           <div
             className={styles.legendDot}
-            style={{ backgroundColor: REVENUE_COLORS.PROFIT }}
+            style={{ backgroundColor: revenueColors.PROFIT }}
           />
-          <span className={styles.legendLabel}>{t("revenueChartProfit")}</span>
+          <span className={classnames("text-primary", styles.legendLabel)}>
+            {t("revenueChartProfit")}
+          </span>
         </div>
       </div>
     </div>

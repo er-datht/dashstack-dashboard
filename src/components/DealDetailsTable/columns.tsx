@@ -41,14 +41,14 @@ const getDealDetailsColumns = (t: TFunction): DealDetailsColumn[] => {
                 className="w-9 h-9 rounded-lg object-cover shrink-0"
               />
             ) : (
-              <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center shrink-0">
-                <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <div className="w-9 h-9 rounded-lg bg-surface-muted flex items-center justify-center shrink-0">
+                <Package className="w-5 h-5 text-secondary" />
               </div>
             )}
             <span
               data-tooltip-id={hasOverflow ? tooltipId : undefined}
               data-tooltip-content={hasOverflow ? value : undefined}
-              className="truncate font-medium"
+              className="truncate font-medium text-primary"
             >
               {truncatedName}
             </span>
@@ -73,7 +73,7 @@ const getDealDetailsColumns = (t: TFunction): DealDetailsColumn[] => {
             <span
               data-tooltip-id={hasOverflow ? tooltipId : undefined}
               data-tooltip-content={hasOverflow ? value : undefined}
-              className="truncate"
+              className="truncate text-primary"
             >
               {truncatedLocation}
             </span>
@@ -89,7 +89,7 @@ const getDealDetailsColumns = (t: TFunction): DealDetailsColumn[] => {
       align: "left",
       width: "18%",
       formatter: (value: string) => {
-        return <span className="whitespace-nowrap">{value}</span>;
+        return <span className="whitespace-nowrap text-primary">{value}</span>;
       },
     },
     {
@@ -99,7 +99,11 @@ const getDealDetailsColumns = (t: TFunction): DealDetailsColumn[] => {
       align: "right",
       width: "12%",
       formatter: (value: number) => {
-        return <span className="font-medium">{value.toLocaleString()}</span>;
+        return (
+          <span className="font-medium text-primary">
+            {value.toLocaleString()}
+          </span>
+        );
       },
     },
     {
@@ -109,7 +113,7 @@ const getDealDetailsColumns = (t: TFunction): DealDetailsColumn[] => {
       align: "right",
       width: "15%",
       formatter: (value: string) => {
-        return <span className="font-semibold">{value}</span>;
+        return <span className="font-semibold text-primary">{value}</span>;
       },
     },
     {

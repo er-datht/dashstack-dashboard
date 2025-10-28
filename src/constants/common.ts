@@ -1,9 +1,3 @@
-// Theme Constants
-export const THEMES = {
-  LIGHT: "light",
-  DARK: "dark",
-} as const;
-
 // Status Constants
 export const STATUS = {
   IDLE: "idle",
@@ -69,44 +63,3 @@ export const SUCCESS_MESSAGES = {
 
 // Pagination
 export const PAGINATION_DEFAULT = 50;
-
-// Theme Color Values - for programmatic use (charts, dynamic styles, etc.)
-// These match the CSS custom properties in index.css
-export const THEME_COLORS = {
-  // Primary Colors
-  PRIMARY: "#4880ff",
-  PRIMARY_LIGHT: "#6691ff",
-  PRIMARY_DARK: "#2b5ff7",
-
-  // Surface Colors (cards, panels, modals)
-  SURFACE: "#ffffff", // Light mode
-  SURFACE_DARK: "#1a1d24", // Dark mode
-
-  // Background Colors (page layouts)
-  BACKGROUND: "#f5f5f7", // Light mode
-  BACKGROUND_DARK: "#1e2129", // Dark mode
-
-  // Secondary Surface Colors (inputs, secondary panels)
-  SURFACE_SECONDARY: "#f8f9fc", // Light mode
-  SURFACE_SECONDARY_DARK: "#242831", // Dark mode
-
-  // Navigation Colors (sidebar, nav bars)
-  NAV: "#ffffff", // Light mode
-  NAV_DARK: "#15171d", // Dark mode
-
-  // Gray Scale (for charts and dynamic elements)
-  // Tailwind's default gray palette
-  GRAY: {
-    50: "#f9fafb",
-    100: "#f3f4f6",
-    200: "#e5e7eb",
-    300: "#d1d5db",
-    400: "#9ca3af",
-    500: "#6b7280",
-    600: "#4b5563",
-    700: "#374151",
-    800: "#1f2937",
-    900: "#111827",
-    950: "#030712",
-  },
-} as const;

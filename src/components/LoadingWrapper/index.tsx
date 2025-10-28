@@ -13,7 +13,7 @@ export default function LoadingWrapper({
   isLoading,
   loadingText = "Loading...",
   children,
-  className = "bg-white dark:bg-surface-dark",
+  className = "",
   loadingClassName = "flex items-center justify-center gap-3 text-gray-600 dark:text-gray-400",
 }: LoadingWrapperProps) {
   return (

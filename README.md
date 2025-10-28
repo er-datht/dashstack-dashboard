@@ -9,7 +9,7 @@ A modern, production-ready React 19 + TypeScript dashboard built with Vite, Tail
 - 🧠 React Query (data fetching, caching, optimistic updates)
 - 🌐 i18next internationalization (English + Japanese) with language detection
 - 🧭 React Router v7 with code-split lazy routes
-- 🌓 Light / Dark theme + system preference via `ThemeContext`
+- 🌓 Multi-theme support (Light / Dark / Forest) with system preference detection
 - 🎨 Tailwind CSS 4 + SCSS Modules (utility + component scope styling)
 - 🧩 Modular architecture (services, hooks, types, contexts)
 - 📦 API abstraction layer (`src/services/api.ts`)
@@ -31,11 +31,11 @@ src/
 ├── constants/           # Static values / environment helpers
 ├── contexts/            # React contexts (ThemeContext)
 ├── hoc/                 # Higher-order components (withAuth)
-├── hooks/               # Custom hooks (useTodos, useTheme, useReactQuery)
+├── hooks/               # Custom hooks (useTheme, useTodos, useDeals, useReactQuery)
 ├── layouts/             # Layout wrappers (DashboardLayout)
 ├── pages/               # Route pages (Dashboard, Products, Todo, ...)
 ├── routes/              # Centralized routing (`AppRoutes.tsx`, `routes.ts`)
-├── services/            # API & domain service layers (api, todos)
+├── services/            # API & domain service layers (api, todos, deals)
 ├── types/               # TypeScript type definitions per domain
 └── utils/               # Small pure utility helpers (formatters, cn)
 ```
@@ -133,28 +133,74 @@ Add a new namespace: add JSON file under `public/locales/<lng>/<namespace>.json`
 
 ## Theming
 
-`ThemeContext.tsx` provides dark/light + system detection. Consume via `useTheme()` hook. SCSS variables and Tailwind classes support theme switching (`dark:` variants).
+Multi-theme support with three built-in themes: Light, Dark, and Forest. Themes are managed via `ThemeContext` and applied using data attributes (`data-theme`). Theme preference is saved in localStorage and system preference is detected on initial load.
+
+**Usage:**
+
+```tsx
+import { useTheme } from "@/hooks/useTheme";
+
+function MyComponent() {
+  const { theme, setTheme, cycleTheme } = useTheme();
+
+  return <button onClick={() => setTheme("dark")}>Switch to Dark</button>;
+}
+```
+
+**Available themes:** `light`, `dark`, `forest`
+
+**Theme switching:** Use the `ThemeSwitcher` component in the sidebar or call `cycleTheme()` to rotate through available themes.
 
 ## Data Fetching (React Query)
 
 Custom wrapper: `src/hooks/useReactQuery.ts` exports pre-bound `useQuery`, `useMutation`, `useQueryClient` with sensible defaults.
-Example domain hook: `useTodos.ts` (fetch, create, update, delete with optimistic cache updates and error rollback).
+
+**Example domain hooks:**
+
+- `useTodos.ts` - Fetch, create, update, delete todos with optimistic cache updates and error rollback
+- `useDeals.ts` - Fetch deals data for revenue charts and deal details tables
+
 Devtools available via `@tanstack/react-query-devtools` (add `<ReactQueryDevtools />` to your root if desired).
 
-## Todos Module
+## Domain Modules
+
+### Todos Module
 
 Service: `src/services/todos.ts` (maps external API shape to internal `TodoItem`).
 Optimistic updates: implemented in mutations inside `useTodos.ts` (cache update, rollback on error).
-Usage:
+
+**Usage:**
 
 ```tsx
 const { todos, addTodo, updateTodo, deleteTodo } = useTodos();
 ```
 
+### Deals Module
+
+Service: `src/services/deals.ts` (fetches deal data from API).
+Hook: `src/hooks/useDeals.ts` provides access to deals data with React Query caching.
+
+**Usage:**
+
+```tsx
+const { deals, isLoading, error } = useDeals();
+```
+
+Components using deals data:
+
+- `RevenueChart` - Visualizes revenue over time
+- `DealDetailsTable` - Displays detailed deal information with status badges
+
 ## API Layer
 
 Generic fetch abstraction: `src/services/api.ts` (`apiService.get/post/put/patch/delete`).
-Extend by adding domain-specific service modules (e.g. `products.ts`, `orders.ts`). Handle transformation from API DTOs to internal types for consistency.
+
+**Existing domain services:**
+
+- `todos.ts` - Todo CRUD operations
+- `deals.ts` - Deal data fetching
+
+**Extending:** Add domain-specific service modules (e.g. `products.ts`, `orders.ts`). Handle transformation from API DTOs to internal types for consistency. Create corresponding hooks in `src/hooks/` for React Query integration.
 
 ## Adding a New Page
 

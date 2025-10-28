@@ -1,9 +1,6 @@
 @use "../../assets/styles/mixins" as *;
 
 .chartContainer {
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
   padding: var(--spacing-6);
 }
 
@@ -19,11 +16,6 @@
 .title {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
-  color: var(--color-gray-800);
-
-  :global(.dark) & {
-    color: var(--color-gray-100);
-  }
 }
 
 .headerControls {
@@ -53,23 +45,8 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
-  color: var(--color-gray-700);
   cursor: pointer;
   transition: all var(--transition-base);
-
-  &:hover {
-    background: var(--color-gray-50);
-    border-color: var(--color-gray-300);
-  }
-
-  :global(.dark) & {
-    color: var(--color-gray-300);
-
-    &:hover {
-      background: var(--color-gray-800);
-      border-color: var(--color-gray-600);
-    }
-  }
 }
 
 .dropdownIcon {
@@ -104,31 +81,11 @@
   border: none;
   text-align: left;
   font-size: var(--font-size-sm);
-  color: var(--color-gray-700);
   cursor: pointer;
   transition: background var(--transition-base);
 
-  &:hover {
-    background: var(--color-gray-50);
-  }
-
   &.active {
-    background: var(--color-primary-50);
-    color: var(--color-primary-600);
     font-weight: var(--font-weight-medium);
-  }
-
-  :global(.dark) & {
-    color: var(--color-gray-300);
-
-    &:hover {
-      background: var(--color-gray-800);
-    }
-
-    &.active {
-      background: color-mix(in srgb, var(--color-primary-500) 10%, transparent);
-      color: var(--color-primary-400);
-    }
   }
 }
 
@@ -144,14 +101,9 @@
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: var(--color-gray-500);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
   z-index: 1;
-
-  :global(.dark) & {
-    color: var(--color-gray-400);
-  }
 }
 
 .loadingState {
@@ -169,22 +121,12 @@
 .loadingSpinner {
   width: 32px;
   height: 32px;
-  color: var(--color-primary-600);
   animation: spin 1s linear infinite;
-
-  :global(.dark) & {
-    color: var(--color-primary-400);
-  }
 }
 
 .loadingText {
-  color: var(--color-gray-600);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-
-  :global(.dark) & {
-    color: var(--color-gray-400);
-  }
 }
 
 @keyframes spin {
@@ -224,22 +166,12 @@
 
 .tooltipLabel {
   font-size: var(--font-size-sm);
-  color: var(--color-gray-600);
   margin-right: var(--spacing-1);
-
-  :global(.dark) & {
-    color: var(--color-gray-400);
-  }
 }
 
 .tooltipValue {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-gray-800);
-
-  :global(.dark) & {
-    color: var(--color-gray-200);
-  }
 }
 
 .legend {
@@ -271,10 +203,5 @@
 
 .legendLabel {
   font-size: var(--font-size-sm);
-  color: var(--color-gray-700);
   font-weight: var(--font-weight-medium);
-
-  :global(.dark) & {
-    color: var(--color-gray-300);
-  }
 }

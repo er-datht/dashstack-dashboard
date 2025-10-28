@@ -23,12 +23,8 @@
 }
 
 .tableHeader {
-  background: var(--color-gray-50);
+  background: var(--color-table-header-bg);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-
-  :global(.dark) & {
-    background: var(--color-gray-800);
-  }
 }
 
 .tableHeaderCell {
@@ -37,7 +33,7 @@
   font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-gray-600);
+  color: var(--color-table-header-text);
   white-space: nowrap;
 
   &:first-child {
@@ -47,14 +43,10 @@
   &:last-child {
     border-top-right-radius: var(--radius-lg);
   }
-
-  :global(.dark) & {
-    color: var(--color-gray-400);
-  }
 }
 
 .tableBody {
-  background: var(--color-transparent);
+  background: var(--color-table-body-bg);
 }
 
 .tableRow {
@@ -66,28 +58,18 @@
   }
 
   &:hover {
-    background: var(--color-gray-50);
+    background: var(--color-table-row-hover);
   }
 
   &.clickable {
     cursor: pointer;
   }
-
-  :global(.dark) & {
-    &:hover {
-      background: var(--color-gray-800);
-    }
-  }
 }
 
 .tableCell {
   padding: var(--spacing-4);
-  color: var(--color-gray-700);
+  color: var(--color-table-cell-text);
   vertical-align: middle;
-
-  :global(.dark) & {
-    color: var(--color-gray-300);
-  }
 }
 
 .emptyState {

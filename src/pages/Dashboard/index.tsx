@@ -8,65 +8,29 @@ export default function Dashboard() {
   const { t } = useTranslation("dashboard");
 
   return (
-    <div className="p-6" style={{ backgroundColor: "var(--color-background)" }}>
+    <div className="p-6 bg-page">
       {/* Dashboard Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div
-          className="w-10 h-10 rounded-lg flex items-center justify-center"
-          style={{
-            backgroundColor: "var(--color-primary-100)",
-          }}
-        >
-          <LayoutDashboard
-            className="w-6 h-6"
-            style={{ color: "var(--color-primary-600)" }}
-          />
+        <div className="w-10 h-10 bg-brand-light rounded-lg flex items-center justify-center">
+          <LayoutDashboard className="w-6 h-6 icon-brand" />
         </div>
-        <h1
-          className="text-2xl font-bold"
-          style={{ color: "var(--color-text-primary)" }}
-        >
-          {t("title")}
-        </h1>
+        <h1 className="text-2xl font-bold text-primary">{t("title")}</h1>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div
-          className="p-6 rounded-lg"
-          style={{
-            backgroundColor: "var(--color-surface)",
-            boxShadow: "var(--shadow-sm)",
-          }}
-        >
+        <div className="card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p
-                className="text-sm mb-1"
-                style={{ color: "var(--color-text-secondary)" }}
-              >
-                {t("totalUser")}
-              </p>
-              <p
-                className="text-2xl font-bold"
-                style={{ color: "var(--color-text-primary)" }}
-              >
-                40,689
-              </p>
-              <p
-                className="text-xs mt-1"
-                style={{ color: "var(--color-success-600)" }}
-              >
+              <p className="text-sm mb-1 text-secondary">{t("totalUser")}</p>
+              <p className="text-2xl font-bold text-primary">40,689</p>
+              <p className="text-xs mt-1 text-success">
                 8.5% {t("upFromYesterday")}
               </p>
             </div>
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: "var(--color-primary-100)" }}
-            >
+            <div className="w-12 h-12 bg-brand-light rounded-lg flex items-center justify-center">
               <svg
-                className="w-6 h-6"
-                style={{ color: "var(--color-primary-600)" }}
+                className="w-6 h-6 icon-brand"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -82,41 +46,18 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div
-          className="p-6 rounded-lg"
-          style={{
-            backgroundColor: "var(--color-surface)",
-            boxShadow: "var(--shadow-sm)",
-          }}
-        >
+        <div className="card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p
-                className="text-sm mb-1"
-                style={{ color: "var(--color-text-secondary)" }}
-              >
-                {t("totalOrder")}
-              </p>
-              <p
-                className="text-2xl font-bold"
-                style={{ color: "var(--color-text-primary)" }}
-              >
-                10,293
-              </p>
-              <p
-                className="text-xs mt-1"
-                style={{ color: "var(--color-success-600)" }}
-              >
+              <p className="text-sm mb-1 text-secondary">{t("totalOrder")}</p>
+              <p className="text-2xl font-bold text-primary">10,293</p>
+              <p className="text-xs mt-1 text-success">
                 1.3% {t("upFromPastWeek")}
               </p>
             </div>
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: "var(--color-warning-100)" }}
-            >
+            <div className="w-12 h-12 bg-warning-light rounded-lg flex items-center justify-center">
               <svg
-                className="w-6 h-6"
-                style={{ color: "var(--color-warning-600)" }}
+                className="w-6 h-6 text-warning"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -132,41 +73,18 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div
-          className="p-6 rounded-lg"
-          style={{
-            backgroundColor: "var(--color-surface)",
-            boxShadow: "var(--shadow-sm)",
-          }}
-        >
+        <div className="card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p
-                className="text-sm mb-1"
-                style={{ color: "var(--color-text-secondary)" }}
-              >
-                {t("totalSales")}
-              </p>
-              <p
-                className="text-2xl font-bold"
-                style={{ color: "var(--color-text-primary)" }}
-              >
-                $89,000
-              </p>
-              <p
-                className="text-xs mt-1"
-                style={{ color: "var(--color-error-600)" }}
-              >
+              <p className="text-sm mb-1 text-secondary">{t("totalSales")}</p>
+              <p className="text-2xl font-bold text-primary">$89,000</p>
+              <p className="text-xs mt-1 text-error">
                 4.3% {t("downFromYesterday")}
               </p>
             </div>
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: "var(--color-success-100)" }}
-            >
+            <div className="w-12 h-12 bg-success-light rounded-lg flex items-center justify-center">
               <svg
-                className="w-6 h-6"
-                style={{ color: "var(--color-success-600)" }}
+                className="w-6 h-6 text-success"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -182,41 +100,18 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div
-          className="p-6 rounded-lg"
-          style={{
-            backgroundColor: "var(--color-surface)",
-            boxShadow: "var(--shadow-sm)",
-          }}
-        >
+        <div className="card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p
-                className="text-sm mb-1"
-                style={{ color: "var(--color-text-secondary)" }}
-              >
-                {t("totalPending")}
-              </p>
-              <p
-                className="text-2xl font-bold"
-                style={{ color: "var(--color-text-primary)" }}
-              >
-                2,040
-              </p>
-              <p
-                className="text-xs mt-1"
-                style={{ color: "var(--color-success-600)" }}
-              >
+              <p className="text-sm mb-1 text-secondary">{t("totalPending")}</p>
+              <p className="text-2xl font-bold text-primary">2,040</p>
+              <p className="text-xs mt-1 text-success">
                 1.8% {t("upFromYesterday")}
               </p>
             </div>
-            <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: "var(--color-error-100)" }}
-            >
+            <div className="w-12 h-12 bg-error-light rounded-lg flex items-center justify-center">
               <svg
-                className="w-6 h-6"
-                style={{ color: "var(--color-error-600)" }}
+                className="w-6 h-6 text-error"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -243,22 +138,11 @@ export default function Dashboard() {
       <RevenueChart className="mb-6" />
 
       {/* Content Placeholder */}
-      <div
-        className="p-6 rounded-lg"
-        style={{
-          backgroundColor: "var(--color-surface)",
-          boxShadow: "var(--shadow-sm)",
-        }}
-      >
-        <h2
-          className="text-lg font-semibold mb-4"
-          style={{ color: "var(--color-text-primary)" }}
-        >
+      <div className="card p-6">
+        <h2 className="text-lg font-semibold mb-4 text-primary">
           {t("welcomeTitle")}
         </h2>
-        <p style={{ color: "var(--color-text-secondary)" }}>
-          {t("welcomeMessage")}
-        </p>
+        <p className="text-secondary">{t("welcomeMessage")}</p>
       </div>
     </div>
   );

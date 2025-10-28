@@ -7,7 +7,7 @@ export default function DashboardLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background dark:bg-background-dark transition-colors duration-300">
+    <div className="h-screen overflow-hidden bg-background dark:bg-background-dark transition-colors duration-300">
       <Sidebar
         isCollapsed={sidebarCollapsed}
         onCollapsedChange={setSidebarCollapsed}
@@ -15,7 +15,7 @@ export default function DashboardLayout() {
       <TopNav sidebarCollapsed={sidebarCollapsed} />
 
       <main
-        className={`transition-all duration-300 pt-16 ${
+        className={`h-full overflow-y-auto transition-all duration-300 pt-16 ${
           sidebarCollapsed ? "ml-20" : "ml-64"
         }`}
       >
