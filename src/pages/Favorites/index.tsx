@@ -17,7 +17,7 @@ export default function Favorites() {
       </div>
 
       {/* Content */}
-      <div className="bg-white dark:bg-[#1a1d24] p-6 rounded-lg shadow-sm">
+      <div className="bg-white dark:bg-surface-dark p-6 rounded-lg shadow-sm">
         <p className="text-gray-600 dark:text-gray-400">
           {t('favorites.description', 'Your favorite products and items will appear here.')}
         </p>

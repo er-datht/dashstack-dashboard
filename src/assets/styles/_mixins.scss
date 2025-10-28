@@ -41,7 +41,7 @@
 }
 
 // Grid Mixins
-@mixin grid($cols: auto-fit, $min: 250px, $gap: spacing(4)) {
+@mixin grid($cols: auto-fit, $min: 250px, $gap: var(--spacing-4)) {
   display: grid;
   grid-template-columns: repeat($cols, minmax($min, 1fr));
   gap: $gap;
@@ -64,7 +64,7 @@
 // Transition Mixins
 @mixin transition(
   $properties: all,
-  $duration: map.get($transitions, base),
+  $duration: var(--transition-base),
   $timing: ease-in-out
 ) {
   transition: $properties $duration $timing;
@@ -80,10 +80,10 @@
 }
 
 // Focus State
-@mixin focus-ring($color: color(primary-500)) {
+@mixin focus-ring($color: var(--color-primary-500)) {
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba($color, 0.1);
+    box-shadow: 0 0 0 3px color-mix(in srgb, $color 10%, transparent);
   }
 
   &:focus-visible {
@@ -104,8 +104,8 @@
 // Custom Scrollbar
 @mixin custom-scrollbar(
   $width: 8px,
-  $thumb-color: color(gray-400),
-  $track-color: transparent
+  $thumb-color: var(--color-gray-400),
+  $track-color: var(--color-transparent)
 ) {
   &::-webkit-scrollbar {
     width: $width;
@@ -118,7 +118,7 @@
 
   &::-webkit-scrollbar-thumb {
     background: $thumb-color;
-    border-radius: map.get($border-radius, full);
+    border-radius: var(--radius-full);
 
     &:hover {
       background: darken($thumb-color, 10%);
@@ -134,11 +134,11 @@
 @mixin surface {
   @include theme-aware(
     background-color,
-    color(surface-light),
-    color(surface-dark)
+    var(--color-surface),
+    var(--color-surface-dark)
   );
-  border-radius: map.get($border-radius, lg);
-  box-shadow: map.get($shadows, sm);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 // Button Reset
@@ -194,7 +194,7 @@
 }
 
 // Container
-@mixin container($max-width: 1280px, $padding: spacing(4)) {
+@mixin container($max-width: 1280px, $padding: var(--spacing-4)) {
   max-width: $max-width;
   margin-left: auto;
   margin-right: auto;
@@ -212,7 +212,7 @@
 }
 
 // Overlay
-@mixin overlay($opacity: 0.5, $color: #000) {
+@mixin overlay($opacity: 0.5, $color: var(--color-black)) {
   position: relative;
 
   &::before {
@@ -251,9 +251,9 @@
 @mixin loading-shimmer {
   background: linear-gradient(
     90deg,
-    color(gray-200) 0%,
-    color(gray-100) 50%,
-    color(gray-200) 100%
+    var(--color-gray-200) 0%,
+    var(--color-gray-100) 50%,
+    var(--color-gray-200) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
@@ -261,9 +261,9 @@
   :global(.dark) & {
     background: linear-gradient(
       90deg,
-      color(gray-700) 0%,
-      color(gray-600) 50%,
-      color(gray-700) 100%
+      var(--color-gray-700) 0%,
+      var(--color-gray-600) 50%,
+      var(--color-gray-700) 100%
     );
     background-size: 200% 100%;
   }

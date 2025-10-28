@@ -10,5 +10,8 @@
 // 3. Global Styles
 @use 'globals';
 
+// 4. Third-party library styles
+@import 'react-tooltip/dist/react-tooltip.css';
+
 // Note: Component-specific styles are imported in their respective component files
 // This keeps the main bundle lean and allows for better code splitting

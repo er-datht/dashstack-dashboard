@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { LayoutDashboard } from 'lucide-react';
 import SalesDetailsChart from '../../components/SalesDetailsChart';
+import DealDetailsTable from '../../components/DealDetailsTable';
 
 export default function Dashboard() {
   const { t } = useTranslation('dashboard');
@@ -19,7 +20,7 @@ export default function Dashboard() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <div className="bg-white dark:bg-[#1a1d24] p-6 rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-surface-dark p-6 rounded-lg shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('totalUser')}</p>
@@ -46,7 +47,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#1a1d24] p-6 rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-surface-dark p-6 rounded-lg shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('totalOrder')}</p>
@@ -73,7 +74,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#1a1d24] p-6 rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-surface-dark p-6 rounded-lg shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('totalSales')}</p>
@@ -100,7 +101,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#1a1d24] p-6 rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-surface-dark p-6 rounded-lg shadow-sm">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('totalPending')}</p>
@@ -131,8 +132,11 @@ export default function Dashboard() {
       {/* Sales Details Chart */}
       <SalesDetailsChart className="mb-6" />
 
+      {/* Deal Details Table */}
+      <DealDetailsTable className="mb-6" />
+
       {/* Content Placeholder */}
-      <div className="bg-white dark:bg-[#1a1d24] p-6 rounded-lg shadow-sm">
+      <div className="bg-white dark:bg-surface-dark p-6 rounded-lg shadow-sm">
         <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
           {t('welcomeTitle')}
         </h2>

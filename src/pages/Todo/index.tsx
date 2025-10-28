@@ -1,20 +1,18 @@
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import ReactPaginate from "react-paginate";
 import {
   CheckSquare,
   Plus,
   Star,
   Trash2,
   Check,
-  ChevronLeft,
-  ChevronRight,
   AlertCircle,
   Loader2,
 } from "lucide-react";
 import { useTodos } from "../../hooks/useTodos";
 import type { TodoFilter } from "../../types/todo";
 import LoadingWrapper from "../../components/LoadingWrapper";
+import Pagination from "../../components/Pagination";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -120,9 +118,9 @@ export default function Todo() {
   const paginatedTodos = filteredTodos.slice(startIndex, endIndex);
   const showPagination = filteredTodos.length > ITEMS_PER_PAGE;
 
-  // Handle page change from ReactPaginate (0-indexed)
-  const handlePageChange = (selectedItem: { selected: number }) => {
-    setCurrentPage(selectedItem.selected + 1);
+  // Handle page change (convert from 0-indexed to 1-indexed)
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page + 1);
   };
 
   // Calculate stats
@@ -159,7 +157,7 @@ export default function Todo() {
         )}
 
         {/* Add Todo Input */}
-        <div className="bg-white dark:bg-[#1a1d24] p-6 rounded-lg shadow-sm mb-6">
+        <div className="bg-white dark:bg-surface-dark p-6 rounded-lg shadow-sm mb-6">
           <div className="flex gap-3">
             <input
               type="text"
@@ -168,7 +166,7 @@ export default function Todo() {
               onKeyDown={handleKeyPress}
               placeholder={t("addPlaceholder")}
               className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
-                     bg-white dark:bg-[#242831] text-gray-800 dark:text-gray-100
+                     bg-white dark:bg-surface-secondary-dark text-gray-800 dark:text-gray-100
                      placeholder-gray-400 dark:placeholder-gray-500
                      focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400
                      transition-all"
@@ -192,7 +190,7 @@ export default function Todo() {
         </div>
 
         {/* Filter Tabs */}
-        <div className="bg-white dark:bg-[#1a1d24] p-4 rounded-lg shadow-sm mb-6">
+        <div className="bg-white dark:bg-surface-dark p-4 rounded-lg shadow-sm mb-6">
           <div className="flex gap-2">
             {(["all", "active", "completed", "starred"] as TodoFilter[]).map(
               (filterOption) => (
@@ -202,7 +200,7 @@ export default function Todo() {
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     filter === filterOption
                       ? "bg-primary-600 text-white"
-                      : "bg-gray-100 dark:bg-[#242831] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                      : "bg-gray-100 dark:bg-surface-secondary-dark text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
                   }`}
                 >
                   {t(`filters.${filterOption}`)}
@@ -213,7 +211,7 @@ export default function Todo() {
         </div>
 
         {/* Todo List */}
-        <div className="bg-white dark:bg-[#1a1d24] rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-surface-dark rounded-lg shadow-sm">
           {filteredTodos.length === 0 ? (
             <div className="p-12 text-center">
               <CheckSquare className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
@@ -227,7 +225,7 @@ export default function Todo() {
                 {paginatedTodos.map((todo) => (
                   <div
                     key={todo.id}
-                    className="p-4 hover:bg-gray-50 dark:hover:bg-[#242831] transition-colors group"
+                    className="p-4 hover:bg-gray-50 dark:hover:bg-surface-secondary-dark transition-colors group"
                   >
                     <div className="flex items-center gap-3">
                       {/* Complete Checkbox */}
@@ -301,49 +299,16 @@ export default function Todo() {
               {/* Pagination */}
               {showPagination && (
                 <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center justify-between">
-                    {/* Showing X to Y of Z */}
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {t("pagination.showing", {
-                        from: startIndex + 1,
-                        to: Math.min(endIndex, filteredTodos.length),
-                        total: filteredTodos.length,
-                      })}
-                    </div>
-
-                    {/* ReactPaginate Component */}
-                    <ReactPaginate
-                      breakLabel="..."
-                      nextLabel={<ChevronRight className="w-5 h-5" />}
-                      previousLabel={<ChevronLeft className="w-5 h-5" />}
-                      onPageChange={handlePageChange}
-                      pageRangeDisplayed={3}
-                      marginPagesDisplayed={1}
-                      pageCount={totalPages}
-                      forcePage={currentPage - 1}
-                      renderOnZeroPageCount={null}
-                      // Container
-                      containerClassName="flex items-center gap-2"
-                      // Page item
-                      pageClassName=""
-                      pageLinkClassName="min-w-[40px] h-10 px-3 rounded-lg font-medium transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center cursor-pointer"
-                      // Active page
-                      activeClassName=""
-                      activeLinkClassName="!bg-[#4880FF] !text-white hover:!bg-[#4880FF]"
-                      // Previous button
-                      previousClassName=""
-                      previousLinkClassName="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center cursor-pointer"
-                      // Next button
-                      nextClassName=""
-                      nextLinkClassName="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center cursor-pointer"
-                      // Break (ellipsis)
-                      breakClassName=""
-                      breakLinkClassName="min-w-[40px] h-10 px-3 flex items-center justify-center text-gray-400 dark:text-gray-500 cursor-default"
-                      // Disabled state
-                      disabledClassName="opacity-50 cursor-not-allowed"
-                      disabledLinkClassName="pointer-events-none"
-                    />
-                  </div>
+                  <Pagination
+                    currentPage={currentPage - 1}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    pageSize={ITEMS_PER_PAGE}
+                    totalItems={filteredTodos.length}
+                    showInfo={true}
+                    pageRangeDisplayed={3}
+                    marginPagesDisplayed={1}
+                  />
                 </div>
               )}
             </>
