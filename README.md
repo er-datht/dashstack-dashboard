@@ -191,6 +191,25 @@ Components using deals data:
 - `RevenueChart` - Visualizes revenue over time
 - `DealDetailsTable` - Displays detailed deal information with status badges
 
+### Revenue & Sales Charts
+
+The `RevenueChart` component consumes deal data via `useDeals()` and renders a time-series revenue trend (e.g. monthly totals). To extend or customize:
+
+- Data source: `src/hooks/useDeals.ts` (React Query) backed by `src/services/deals.ts`.
+- Shape: Each deal item should include amount, status, and created/closed dates. Aggregate logic lives inside the chart component.
+- Add metrics: Extend transformation in `RevenueChart` to compute additional series (e.g. average deal size). Keep expensive calculations memoized.
+- Loading state: Wrapped with `LoadingWrapper` for skeleton/ spinner UX.
+- Styling: Tailwind utilities + optional SCSS module overrides.
+
+Basic usage (already wired in Dashboard page):
+
+```tsx
+import RevenueChart from "@/components/RevenueChart";
+// <RevenueChart /> inside dashboard layout
+```
+
+Add a new chart (e.g. SalesDetailsChart) by duplicating the folder, adjusting aggregation logic, and exporting from its index.
+
 ## API Layer
 
 Generic fetch abstraction: `src/services/api.ts` (`apiService.get/post/put/patch/delete`).
@@ -277,6 +296,8 @@ Note: Use `configs/` (plural) as per actual directory for configuration modules.
 - E2E tests (Playwright / Cypress).
 - Component testing (Vitest + Testing Library).
 - Accessibility audit.
+- Data export (CSV / XLSX) from tables.
+- Real backend integration for deals & products.
 
 ## Contributing
 
