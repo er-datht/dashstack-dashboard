@@ -8,19 +8,19 @@
     <script>
       // Apply theme before page renders to prevent flash
       (function () {
+        const validThemes = ["light", "dark", "forest"];
         const savedTheme = localStorage.getItem("theme");
-        if (savedTheme === "dark") {
-          document.documentElement.classList.add("dark");
-        } else if (savedTheme === "light") {
-          document.documentElement.classList.remove("dark");
+
+        if (savedTheme && validThemes.includes(savedTheme)) {
+          // Apply saved theme
+          document.documentElement.setAttribute("data-theme", savedTheme);
         } else {
           // Check system preference if no saved theme
           const systemPrefersDark = window.matchMedia(
             "(prefers-color-scheme: dark)"
           ).matches;
-          if (systemPrefersDark) {
-            document.documentElement.classList.add("dark");
-          }
+          const defaultTheme = systemPrefersDark ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", defaultTheme);
         }
       })();
     </script>

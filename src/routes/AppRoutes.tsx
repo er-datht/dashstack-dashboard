@@ -65,7 +65,10 @@ export default function AppRoutes() {
           </Route>
 
           {/* Catch all - redirect to dashboard */}
-          <Route path="*" element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+          <Route
+            path="*"
+            element={<Navigate to={ROUTES.DASHBOARD} replace />}
+          />
         </Routes>
       </Suspense>
     </BrowserRouter>

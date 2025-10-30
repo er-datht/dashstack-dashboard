@@ -56,7 +56,7 @@ const Pagination: React.FC<PaginationProps> = ({
     <div className={`flex items-center justify-between ${className}`}>
       {/* Pagination Info */}
       {showInfo && totalItems && pageSize && (
-        <div className="text-sm font-semibold text-gray-600 dark:text-gray-400!">
+        <div className="text-sm font-semibold text-secondary">
           {t("pagination.showing", {
             from: firstItem,
             to: lastItem,
@@ -79,20 +79,20 @@ const Pagination: React.FC<PaginationProps> = ({
         // Container
         containerClassName="flex items-center gap-2"
         // Page item
-        pageClassName=""
-        pageLinkClassName="min-w-[40px] h-10 px-3 rounded-lg font-medium transition-colors text-gray-700 dark:text-gray-300! hover:bg-gray-100 dark:hover:bg-gray-700! flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400! focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-0!"
+        pageClassName="text-primary"
+        pageLinkClassName="min-w-[40px] h-10 px-3 rounded-lg font-medium transition-colors hover-bg-muted flex items-center justify-center cursor-pointer focus:outline-none"
         // Active page
         activeClassName=""
-        activeLinkClassName="bg-primary-600! dark:bg-primary-500! text-white! hover:bg-primary-700! dark:hover:bg-primary-600! focus:outline-none! focus:ring-2! focus:ring-primary-700! dark:focus:ring-primary-500! focus:ring-offset-2! focus:ring-offset-white! dark:focus:ring-offset-0!"
+        activeLinkClassName="bg-primary !text-on-primary hover-bg-primary-dark"
         // Previous button
         previousClassName=""
-        previousLinkClassName="p-2 rounded-lg border border-gray-300 dark:border-gray-600! text-gray-700 dark:text-gray-300! hover:bg-gray-100 dark:hover:bg-gray-700! disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400! focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-0!"
+        previousLinkClassName="p-2 rounded-lg border border-default !text-primary hover-bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center cursor-pointer focus:outline-none"
         // Next button
         nextClassName=""
-        nextLinkClassName="p-2 rounded-lg border border-gray-300 dark:border-gray-600! text-gray-700 dark:text-gray-300! hover:bg-gray-100 dark:hover:bg-gray-700! disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400! focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-0!"
+        nextLinkClassName="p-2 rounded-lg border border-default !text-primary hover-bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center cursor-pointer focus:outline-none"
         // Break (ellipsis)
         breakClassName=""
-        breakLinkClassName="min-w-[40px] h-10 px-3 flex items-center justify-center text-gray-400 dark:text-gray-500! cursor-default"
+        breakLinkClassName="min-w-[40px] h-10 px-3 flex items-center justify-center !text-tertiary cursor-default"
         // Disabled state
         disabledClassName="opacity-50 cursor-not-allowed"
         disabledLinkClassName="pointer-events-none"

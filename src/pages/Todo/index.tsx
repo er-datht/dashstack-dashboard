@@ -129,14 +129,14 @@ export default function Todo() {
 
   return (
     <LoadingWrapper isLoading={isLoading} loadingText={t("loading")}>
-      <div className="p-6">
+      <div className="p-6 ">
         {/* Page Header */}
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/20 rounded-lg flex items-center justify-center">
             <CheckSquare className="w-6 h-6 text-primary-600 dark:text-primary-400" />
           </div>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {t("title")}
             </h1>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -157,7 +157,7 @@ export default function Todo() {
         )}
 
         {/* Add Todo Input */}
-        <div className="bg-white dark:bg-surface-dark p-6 rounded-lg shadow-sm mb-6">
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm p-6 mb-6">
           <div className="flex gap-3">
             <input
               type="text"
@@ -165,19 +165,12 @@ export default function Todo() {
               onChange={(e) => setNewTodoText(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder={t("addPlaceholder")}
-              className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
-                     bg-white dark:bg-surface-secondary-dark text-gray-800 dark:text-gray-100
-                     placeholder-gray-400 dark:placeholder-gray-500
-                     focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400
-                     transition-all"
+              className="flex-1 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
             <button
               onClick={handleAddTodo}
               disabled={!newTodoText.trim() || isAddingTodo}
-              className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg
-                     flex items-center gap-2 font-medium
-                     disabled:opacity-50 disabled:cursor-not-allowed
-                     transition-colors"
+              className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
             >
               {isAddingTodo ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -190,7 +183,7 @@ export default function Todo() {
         </div>
 
         {/* Filter Tabs */}
-        <div className="bg-white dark:bg-surface-dark p-4 rounded-lg shadow-sm mb-6">
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm p-4 mb-6">
           <div className="flex gap-2">
             {(["all", "active", "completed", "starred"] as TodoFilter[]).map(
               (filterOption) => (
@@ -200,7 +193,7 @@ export default function Todo() {
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     filter === filterOption
                       ? "bg-primary-600 text-white"
-                      : "bg-gray-100 dark:bg-surface-secondary-dark text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                   }`}
                 >
                   {t(`filters.${filterOption}`)}
@@ -211,11 +204,11 @@ export default function Todo() {
         </div>
 
         {/* Todo List */}
-        <div className="bg-white dark:bg-surface-dark rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
           {filteredTodos.length === 0 ? (
             <div className="p-12 text-center">
-              <CheckSquare className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400 text-lg">
+              <CheckSquare className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4 opacity-30" />
+              <p className="text-gray-600 dark:text-gray-400 text-lg">
                 {todos.length === 0 ? t("emptyState") : t("emptyFilteredState")}
               </p>
             </div>
@@ -225,7 +218,7 @@ export default function Todo() {
                 {paginatedTodos.map((todo) => (
                   <div
                     key={todo.id}
-                    className="p-4 hover:bg-gray-50 dark:hover:bg-surface-secondary-dark transition-colors group"
+                    className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group"
                   >
                     <div className="flex items-center gap-3">
                       {/* Complete Checkbox */}
@@ -235,7 +228,7 @@ export default function Todo() {
                                  transition-all ${
                                    todo.completed
                                      ? "bg-primary-600 border-primary-600"
-                                     : "border-gray-300 dark:border-gray-600 hover:border-primary-500"
+                                     : "border-gray-300 dark:border-gray-600 hover:border-primary-500 dark:hover:border-primary-400"
                                  }`}
                         aria-label={
                           todo.completed
@@ -250,9 +243,9 @@ export default function Todo() {
 
                       {/* Todo Text */}
                       <span
-                        className={`flex-1 text-gray-800 dark:text-gray-100 ${
+                        className={`flex-1 text-gray-900 dark:text-gray-100 ${
                           todo.completed
-                            ? "line-through text-gray-400 dark:text-gray-500"
+                            ? "line-through text-gray-400 dark:text-gray-600"
                             : ""
                         }`}
                       >
@@ -267,7 +260,7 @@ export default function Todo() {
                           className={`p-2 rounded-lg transition-colors ${
                             todo.starred
                               ? "text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
-                              : "text-gray-400 hover:text-yellow-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+                              : "text-gray-400 dark:text-gray-500 hover:text-yellow-500 hover:bg-gray-100 dark:hover:bg-gray-700"
                           }`}
                           aria-label={
                             todo.starred
@@ -285,7 +278,7 @@ export default function Todo() {
                         {/* Delete Button */}
                         <button
                           onClick={() => deleteTodo(todo.id)}
-                          className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                          className="p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                           aria-label={t("actions.delete")}
                         >
                           <Trash2 className="w-5 h-5" />

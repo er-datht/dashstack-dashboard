@@ -3,9 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Sidebar as ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Tooltip } from "react-tooltip";
-import { useTheme } from "../../hooks/useTheme";
 import { cn } from "../../utils/cn";
-import { THEMES, THEME_COLORS } from "../../constants/common";
 import {
   getNavSections,
   getBottomItems,
@@ -13,7 +11,6 @@ import {
   type NavSection,
 } from "./navigationData";
 import styles from "./Sidebar.module.scss";
-import { isDarkTheme } from "../../utils/theme";
 import BottomSection from "./BottomSection";
 import LogoSection from "./LogoSection";
 
@@ -30,15 +27,7 @@ const SidebarWrapper = ({
 }: {
   children: React.ReactNode;
 }): React.JSX.Element => {
-  const { theme } = useTheme();
-
-  return (
-    <div
-      className={cn(styles.sidebarWrapper, { "dark-mode": isDarkTheme(theme) })}
-    >
-      {children}
-    </div>
-  );
+  return <div className={styles.sidebarWrapper}>{children}</div>;
 };
 
 /**
@@ -53,24 +42,13 @@ const SidebarContainer = ({
   children,
   isCollapsed,
 }: SidebarContainerProps): React.JSX.Element => {
-  const { theme } = useTheme();
-
   return (
     <ProSidebar
       collapsed={isCollapsed}
       width="256px"
       collapsedWidth="80px"
-      backgroundColor={
-        isDarkTheme(theme) ? THEME_COLORS.NAV_DARK : THEME_COLORS.NAV
-      }
-      rootStyles={{
-        border: "none",
-        height: "100vh",
-        position: "fixed",
-        left: 0,
-        top: 0,
-        zIndex: 40,
-      }}
+      backgroundColor="var(--color-sidebar-bg)"
+      className="border-none h-screen fixed left-0 top-0 z-40"
     >
       {children}
     </ProSidebar>
@@ -91,8 +69,6 @@ const NavigationSection = ({
   isCollapsed,
   renderMenuItem,
 }: NavigationSectionProps): React.JSX.Element => {
-  const { theme } = useTheme();
-
   return (
     <div className={cn(styles.navigationSection, "flex-1 overflow-y-auto")}>
       <div className="py-4">
@@ -100,28 +76,18 @@ const NavigationSection = ({
           menuItemStyles={{
             button: ({ active }) => ({
               backgroundColor: active
-                ? isDarkTheme(theme)
-                  ? THEME_COLORS.PRIMARY_LIGHT
-                  : THEME_COLORS.PRIMARY_DARK
+                ? "var(--color-sidebar-menu-active-bg)"
                 : "transparent",
               color: active
-                ? THEME_COLORS.SURFACE
-                : isDarkTheme(theme)
-                ? THEME_COLORS.GRAY[300]
-                : THEME_COLORS.GRAY[700],
+                ? "var(--color-sidebar-menu-active-text)"
+                : "var(--color-sidebar-menu-inactive-text)",
               "&:hover": {
                 backgroundColor: active
-                  ? isDarkTheme(theme)
-                    ? THEME_COLORS.PRIMARY_LIGHT
-                    : THEME_COLORS.PRIMARY_DARK
-                  : isDarkTheme(theme)
-                  ? THEME_COLORS.GRAY[700]
-                  : THEME_COLORS.GRAY[200],
+                  ? "var(--color-sidebar-menu-active-bg)"
+                  : "var(--color-sidebar-menu-hover-bg)",
                 color: active
-                  ? THEME_COLORS.SURFACE
-                  : isDarkTheme(theme)
-                  ? THEME_COLORS.GRAY[300]
-                  : THEME_COLORS.GRAY[700],
+                  ? "var(--color-sidebar-menu-active-text)"
+                  : "var(--color-sidebar-menu-inactive-text)",
               },
               borderRadius: "8px",
               margin: "4px 12px",
@@ -132,7 +98,7 @@ const NavigationSection = ({
           {navSections.map((section, sectionIndex) => (
             <div key={sectionIndex}>
               {!isCollapsed && section.title && (
-                <div className="px-6 mb-2 mt-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <div className="px-6 mb-2 mt-4 text-xs font-semibold uppercase tracking-wider text-sidebar-section-header">
                   {section.title}
                 </div>
               )}
@@ -153,29 +119,14 @@ const SidebarTooltip = ({
 }: {
   isCollapsed: boolean;
 }): React.JSX.Element | null => {
-  const { theme } = useTheme();
-
   if (!isCollapsed) return null;
 
   return (
     <Tooltip
       id="sidebar-tooltip"
       place="right"
-      className={cn(
-        "border-14px rounded-md py-2 px-3 text-sm font-medium z-1000",
-        {
-          "bg-gray-700!": isDarkTheme(theme),
-          "bg-gray-800!": !isDarkTheme(theme),
-          "text-gray-50!": isDarkTheme(theme),
-          "text-surface!": !isDarkTheme(theme),
-        }
-      )}
-      variant={theme === THEMES.DARK ? "light" : "dark"}
+      className="rounded-md py-2 px-3 text-sm font-medium bg-sidebar-tooltip-bg text-sidebar-tooltip shadow-lg z-1000"
       offset={12}
-      style={{
-        boxShadow:
-          "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-      }}
     />
   );
 };
@@ -188,7 +139,6 @@ export default function Sidebar({
   const navigate = useNavigate();
   const location = useLocation();
   const [internalCollapsed, setInternalCollapsed] = useState(false);
-  const { toggleTheme } = useTheme();
 
   const isCollapsed = controlledCollapsed ?? internalCollapsed;
 
@@ -217,8 +167,8 @@ export default function Sidebar({
 
   const handleItemClick = useCallback(
     (itemId: string): void => {
+      // Theme button is handled in BottomSection
       if (itemId === "theme") {
-        toggleTheme();
         return;
       }
 
@@ -235,7 +185,7 @@ export default function Sidebar({
         }
       }
     },
-    [allNavItems, navigate, toggleTheme]
+    [allNavItems, navigate]
   );
 
   // Render menu item with active state and icon

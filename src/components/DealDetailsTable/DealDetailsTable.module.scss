@@ -1,14 +1,7 @@
 @use "../../assets/styles/mixins" as *;
 
 .container {
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
   padding: var(--spacing-6);
-
-  :global(.dark) & {
-    background: var(--color-surface-dark);
-  }
 }
 
 .header {
@@ -27,11 +20,6 @@
 .title {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
-  color: var(--color-gray-800);
-
-  :global(.dark) & {
-    color: var(--color-gray-100);
-  }
 }
 
 .dropdown {
@@ -45,37 +33,21 @@
   gap: var(--spacing-2);
   padding: var(--spacing-2) var(--spacing-3);
   background: var(--color-transparent);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
-  color: var(--color-gray-700);
   cursor: pointer;
   transition: all var(--transition-base);
-
-  &:hover {
-    background: var(--color-gray-50);
-    border-color: var(--color-gray-300);
-  }
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-
-  :global(.dark) & {
-    border-color: var(--color-border-dark);
-    color: var(--color-gray-300);
-
-    &:hover {
-      background: var(--color-gray-800);
-      border-color: var(--color-gray-600);
-    }
-  }
 }
 
 .dropdownIcon {
-  width: 1rem;
-  height: 1rem;
+  width: 16px;
+  height: 16px;
   transition: transform var(--transition-base);
 
   &.open {
@@ -92,15 +64,10 @@
   max-height: 300px;
   overflow-y: auto;
   background: var(--color-surface);
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   z-index: var(--z-index-dropdown);
-
-  :global(.dark) & {
-    background: var(--color-surface-dark);
-    border-color: var(--color-border-dark);
-  }
 }
 
 .dropdownItem {
@@ -111,31 +78,11 @@
   border: none;
   text-align: left;
   font-size: var(--font-size-sm);
-  color: var(--color-gray-700);
   cursor: pointer;
   transition: background var(--transition-base);
 
-  &:hover {
-    background: var(--color-gray-50);
-  }
-
   &.active {
-    background: var(--color-primary-50);
-    color: var(--color-primary-600);
     font-weight: var(--font-weight-medium);
-  }
-
-  :global(.dark) & {
-    color: var(--color-gray-300);
-
-    &:hover {
-      background: var(--color-gray-800);
-    }
-
-    &.active {
-      background: color-mix(in srgb, var(--color-primary-500) 10%, transparent);
-      color: var(--color-primary-400);
-    }
   }
 }
 
@@ -149,37 +96,22 @@
   width: 36px;
   height: 36px;
   min-width: 36px;
-  background: var(--color-gray-100);
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-
-  :global(.dark) & {
-    background: var(--color-gray-700);
-  }
 }
 
 .productIconSvg {
   width: 20px;
   height: 20px;
-  color: var(--color-gray-600);
-
-  :global(.dark) & {
-    color: var(--color-gray-400);
-  }
 }
 
 .productName {
   font-weight: var(--font-weight-medium);
-  color: var(--color-gray-800);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  :global(.dark) & {
-    color: var(--color-gray-200);
-  }
 }
 
 .truncatedText {
@@ -199,11 +131,6 @@
 
 .priceText {
   font-weight: var(--font-weight-semibold);
-  color: var(--color-gray-800);
-
-  :global(.dark) & {
-    color: var(--color-gray-200);
-  }
 }
 
 .loadingState {
@@ -216,24 +143,14 @@
 }
 
 .loadingSpinner {
-  width: 2rem;
-  height: 2rem;
-  color: var(--color-primary-600);
+  width: 32px;
+  height: 32px;
   animation: spin 1s linear infinite;
-
-  :global(.dark) & {
-    color: var(--color-primary-400);
-  }
 }
 
 .loadingText {
-  color: var(--color-gray-600);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-
-  :global(.dark) & {
-    color: var(--color-gray-400);
-  }
 }
 
 @keyframes spin {
@@ -253,13 +170,8 @@
 }
 
 .errorText {
-  color: var(--color-error-600);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-
-  :global(.dark) & {
-    color: var(--color-error-light);
-  }
 }
 
 .paginationWrapper {
@@ -285,52 +197,20 @@
     min-width: 36px;
     height: 36px;
     padding: var(--spacing-2) var(--spacing-3);
-    border: 1px solid var(--color-border-light);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-transparent);
-    color: var(--color-gray-700);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
     cursor: pointer;
     transition: all var(--transition-base);
-
-    &:hover {
-      background: var(--color-gray-50);
-      border-color: var(--color-gray-300);
-    }
-
-    :global(.dark) & {
-      border-color: var(--color-border-dark);
-      color: var(--color-gray-300);
-
-      &:hover {
-        background: var(--color-gray-800);
-        border-color: var(--color-gray-600);
-      }
-    }
   }
 }
 
 .activePage {
   a {
-    background: var(--color-primary-600);
-    border-color: var(--color-primary-600);
-    color: var(--color-white);
-
-    &:hover {
-      background: var(--color-primary-700);
-      border-color: var(--color-primary-700);
-    }
-
-    :global(.dark) & {
-      background: var(--color-primary-500);
-      border-color: var(--color-primary-500);
-
-      &:hover {
-        background: var(--color-primary-600);
-        border-color: var(--color-primary-600);
-      }
-    }
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
   }
 }
 
@@ -345,13 +225,8 @@
 .tooltip {
   max-width: 300px;
   padding: var(--spacing-2) var(--spacing-3);
-  background: var(--color-gray-900);
   color: var(--color-white);
   font-size: var(--font-size-xs);
   border-radius: var(--radius-md);
   z-index: var(--z-index-tooltip);
-
-  :global(.dark) & {
-    background: var(--color-gray-700);
-  }
 }

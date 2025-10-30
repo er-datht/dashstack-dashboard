@@ -64,15 +64,20 @@ const DealDetailsTable = ({ className = "" }: DealDetailsTableProps) => {
   };
 
   return (
-    <div className={classnames(styles.container, className)}>
+    <div className={classnames("card", styles.container, className)}>
       {/* Header */}
       <div className={styles.header}>
-        <h2 className={styles.title}>{t("dealDetailsTitle")}</h2>
+        <h2 className={classnames("text-primary", styles.title)}>
+          {t("dealDetailsTitle")}
+        </h2>
 
         {/* Month Dropdown */}
         <div className={styles.dropdown}>
           <button
-            className={styles.dropdownButton}
+            className={classnames(
+              "text-primary hover-bg-muted hover-border-primary",
+              styles.dropdownButton
+            )}
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
             disabled={isLoading}
@@ -103,9 +108,15 @@ const DealDetailsTable = ({ className = "" }: DealDetailsTableProps) => {
               ].map((month) => (
                 <button
                   key={month}
-                  className={classnames(styles.dropdownItem, {
-                    [styles.active]: month === selectedMonth,
-                  })}
+                  className={classnames(
+                    "text-primary hover-bg-muted",
+                    styles.dropdownItem,
+                    {
+                      [styles.active]: month === selectedMonth,
+                      "bg-sidebar-menu-active text-sidebar-menu-active":
+                        month === selectedMonth,
+                    }
+                  )}
                   onClick={() => handleMonthSelect(month)}
                 >
                   {t(`months.${month}`)}
@@ -119,7 +130,9 @@ const DealDetailsTable = ({ className = "" }: DealDetailsTableProps) => {
       {/* Table Content */}
       {error ? (
         <div className={styles.errorState}>
-          <p className={styles.errorText}>Error: {error}</p>
+          <p className={classnames("text-error", styles.errorText)}>
+            Error: {error}
+          </p>
         </div>
       ) : (
         <TableCommon

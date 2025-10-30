@@ -1,14 +1,15 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useTheme } from "../../hooks/useTheme";
 import type { NavItem } from "./navigationData";
-import { THEME_COLORS, THEMES } from "../../constants/common";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, TreePine, Check } from "lucide-react";
 import styles from "./Sidebar.module.scss";
-import { Menu } from "react-pro-sidebar";
-import { isDarkTheme } from "../../utils/theme";
+import { Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import { cn } from "../../utils/cn";
+import { useTheme } from "../../hooks/useTheme";
+import type { Theme } from "../../contexts/ThemeContext";
+
 /**
- * Bottom section with theme-aware menu item styles and dynamic theme button
+ * Bottom section with theme-aware menu item styles and theme submenu
  */
 type BottomSectionProps = {
   bottomItems: NavItem[];
@@ -19,61 +20,116 @@ const BottomSection = ({
   bottomItems,
   renderMenuItem,
 }: BottomSectionProps): React.JSX.Element => {
-  const { theme } = useTheme();
   const { t } = useTranslation();
+  const { theme, setTheme } = useTheme();
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
 
-  // Override the theme item with dynamic icon and label based on current theme
-  const itemsWithDynamicTheme = bottomItems.map((item) => {
-    if (item.id === "theme") {
-      return {
-        ...item,
-        label:
-          theme === THEMES.DARK
-            ? t("settings:lightMode")
-            : t("settings:darkMode"),
-        icon: theme === THEMES.DARK ? Sun : Moon,
-      };
+  // Get theme icon
+  const getThemeIcon = (themeName: Theme) => {
+    switch (themeName) {
+      case "dark":
+        return Moon;
+      case "forest":
+        return TreePine;
+      default:
+        return Sun;
     }
-    return item;
-  });
+  };
+
+  // Get theme label
+  const getThemeLabel = (themeName: Theme) => {
+    switch (themeName) {
+      case "dark":
+        return t("settings:darkMode", "Dark");
+      case "forest":
+        return t("settings:forestMode", "Forest");
+      default:
+        return t("settings:lightMode", "Light");
+    }
+  };
+
+  const CurrentThemeIcon = getThemeIcon(theme);
+
+  // Filter out the theme item from bottomItems and render them normally
+  const nonThemeItems = bottomItems.filter((item) => item.id !== "theme");
+
+  const handleThemeSelect = (selectedTheme: Theme) => {
+    setTheme(selectedTheme);
+  };
 
   return (
     <div className={cn(styles.bottomSection, "shrink-0")}>
-      <div className="border-t border-gray-200 dark:border-gray-700 py-3">
+      <div className="py-3 border-t border-sidebar-border">
         <Menu
           menuItemStyles={{
             button: ({ active }) => ({
               backgroundColor: active
-                ? isDarkTheme(theme)
-                  ? THEME_COLORS.PRIMARY_LIGHT
-                  : THEME_COLORS.PRIMARY_DARK
+                ? "var(--color-sidebar-menu-active-bg)"
                 : "transparent",
               color: active
-                ? THEME_COLORS.SURFACE
-                : isDarkTheme(theme)
-                ? THEME_COLORS.GRAY[300]
-                : THEME_COLORS.GRAY[700],
+                ? "var(--color-sidebar-menu-active-text)"
+                : "var(--color-sidebar-menu-inactive-text)",
               "&:hover": {
                 backgroundColor: active
-                  ? isDarkTheme(theme)
-                    ? THEME_COLORS.PRIMARY_LIGHT
-                    : THEME_COLORS.PRIMARY_DARK
-                  : isDarkTheme(theme)
-                  ? THEME_COLORS.GRAY[700]
-                  : THEME_COLORS.GRAY[200],
+                  ? "var(--color-sidebar-menu-active-bg)"
+                  : "var(--color-sidebar-menu-hover-bg)",
                 color: active
-                  ? THEME_COLORS.SURFACE
-                  : isDarkTheme(theme)
-                  ? THEME_COLORS.GRAY[300]
-                  : THEME_COLORS.GRAY[700],
+                  ? "var(--color-sidebar-menu-active-text)"
+                  : "var(--color-sidebar-menu-inactive-text)",
               },
               borderRadius: "8px",
               margin: "4px 12px",
               padding: "10px 12px",
+              display: "flex",
+              alignItems: "center",
             }),
+            subMenuContent: {
+              backgroundColor: "var(--color-sidebar-submenu-bg)",
+            },
+            SubMenuExpandIcon: {
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            },
+            label: {
+              display: "flex",
+              alignItems: "center",
+            },
+            icon: {
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            },
           }}
         >
-          {itemsWithDynamicTheme.map(renderMenuItem)}
+          {/* Theme SubMenu */}
+          <SubMenu
+            icon={<CurrentThemeIcon className="w-5 h-5" />}
+            label={t("settings:theme", "Theme")}
+            data-tooltip-id={!isThemeMenuOpen ? "sidebar-tooltip" : undefined}
+            data-tooltip-content={
+              !isThemeMenuOpen ? t("settings:theme", "Theme") : undefined
+            }
+            onOpenChange={setIsThemeMenuOpen}
+          >
+            {(["light", "dark", "forest"] as Theme[]).map((themeName) => {
+              const ThemeIcon = getThemeIcon(themeName);
+              const isActive = theme === themeName;
+
+              return (
+                <MenuItem
+                  key={themeName}
+                  icon={<ThemeIcon className="w-4 h-4" />}
+                  active={isActive}
+                  onClick={() => handleThemeSelect(themeName)}
+                  suffix={isActive ? <Check className="w-4 h-4" /> : undefined}
+                >
+                  {getThemeLabel(themeName)}
+                </MenuItem>
+              );
+            })}
+          </SubMenu>
+          {nonThemeItems.map(renderMenuItem)}
         </Menu>
       </div>
     </div>

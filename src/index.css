@@ -1,8 +1,314 @@
 @import "tailwindcss";
 
-@variant dark (.dark &);
-
+/* ===== Tailwind Theme Tokens ===== */
 @theme {
+  /* Semantic Color Tokens - These adapt to each theme */
+
+  /* Primary - Main brand color */
+  --color-primary: var(--color-primary-600);
+  --color-primary-hover: var(--color-primary-700);
+  --color-primary-active: var(--color-primary-800);
+  --color-primary-muted: var(--color-primary-100);
+
+  /* Secondary - Supporting color */
+  --color-secondary: var(--color-gray-600);
+  --color-secondary-hover: var(--color-gray-700);
+  --color-secondary-muted: var(--color-gray-100);
+
+  /* Success - Positive actions */
+  --color-success: var(--color-success-500);
+  --color-success-hover: var(--color-success-600);
+  --color-success-muted: var(--color-success-50);
+
+  /* Info - Informational */
+  --color-info: var(--color-info-500);
+  --color-info-hover: var(--color-info-600);
+  --color-info-muted: var(--color-info-50);
+
+  /* Warning - Caution */
+  --color-warning: var(--color-warning-500);
+  --color-warning-hover: var(--color-warning-600);
+  --color-warning-muted: var(--color-warning-50);
+
+  /* Danger/Error - Destructive actions */
+  --color-danger: var(--color-error-500);
+  --color-danger-hover: var(--color-error-600);
+  --color-danger-muted: var(--color-error-50);
+
+  /* Light/Dark - Theme-adaptive */
+  --color-light: var(--color-surface);
+  --color-dark: var(--color-gray-900);
+
+  /* Surface Colors */
+  --color-surface-primary: var(--color-surface);
+  --color-surface-secondary: var(--color-surface-secondary);
+  --color-surface-tertiary: var(--color-background);
+
+  /* Text Colors */
+  --color-text: var(--color-text-primary);
+  --color-text-muted: var(--color-text-secondary);
+  --color-text-subtle: var(--color-text-tertiary);
+
+  /* Border Colors */
+  --color-border-default: var(--color-border);
+  --color-border-muted: var(--color-gray-200);
+
+  /* Component-Specific Tokens */
+  /* Sidebar */
+  --color-sidebar-bg: var(--color-nav);
+  --color-sidebar-border: var(--color-border-default);
+  --color-sidebar-text: var(--color-text);
+  --color-sidebar-text-muted: var(--color-text-muted);
+  --color-sidebar-brand: var(--color-primary);
+  --color-sidebar-logo-text: var(--color-logo-text);
+  --color-sidebar-logo-brand: var(--color-logo-brand);
+  --color-sidebar-logo-icon: var(--color-logo-icon);
+  --color-sidebar-section-header: var(--color-section-header);
+  --color-sidebar-menu-active-bg: var(--color-menu-active-bg);
+  --color-sidebar-menu-active-text: var(--color-menu-active-text);
+  --color-sidebar-menu-inactive-text: var(--color-menu-inactive-text);
+  --color-sidebar-menu-hover-bg: var(--color-menu-hover-bg);
+  --color-sidebar-submenu-bg: var(--color-submenu-bg);
+  --color-sidebar-tooltip-bg: var(--color-tooltip-bg);
+  --color-sidebar-tooltip-text: var(--color-tooltip-text);
+
+  /* TopNav */
+  --color-topnav-bg: var(--color-nav);
+  --color-topnav-border: var(--color-border-default);
+  --color-topnav-text-primary: var(--color-text);
+  --color-topnav-text-secondary: var(--color-text-muted);
+  --color-topnav-search-bg: var(--color-surface-secondary);
+  --color-topnav-search-placeholder: var(--color-gray-400);
+  --color-topnav-button-hover: var(--color-gray-100);
+  --color-topnav-notification: var(--color-error-500);
+}
+
+/* ===== Custom Utility Classes ===== */
+@layer utilities {
+  /* Sidebar Logo */
+  .text-sidebar-logo-text {
+    color: var(--color-sidebar-logo-text);
+  }
+  .text-sidebar-logo-brand {
+    color: var(--color-sidebar-logo-brand);
+  }
+  .text-sidebar-logo-icon {
+    color: var(--color-sidebar-logo-icon);
+  }
+
+  /* Sidebar Navigation */
+  .bg-sidebar {
+    background-color: var(--color-sidebar-bg);
+  }
+  .border-sidebar {
+    border-color: var(--color-sidebar-border);
+  }
+  .text-sidebar-section-header {
+    color: var(--color-sidebar-section-header);
+  }
+
+  /* Sidebar Menu States */
+  .bg-sidebar-menu-active {
+    background-color: var(--color-sidebar-menu-active-bg);
+  }
+  .text-sidebar-menu-active {
+    color: var(--color-sidebar-menu-active-text);
+  }
+  .text-sidebar-menu-inactive {
+    color: var(--color-sidebar-menu-inactive-text);
+  }
+  .bg-sidebar-menu-hover {
+    background-color: var(--color-sidebar-menu-hover-bg);
+  }
+
+  /* Sidebar Submenu */
+  .bg-sidebar-submenu {
+    background-color: var(--color-sidebar-submenu-bg);
+  }
+
+  /* Sidebar Tooltip */
+  .bg-sidebar-tooltip {
+    background-color: var(--color-sidebar-tooltip-bg);
+  }
+  .text-sidebar-tooltip {
+    color: var(--color-sidebar-tooltip-text);
+  }
+
+  /* TopNav */
+  .bg-topnav {
+    background-color: var(--color-topnav-bg);
+  }
+  .border-topnav {
+    border-color: var(--color-topnav-border);
+  }
+  .text-topnav-primary {
+    color: var(--color-topnav-text-primary);
+  }
+  .text-topnav-secondary {
+    color: var(--color-topnav-text-secondary);
+  }
+  .bg-topnav-search {
+    background-color: var(--color-topnav-search-bg);
+  }
+  .text-topnav-search-placeholder {
+    color: var(--color-topnav-search-placeholder);
+  }
+  .bg-topnav-button-hover {
+    background-color: var(--color-topnav-button-hover);
+  }
+  .bg-topnav-notification {
+    background-color: var(--color-topnav-notification);
+  }
+  .bg-topnav-text-active {
+    background-color: var(--color-topnav-active-bg);
+  }
+
+  .h-topnav {
+    height: var(--topnav-height);
+  }
+
+  /* ===== Dashboard Page Utilities ===== */
+  /* Page backgrounds */
+  .bg-page {
+    background-color: var(--color-background);
+  }
+
+  /* Cards */
+  .card {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+    transition: background-color var(--transition-base),
+      border-color var(--transition-base);
+  }
+
+  /* Text colors */
+  .text-primary {
+    color: var(--color-text-primary);
+  }
+
+  .\!text-primary {
+    color: var(--color-text-primary) !important;
+  }
+
+  .text-secondary {
+    color: var(--color-text-secondary);
+  }
+
+  /* Brand colors */
+  .bg-brand-light {
+    background-color: var(--color-primary-50);
+  }
+
+  .icon-brand {
+    color: var(--color-primary-600);
+  }
+
+  /* Success colors */
+  .bg-success-light {
+    background-color: var(--color-success-50);
+  }
+
+  .text-success {
+    color: var(--color-success-600);
+  }
+
+  /* Warning colors */
+  .bg-warning-light {
+    background-color: var(--color-warning-50);
+  }
+
+  .text-warning {
+    color: var(--color-warning-600);
+  }
+
+  /* Error colors */
+  .bg-error-light {
+    background-color: var(--color-error-50);
+  }
+
+  .text-error {
+    color: var(--color-error-600);
+  }
+
+  /* ===== Component Interaction States ===== */
+  /* Hover states for buttons/dropdowns */
+  .hover-bg-muted:hover {
+    background-color: var(--color-gray-50);
+  }
+
+  .hover-border-primary:hover {
+    border-color: var(--color-gray-300);
+  }
+
+  /* Secondary surface (for component backgrounds like icons) */
+  .bg-surface-muted {
+    background-color: var(--color-surface-secondary);
+  }
+
+  /* Primary button state (for active pagination, etc.) */
+  .bg-primary {
+    background-color: var(--color-primary-600);
+  }
+
+  .text-on-primary {
+    color: var(--color-white);
+  }
+
+  .\!text-on-primary {
+    color: var(--color-white) !important;
+  }
+
+  .border-primary {
+    border-color: var(--color-primary-600);
+  }
+
+  .hover-bg-primary-dark:hover {
+    background-color: var(--color-primary-700);
+    border-color: var(--color-primary-700);
+  }
+
+  /* Tertiary text (for placeholders, subtle info) */
+  .text-tertiary {
+    color: var(--color-text-tertiary);
+  }
+
+  .\!text-tertiary {
+    color: var(--color-text-tertiary) !important;
+  }
+
+  /* Border utilities */
+  .border-default {
+    border-color: var(--color-border);
+  }
+
+  /* Table utilities */
+  .bg-table-header {
+    background-color: var(--color-table-header-bg);
+  }
+
+  .text-table-header {
+    color: var(--color-table-header-text);
+  }
+
+  .bg-table-body {
+    background-color: var(--color-table-body-bg);
+  }
+
+  .bg-table-row-hover {
+    background-color: var(--color-table-row-hover);
+  }
+
+  .text-table-cell {
+    color: var(--color-table-cell-text);
+  }
+}
+
+:root {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+
   /* ===== Primary Brand Colors ===== */
   --color-primary-50: #eff4ff;
   --color-primary-100: #dbe6ff;
@@ -15,31 +321,15 @@
   --color-primary-800: #1d3bb7;
   --color-primary-900: #1d3590;
   --color-primary-950: #162157;
-
-  /* Aliases for common use */
-  --color-primary: var(--color-primary-500);
-  --color-primary-dark: var(--color-primary-600);
-  --color-primary-light: var(--color-primary-400);
+  --color-primary: #4880ff;
+  --color-primary-dark: #2b5ff7;
+  --color-primary-light: #6691ff;
 
   /* ===== Surface/Background Colors ===== */
-  /* Use these for card, panel, modal backgrounds */
-  --color-surface: #ffffff; /* Light mode default surface */
-  --color-surface-dark: #1a1d24; /* Dark mode default surface */
-
-  /* ===== Container/Layout Colors ===== */
-  /* Use these for main layout, page backgrounds */
-  --color-background: #f5f5f7; /* Light mode page background */
-  --color-background-dark: #1e2129; /* Dark mode page background */
-
-  /* ===== Secondary Surface Colors ===== */
-  /* Use these for input fields, secondary panels */
-  --color-surface-secondary: #f8f9fc; /* Light mode secondary surface */
-  --color-surface-secondary-dark: #242831; /* Dark mode secondary surface */
-
-  /* ===== Navigation Colors ===== */
-  /* Use these specifically for sidebar/navigation */
-  --color-nav: #ffffff; /* Light mode navigation */
-  --color-nav-dark: #15171d; /* Dark mode navigation */
+  --color-background: #f5f5f7;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f8f9fc;
+  --color-nav: #ffffff;
 
   /* ===== Base Colors ===== */
   --color-white: #ffffff;
@@ -61,30 +351,27 @@
   /* ===== Success Colors ===== */
   --color-success-50: #f0fdf4;
   --color-success-100: #dcfce7;
+  --color-success-400: #4ade80;
   --color-success-500: #22c55e;
   --color-success-600: #16a34a;
-  --color-success-50-light: #f0fdf4;
-  --color-success-50-dark: #14532d;
   --color-success-light: #22c55e;
   --color-success-dark: #16a34a;
 
   /* ===== Warning Colors ===== */
   --color-warning-50: #fffbeb;
   --color-warning-100: #fef3c7;
+  --color-warning-400: #facc15;
   --color-warning-500: #eab308;
   --color-warning-600: #ca8a04;
-  --color-warning-50-light: #fffbeb;
-  --color-warning-50-dark: #713f12;
   --color-warning-light: #eab308;
   --color-warning-dark: #ca8a04;
 
   /* ===== Error Colors ===== */
   --color-error-50: #fef2f2;
   --color-error-100: #fee2e2;
+  --color-error-400: #f87171;
   --color-error-500: #ef4444;
   --color-error-600: #dc2626;
-  --color-error-50-light: #fef2f2;
-  --color-error-50-dark: #7f1d1d;
   --color-error-light: #ef4444;
   --color-error-dark: #dc2626;
 
@@ -93,22 +380,36 @@
   --color-info-100: #dbeafe;
   --color-info-500: #3b82f6;
   --color-info-600: #2563eb;
-  --color-info-50-light: #eff6ff;
-  --color-info-50-dark: #1e3a8a;
   --color-info-light: #3b82f6;
   --color-info-dark: #2563eb;
 
-  /* ===== Text Colors ===== */
-  --color-text-primary-light: #111827;
-  --color-text-primary-dark: #f9fafb;
-  --color-text-secondary-light: #6b7280;
-  --color-text-secondary-dark: #9ca3af;
-  --color-text-tertiary-light: #9ca3af;
-  --color-text-tertiary-dark: #6b7280;
+  /* ===== Text & Border Colors ===== */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+  --color-border: #e5e7eb;
 
-  /* ===== Border Colors ===== */
-  --color-border-light: #e5e7eb;
-  --color-border-dark: #374151;
+  /* ===== Table Colors ===== */
+  --color-table-header-bg: #f9fafb;
+  --color-table-header-text: #4b5563;
+  --color-table-body-bg: #f9fafb;
+  --color-table-row-hover: #ffffff;
+  --color-table-cell-text: #374151;
+
+  /* ===== Semantic Sidebar Colors ===== */
+  --color-nav-bg: var(--color-nav);
+  --color-sidebar-border: var(--color-border);
+  --color-logo-text: var(--color-text-primary);
+  --color-logo-brand: var(--color-primary-600);
+  --color-logo-icon: var(--color-text-secondary);
+  --color-section-header: var(--color-text-secondary);
+  --color-menu-active-bg: var(--color-primary-600);
+  --color-menu-active-text: var(--color-white);
+  --color-menu-inactive-text: var(--color-text-primary);
+  --color-menu-hover-bg: var(--color-gray-200);
+  --color-tooltip-bg: var(--color-gray-800);
+  --color-tooltip-text: var(--color-gray-50);
+  --color-submenu-bg: var(--color-gray-50);
 
   /* ===== Font Families ===== */
   --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
@@ -118,15 +419,15 @@
     monospace;
 
   /* ===== Font Sizes ===== */
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 1.875rem;
-  --font-size-4xl: 2.25rem;
-  --font-size-5xl: 3rem;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 30px;
+  --font-size-4xl: 36px;
+  --font-size-5xl: 48px;
 
   /* ===== Font Weights ===== */
   --font-weight-normal: 400;
@@ -144,18 +445,18 @@
 
   /* ===== Spacing ===== */
   --spacing-0: 0;
-  --spacing-1: 0.25rem;
-  --spacing-2: 0.5rem;
-  --spacing-3: 0.75rem;
-  --spacing-4: 1rem;
-  --spacing-5: 1.25rem;
-  --spacing-6: 1.5rem;
-  --spacing-8: 2rem;
-  --spacing-10: 2.5rem;
-  --spacing-12: 3rem;
-  --spacing-16: 4rem;
-  --spacing-20: 5rem;
-  --spacing-24: 6rem;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+  --spacing-24: 96px;
 
   /* ===== Shadows ===== */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -170,19 +471,15 @@
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   --shadow-none: none;
 
-  /* Shadow variants for dark mode */
-  --shadow-sm-light: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-sm-dark: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-
   /* ===== Border Radius ===== */
   --radius-none: 0;
-  --radius-sm: 0.125rem;
-  --radius-base: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
-  --radius-2xl: 1rem;
-  --radius-3xl: 1.5rem;
+  --radius-sm: 2px;
+  --radius-base: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
   --radius-full: 9999px;
 
   /* ===== Border Widths ===== */
@@ -211,32 +508,245 @@
   --z-index-tooltip: 1070;
 
   /* ===== Layout ===== */
-  --sidebar-width-expanded: 16rem;
-  --sidebar-width-collapsed: 5rem;
-  --topnav-height: 4.3125rem;
+  --sidebar-width-expanded: 256px;
+  --sidebar-width-collapsed: 80px;
+  --topnav-height: 69px;
+
+  --color-topnav-active-bg: var(--color-gray-200);
 }
 
-:root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  --color-background: #f5f5f7;
+/* ===== Dark Theme Overrides ===== */
+[data-theme="dark"] {
+  /* Surface/Background Colors */
+  --color-background: #2b3544;
+  --color-surface: #344152;
+  --color-surface-secondary: #3a4556;
+  --color-nav: #344152;
+
+  /* Text & Border Colors */
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #9ca3af;
+  --color-text-tertiary: #6b7280;
+  --color-border: #3d4e5e;
+
+  /* Table Colors - Dark Theme */
+  --color-table-header-bg: #1f2937;
+  --color-table-header-text: #9ca3af;
+  --color-table-body-bg: #1f2937;
+  --color-table-row-hover: #374151;
+  --color-table-cell-text: #d1d5db;
+
+  /* Semantic Sidebar Colors - Dark Theme */
+  --color-logo-brand: #60a5fa;
+  --color-logo-icon: var(--color-gray-400);
+  --color-section-header: var(--color-gray-400);
+  --color-menu-active-bg: #3b82f6;
+  --color-menu-inactive-text: var(--color-gray-300);
+  --color-menu-hover-bg: #3a4556;
+  --color-submenu-bg: #2b3544;
+  --color-tooltip-bg: #3a4556;
+
+  /* TopNav Colors - Dark Theme */
+  --color-topnav-button-hover: #3a4556;
+  --color-topnav-search-placeholder: var(--color-gray-500);
+  --color-topnav-active-bg: var(--color-surface-secondary);
+
+  /* Shadows - darker for dark mode */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.3),
+    0 1px 2px -1px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3),
+    0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4),
+    0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
+  /* Dashboard utility class overrides for dark theme */
+  .icon-brand {
+    color: var(--color-primary-400);
+  }
+
+  .text-success {
+    color: var(--color-success-400);
+  }
+
+  .text-warning {
+    color: var(--color-warning-400);
+  }
+
+  .text-error {
+    color: var(--color-error-400);
+  }
+
+  .bg-brand-light {
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-500) 15%,
+      transparent
+    );
+  }
+
+  .bg-success-light {
+    background-color: color-mix(
+      in srgb,
+      var(--color-success-500) 15%,
+      transparent
+    );
+  }
+
+  .bg-warning-light {
+    background-color: color-mix(
+      in srgb,
+      var(--color-warning-500) 15%,
+      transparent
+    );
+  }
+
+  .bg-error-light {
+    background-color: color-mix(
+      in srgb,
+      var(--color-error-500) 15%,
+      transparent
+    );
+  }
+
+  /* Dark theme overrides for new utilities */
+  .hover-bg-muted:hover {
+    background-color: var(--color-surface-secondary);
+  }
+
+  .hover-border-primary:hover {
+    border-color: var(--color-gray-600);
+  }
+
+  .bg-primary {
+    background-color: var(--color-primary-500);
+  }
+
+  .border-primary {
+    border-color: var(--color-primary-500);
+  }
+
+  .hover-bg-primary-dark:hover {
+    background-color: var(--color-primary-600);
+    border-color: var(--color-primary-600);
+  }
 }
 
-/* Dark mode overrides */
-:root.dark,
-.dark {
-  --color-background: #1e2129;
+/* ===== Forest Theme Overrides ===== */
+[data-theme="forest"] {
+  /* Primary Colors - Green palette */
+  --color-primary-50: #f0fdf4;
+  --color-primary-100: #dcfce7;
+  --color-primary-200: #bbf7d0;
+  --color-primary-300: #86efac;
+  --color-primary-400: #4ade80;
+  --color-primary-500: #22c55e;
+  --color-primary-600: #16a34a;
+  --color-primary-700: #15803d;
+  --color-primary-800: #166534;
+  --color-primary-900: #14532d;
+  --color-primary-950: #052e16;
+  --color-primary: #22c55e;
+  --color-primary-dark: #16a34a;
+  --color-primary-light: #4ade80;
+
+  /* Surface/Background Colors - Dark forest tones */
+  --color-background: #0a1f0f;
+  --color-surface: #0f2817;
+  --color-surface-secondary: #14332a;
+  --color-nav: #0a1f0f;
+
+  /* Text & Border Colors */
+  --color-text-primary: #f0fdf4;
+  --color-text-secondary: #86efac;
+  --color-text-tertiary: #22c55e;
+  --color-border: #166534;
+
+  /* Table Colors - Forest Theme */
+  --color-table-header-bg: #14532d;
+  --color-table-header-text: #86efac;
+  --color-table-body-bg: #14532d;
+  --color-table-row-hover: #166534;
+  --color-table-cell-text: #dcfce7;
+
+  /* Semantic Sidebar Colors - Forest Theme */
+  --color-logo-brand: var(--color-primary-light);
+  --color-logo-icon: var(--color-gray-300);
+  --color-section-header: var(--color-gray-300);
+  --color-menu-active-bg: var(--color-primary);
+  --color-menu-inactive-text: var(--color-gray-300);
+  --color-menu-hover-bg: var(--color-primary-900);
+  --color-submenu-bg: var(--color-surface);
+  --color-tooltip-bg: var(--color-primary-900);
+
+  /* TopNav Colors - Forest Theme */
+  --color-topnav-button-hover: var(--color-primary-900);
+  --color-topnav-search-placeholder: var(--color-gray-500);
+  --color-topnav-active-bg: var(--color-primary-800);
+
+  /* Shadows - green tinted */
+  --shadow-sm: 0 1px 2px 0 rgba(34, 197, 94, 0.15);
+  --shadow-base: 0 1px 3px 0 rgba(34, 197, 94, 0.2),
+    0 1px 2px -1px rgba(34, 197, 94, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(34, 197, 94, 0.25),
+    0 2px 4px -2px rgba(34, 197, 94, 0.25);
+  --shadow-lg: 0 10px 15px -3px rgba(34, 197, 94, 0.3),
+    0 4px 6px -4px rgba(34, 197, 94, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(34, 197, 94, 0.35),
+    0 8px 10px -6px rgba(34, 197, 94, 0.35);
+  --shadow-2xl: 0 25px 50px -12px rgba(34, 197, 94, 0.4);
+
+  /* Dashboard utility class overrides for forest theme */
+  .icon-brand {
+    color: var(--color-primary-light);
+  }
+
+  .text-success {
+    color: var(--color-primary-300);
+  }
+
+  .bg-brand-light {
+    background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  }
+
+  .bg-success-light {
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-400) 15%,
+      transparent
+    );
+  }
+
+  /* Forest theme overrides for new utilities */
+  .hover-bg-muted:hover {
+    background-color: var(--color-surface-secondary);
+  }
+
+  .hover-border-primary:hover {
+    border-color: var(--color-primary-700);
+  }
+
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+
+  .border-primary {
+    border-color: var(--color-primary);
+  }
+
+  .hover-bg-primary-dark:hover {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+  }
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--color-background-dark);
-  transition: background-color 300ms ease-in-out;
-}
-
-/* Apply light theme by default */
-:root:not(.dark) body {
   background-color: var(--color-background);
+  transition: background-color 300ms ease-in-out;
 }

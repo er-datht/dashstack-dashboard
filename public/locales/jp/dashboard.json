@@ -29,6 +29,9 @@
   "welcomeMessage": "これはあなたの管理ダッシュボードです。サイドバーナビゲーションを使用して、さまざまなセクションを探索してください。",
   "salesDetailsTitle": "売上詳細",
   "dealDetailsTitle": "取引詳細",
+  "revenueTitle": "収益",
+  "revenueChartSales": "売上",
+  "revenueChartProfit": "利益",
   "noDataAvailable": "データがありません",
   "dealDetails": {
     "headers": {

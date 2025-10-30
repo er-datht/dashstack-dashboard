@@ -126,7 +126,7 @@ function TableCommon<T>({
       </div>
 
       {hasPagination && pageCount > 1 && (
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-t border-default">
           <Pagination
             currentPage={pageCurrent}
             totalPages={pageCount}

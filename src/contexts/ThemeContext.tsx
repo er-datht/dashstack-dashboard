@@ -1,144 +1,130 @@
-import { createContext, useState, useEffect, useCallback } from "react";
-import type { ReactNode } from "react";
-import { THEMES, STORAGE_KEYS } from "../constants/common";
 import {
-  getSystemTheme,
-  getOppositeTheme,
-  applyThemeToDOM,
-  type ThemeValue,
-  isLightTheme,
-  isDarkTheme,
-} from "../utils/theme";
+  createContext,
+  useEffect,
+  useState,
+  useCallback,
+  type ReactNode,
+} from "react";
+
+export type Theme = "light" | "dark" | "forest";
+
+export interface ThemeContextValue {
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+  cycleTheme: () => void;
+}
+
+export const ThemeContext = createContext<ThemeContextValue | undefined>(
+  undefined
+);
+
+const STORAGE_KEY = "theme";
+const THEMES: Theme[] = ["light", "dark", "forest"];
 
 /**
- * Theme Context Type Definition
+ * Get system theme preference
  */
-export type ThemeContextType = {
-  /** Current active theme */
-  theme: ThemeValue;
-  /** Toggle between light and dark theme */
-  toggleTheme: () => void;
-  /** Set a specific theme */
-  setTheme: (theme: ThemeValue) => void;
-  /** Check if current theme is dark */
-  isDark: boolean;
-  /** Check if current theme is light */
-  isLight: boolean;
-};
+function getSystemTheme(): Theme {
+  if (typeof window === "undefined") return "light";
 
-/**
- * Theme Context
- */
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  return prefersDark ? "dark" : "light";
+}
 
 /**
  * Get initial theme from localStorage or system preference
- * @returns The initial theme to use
  */
-const getInitialTheme = (): ThemeValue => {
-  // Try to get saved theme from localStorage
-  const savedTheme = localStorage.getItem(
-    STORAGE_KEYS.THEME
-  ) as ThemeValue | null;
+function getInitialTheme(): Theme {
+  if (typeof window === "undefined") return "light";
 
-  if (savedTheme && (isLightTheme(savedTheme) || isDarkTheme(savedTheme))) {
-    return savedTheme;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored && THEMES.includes(stored as Theme)) {
+      return stored as Theme;
+    }
+  } catch (error) {
+    console.warn("Failed to read theme from localStorage:", error);
   }
 
-  // Fall back to system preference
   return getSystemTheme();
-};
+}
 
 /**
- * Theme Provider Props
+ * Apply theme to document element
  */
-type ThemeProviderProps = {
+function applyTheme(theme: Theme): void {
+  if (typeof document === "undefined") return;
+  document.documentElement.setAttribute("data-theme", theme);
+}
+
+interface ThemeProviderProps {
   children: ReactNode;
-  /** Optional default theme (overrides system preference) */
-  defaultTheme?: ThemeValue;
-};
+}
 
-/**
- * Theme Provider Component
- *
- * Provides theme context to the application with the following features:
- * - Persists theme preference to localStorage
- * - Respects system theme preference
- * - Applies theme classes to DOM
- * - Provides theme toggle functionality
- */
-export function ThemeProvider({ children, defaultTheme }: ThemeProviderProps) {
-  // Initialize theme state
-  const [theme, setThemeState] = useState<ThemeValue>(() => {
-    return defaultTheme || getInitialTheme();
-  });
+export function ThemeProvider({ children }: ThemeProviderProps) {
+  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
 
-  // Derived state for convenience
-  const isDark = isDarkTheme(theme);
-  const isLight = isLightTheme(theme);
-
-  /**
-   * Set theme and persist to localStorage
-   */
-  const setTheme = useCallback((newTheme: ThemeValue) => {
-    setThemeState(newTheme);
-  }, []);
-
-  /**
-   * Toggle between light and dark theme
-   */
-  const toggleTheme = useCallback(() => {
-    setThemeState((currentTheme) => getOppositeTheme(currentTheme));
-  }, []);
-
-  /**
-   * Apply theme changes to DOM and localStorage
-   */
+  // Apply theme on mount and when it changes
   useEffect(() => {
-    // Apply theme classes to DOM
-    applyThemeToDOM(theme);
-
-    // Persist theme to localStorage
-    localStorage.setItem(STORAGE_KEYS.THEME, theme);
+    applyTheme(theme);
   }, [theme]);
 
-  /**
-   * Listen for system theme changes (optional enhancement)
-   */
+  // Listen for system theme changes
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     const handleChange = (e: MediaQueryListEvent) => {
-      // Only update if user hasn't set a preference
-      const hasUserPreference = localStorage.getItem(STORAGE_KEYS.THEME);
-      if (!hasUserPreference) {
-        setThemeState(e.matches ? THEMES.DARK : THEMES.LIGHT);
+      // Only update if user hasn't manually set a theme
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (!stored) {
+        const newTheme = e.matches ? "dark" : "light";
+        setThemeState(newTheme);
       }
     };
 
     // Modern browsers
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener("change", handleChange);
-      return () => mediaQuery.removeEventListener("change", handleChange);
-    }
-    // Legacy browsers
-    else if (mediaQuery.addListener) {
-      mediaQuery.addListener(handleChange);
-      return () => mediaQuery.removeListener(handleChange);
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener("change", handleChange);
+    };
+  }, []);
+
+  const setTheme = useCallback((newTheme: Theme) => {
+    setThemeState(newTheme);
+
+    try {
+      localStorage.setItem(STORAGE_KEY, newTheme);
+    } catch (error) {
+      console.warn("Failed to save theme to localStorage:", error);
     }
   }, []);
 
-  const value: ThemeContextType = {
+  const cycleTheme = useCallback(() => {
+    setThemeState((current) => {
+      const currentIndex = THEMES.indexOf(current);
+      const nextIndex = (currentIndex + 1) % THEMES.length;
+      const nextTheme = THEMES[nextIndex];
+
+      try {
+        localStorage.setItem(STORAGE_KEY, nextTheme);
+      } catch (error) {
+        console.warn("Failed to save theme to localStorage:", error);
+      }
+
+      return nextTheme;
+    });
+  }, []);
+
+  const value: ThemeContextValue = {
     theme,
-    toggleTheme,
     setTheme,
-    isDark,
-    isLight,
+    cycleTheme,
   };
 
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 }
-
-export { ThemeContext };

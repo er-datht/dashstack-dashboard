@@ -20,25 +20,21 @@ const LogoSection = ({
   return (
     <div className={cn(styles.logoSection, "shrink-0")}>
       <div
-        className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 h-[69px]"
+        className="flex items-center justify-between p-4 h-[69px] border-b border-sidebar-border"
         role="banner"
       >
         {isCollapsed ? (
           <div className={cn("flex items-center", { "mr-1": isCollapsed })}>
-            <span className="text-lg font-bold text-gray-800 dark:text-gray-100">
-              D
-            </span>
-            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-              S
-            </span>
+            <span className="text-lg font-bold text-sidebar-logo-text">D</span>
+            <span className="text-lg font-bold text-sidebar-logo-brand">S</span>
           </div>
         ) : (
           <div className="flex items-center gap-2">
             <div className="flex items-center">
-              <span className="text-xl font-bold text-gray-800 dark:text-gray-100">
+              <span className="text-xl font-bold text-sidebar-logo-text">
                 Dash
               </span>
-              <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+              <span className="text-xl font-bold text-sidebar-logo-brand">
                 Stack
               </span>
             </div>
@@ -47,7 +43,7 @@ const LogoSection = ({
         <button
           onClick={onToggle}
           className={cn(
-            "rounded-lg transition-colors cursor-pointer shrink-0",
+            "rounded-lg transition-colors cursor-pointer shrink-0 text-sidebar-logo-icon",
             {
               "p-1": isCollapsed,
               "p-2": !isCollapsed,
@@ -62,9 +58,9 @@ const LogoSection = ({
           aria-controls="sidebar-navigation"
         >
           {isCollapsed ? (
-            <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <ChevronRight className="w-5 h-5" />
           ) : (
-            <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <ChevronLeft className="w-5 h-5" />
           )}
         </button>
       </div>
