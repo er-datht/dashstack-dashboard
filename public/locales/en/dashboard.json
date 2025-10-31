@@ -62,5 +62,15 @@
     "delivered": "Delivered",
     "pending": "Pending",
     "rejected": "Rejected"
+  },
+  "products": {
+    "title": "Products",
+    "editProduct": "Edit Product",
+    "addToWishlist": "Add to wishlist",
+    "removeFromWishlist": "Remove from wishlist",
+    "reviews": "reviews",
+    "getStarted": "Get Started",
+    "loading": "Loading products...",
+    "error": "Failed to load products. Please try again later."
   }
 }
