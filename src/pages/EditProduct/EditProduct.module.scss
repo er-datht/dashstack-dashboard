@@ -1,0 +1,94 @@
+@use "../../assets/styles/variables" as *;
+
+.container {
+  padding: spacing(6);
+
+  @media (max-width: map-get($breakpoints, sm)) {
+    padding: spacing(4);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: spacing(3);
+  margin-bottom: spacing(6);
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: spacing(2);
+  cursor: pointer;
+  transition: all map-get($transitions, base) map-get($transition-timing, ease-in-out);
+  color: var(--color-text-primary);
+
+  &:hover {
+    background-color: var(--color-surface-secondary);
+    border-color: var(--color-gray-300);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.headerIcon {
+  width: 40px;
+  height: 40px;
+  background-color: var(--color-primary-50);
+  border-radius: spacing(2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  font-size: font-size(2xl);
+  font-weight: map-get($font-weights, bold);
+  color: var(--color-text-primary);
+  margin: 0;
+
+  @media (max-width: map-get($breakpoints, sm)) {
+    font-size: font-size(xl);
+  }
+}
+
+.content {
+  min-height: 200px;
+}
+
+// Dark theme overrides
+[data-theme="dark"] {
+  .headerIcon {
+    background-color: color-mix(
+      in srgb,
+      var(--color-primary-500) 15%,
+      transparent
+    );
+  }
+
+  .backButton {
+    &:hover {
+      border-color: color(gray-600);
+    }
+  }
+}
+
+// Forest theme overrides
+[data-theme="forest"] {
+  .headerIcon {
+    background-color: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  }
+
+  .backButton {
+    &:hover {
+      border-color: color(primary-700);
+    }
+  }
+}

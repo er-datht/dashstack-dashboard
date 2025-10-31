@@ -1,26 +1,100 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Package } from "lucide-react";
+import PromotionalBanner from "../../components/PromotionalBanner";
+import ProductCard from "../../components/ProductCard";
+import { useProducts } from "../../hooks/useProducts";
+import { useBanners } from "../../hooks/useBanners";
+import styles from "./Products.module.scss";
+import classnames from "classnames";
 
 export default function Products() {
-  const { t } = useTranslation();
+  const { t } = useTranslation("dashboard");
+  const {
+    products,
+    isLoading: isLoadingProducts,
+    error: productsError,
+  } = useProducts();
+
+  const {
+    banners,
+    isLoading: isLoadingBanners,
+    error: bannersError,
+  } = useBanners();
+  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
+
+  // Combined loading and error states
+  const isLoading = isLoadingProducts || isLoadingBanners;
+  const error = productsError || bannersError;
+
+  const handleWishlistToggle = (productId: string) => {
+    setWishlist((prev) => {
+      const newWishlist = new Set(prev);
+      if (newWishlist.has(productId)) {
+        newWishlist.delete(productId);
+      } else {
+        newWishlist.add(productId);
+      }
+      return newWishlist;
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <div className={styles.headerIcon}>
+            <Package className="w-6 h-6 icon-brand" />
+          </div>
+          <h1 className={styles.title}>{t("products.title")}</h1>
+        </div>
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner}></div>
+          <p className={styles.loadingText}>{t("products.loading")}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <div className={styles.headerIcon}>
+            <Package className="w-6 h-6 icon-brand" />
+          </div>
+          <h1 className={styles.title}>{t("products.title")}</h1>
+        </div>
+        <div className={classnames(styles.errorContainer, "card")}>
+          <p className={styles.errorText}>{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6">
+    <div className={styles.container}>
       {/* Page Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-brand-light rounded-lg flex items-center justify-center">
+      <div className={styles.header}>
+        <div className={styles.headerIcon}>
           <Package className="w-6 h-6 icon-brand" />
         </div>
-        <h1 className="text-2xl font-bold text-primary">
-          {t("navigation.products", "Products")}
-        </h1>
+        <h1 className={styles.title}>{t("products.title")}</h1>
       </div>
 
-      {/* Content */}
-      <div className="card p-6">
-        <p className="text-secondary">
-          Products page content will be displayed here.
-        </p>
+      {/* Promotional Banner */}
+      {banners.length > 0 && <PromotionalBanner banners={banners} />}
+
+      {/* Products Grid */}
+      <div className={styles.productsGrid}>
+        {products.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            isWishlisted={wishlist.has(product.id)}
+            onWishlistToggle={handleWishlistToggle}
+          />
+        ))}
       </div>
     </div>
   );

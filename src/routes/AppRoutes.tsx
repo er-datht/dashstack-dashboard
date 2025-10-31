@@ -7,6 +7,7 @@ import { ROUTES } from "./routes";
 // Lazy load all page components
 const Dashboard = lazy(() => import("../pages/Dashboard"));
 const Products = lazy(() => import("../pages/Products"));
+const EditProduct = lazy(() => import("../pages/EditProduct"));
 const Favorites = lazy(() => import("../pages/Favorites"));
 const Inbox = lazy(() => import("../pages/Inbox"));
 const Orders = lazy(() => import("../pages/Orders"));
@@ -49,6 +50,7 @@ export default function AppRoutes() {
             <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="products" element={<Products />} />
+            <Route path="products/:id/edit" element={<EditProduct />} />
             <Route path="favorites" element={<Favorites />} />
             <Route path="inbox" element={<Inbox />} />
             <Route path="orders" element={<Orders />} />

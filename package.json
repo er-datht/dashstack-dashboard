@@ -13,6 +13,7 @@
     "@tanstack/react-query": "^5.90.5",
     "@types/lodash": "^4.17.20",
     "@types/react-paginate": "^7.1.4",
+    "@types/react-slick": "^0.23.13",
     "axios": "^1.12.2",
     "classnames": "^2.5.1",
     "i18next": "^25.6.0",
@@ -26,9 +27,11 @@
     "react-paginate": "^8.3.0",
     "react-pro-sidebar": "^1.1.0",
     "react-router-dom": "^7.9.4",
+    "react-slick": "^0.31.0",
     "react-tooltip": "^5.30.0",
     "recharts": "^3.3.0",
-    "sass": "^1.93.2"
+    "sass": "^1.93.2",
+    "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

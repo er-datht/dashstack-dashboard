@@ -62,5 +62,15 @@
     "delivered": "配送済み",
     "pending": "保留中",
     "rejected": "却下"
+  },
+  "products": {
+    "title": "製品",
+    "editProduct": "製品を編集",
+    "addToWishlist": "ウィッシュリストに追加",
+    "removeFromWishlist": "ウィッシュリストから削除",
+    "reviews": "レビュー",
+    "getStarted": "始める",
+    "loading": "製品を読み込んでいます...",
+    "error": "製品の読み込みに失敗しました。後でもう一度お試しください。"
   }
 }

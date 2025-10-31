@@ -1,0 +1,407 @@
+@use "../../assets/styles/variables" as *;
+
+.card {
+  position: relative;
+  padding: spacing(4);
+  border-radius: spacing(3);
+  transition: all map-get($transitions, base) map-get($transition-timing, ease-in-out);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 300px; // Fixed width for consistent card size across all viewports
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+.wishlistButton {
+  position: absolute;
+  top: spacing(5);
+  right: spacing(5);
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all map-get($transitions, base) map-get($transition-timing, ease-in-out);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: scale(1.1);
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: scale(1);
+  }
+}
+
+.heartIcon {
+  width: 20px;
+  height: 20px;
+  color: color(gray-400);
+  transition: all map-get($transitions, fast) map-get($transition-timing, ease-in-out);
+
+  &.heartIconFilled {
+    color: color(error-500);
+  }
+}
+
+.imageContainer {
+  position: relative;
+  margin-bottom: spacing(4);
+  border-radius: spacing(2);
+  overflow: hidden;
+  width: 100%; // Ensure full width within card
+
+  // Override slick-carousel styles for product images
+  :global {
+    .slick-slider {
+      position: relative;
+    }
+
+    .slick-list {
+      border-radius: spacing(2);
+      overflow: hidden; // Ensure images don't overflow
+    }
+
+    .slick-track {
+      display: flex;
+      align-items: center;
+    }
+
+    .slick-slide {
+      > div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  // Responsive aspect ratios using CSS custom properties
+  // Mobile: 4:3 aspect ratio (75% padding-top) - wider for better product view on small screens
+  --aspect-ratio-padding: 75%;
+  padding-top: var(--aspect-ratio-padding);
+  background-color: color(gray-50);
+  border-radius: spacing(2);
+  overflow: hidden;
+
+  // Progressive enhancement: Use native aspect-ratio for modern browsers
+  // This provides better performance and cleaner CSS, but falls back to padding-top technique
+  @supports (aspect-ratio: 1) {
+    aspect-ratio: 4 / 3; // Mobile: 4:3 aspect ratio
+    padding-top: 0; // Remove padding when aspect-ratio is supported
+  }
+
+  // Tablet breakpoint (640px+): Switch to 1:1 square aspect ratio
+  @media (min-width: map-get($breakpoints, sm)) {
+    --aspect-ratio-padding: 100%;
+
+    @supports (aspect-ratio: 1) {
+      aspect-ratio: 1 / 1; // Tablet: 1:1 square
+    }
+  }
+
+  // Desktop breakpoint (1024px+): Maintain 1:1 square aspect ratio
+  @media (min-width: map-get($breakpoints, lg)) {
+    --aspect-ratio-padding: 100%;
+
+    @supports (aspect-ratio: 1) {
+      aspect-ratio: 1 / 1; // Desktop: 1:1 square
+    }
+  }
+}
+
+.image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; // Scale image to cover container while maintaining aspect ratio
+  object-position: center; // Center image within container
+  transition: transform map-get($transitions, slow) map-get($transition-timing, ease-in-out);
+
+  .card:hover & {
+    transform: scale(1.05);
+  }
+}
+
+.imageArrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all map-get($transitions, base) map-get($transition-timing, ease-in-out);
+  color: color(gray-700);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+
+  .imageContainer:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    background: white;
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+.imageArrowNext {
+  right: 8px;
+}
+
+.imageArrowPrev {
+  left: 8px;
+}
+
+.imageDots {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 5;
+}
+
+.imageDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+  transition: all map-get($transitions, fast) map-get($transition-timing, ease-in-out);
+  padding: 0;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  &.imageDotActive {
+    background: white;
+    width: 20px;
+    border-radius: 3px;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.productName {
+  font-size: font-size(base);
+  font-weight: map-get($font-weights, semibold);
+  color: var(--color-text-primary);
+  margin-bottom: spacing(2);
+  line-height: map-get($line-heights, snug);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.price {
+  font-size: font-size(xl);
+  font-weight: map-get($font-weights, bold);
+  color: color(primary-600);
+  margin-bottom: spacing(3);
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: spacing(2);
+  margin-bottom: spacing(4);
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+.star {
+  width: 16px;
+  height: 16px;
+  color: color(gray-300);
+  transition: color map-get($transitions, fast) map-get($transition-timing, ease-in-out);
+
+  &.starFilled {
+    color: #fbbf24; // Amber color for filled stars
+  }
+}
+
+.reviewCount {
+  font-size: font-size(sm);
+  color: var(--color-text-secondary);
+  font-weight: map-get($font-weights, normal);
+}
+
+.editButton {
+  width: 100%;
+  padding: spacing(2) spacing(4);
+  background-color: color(gray-100);
+  color: var(--color-text-primary);
+  border: 1px solid color(border-light);
+  border-radius: spacing(2);
+  font-size: font-size(sm);
+  font-weight: map-get($font-weights, medium);
+  cursor: pointer;
+  transition: all map-get($transitions, base) map-get($transition-timing, ease-in-out);
+  margin-top: auto;
+
+  &:hover {
+    background-color: color(gray-200);
+    border-color: color(gray-300);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// Dark theme overrides
+[data-theme="dark"] {
+  .wishlistButton {
+    background: rgba(52, 65, 82, 0.95);
+
+    &:hover {
+      background: rgba(52, 65, 82, 1);
+    }
+  }
+
+  .imageWrapper {
+    background-color: color(gray-800);
+  }
+
+  .imageArrow {
+    background: rgba(52, 65, 82, 0.95);
+    color: color(gray-300);
+
+    &:hover {
+      background: rgba(52, 65, 82, 1);
+    }
+  }
+
+  .imageDot {
+    background: rgba(156, 163, 175, 0.5);
+
+    &:hover {
+      background: rgba(156, 163, 175, 0.8);
+    }
+
+    &.imageDotActive {
+      background: rgba(156, 163, 175, 1);
+    }
+  }
+
+  .price {
+    color: color(primary-400);
+  }
+
+  .editButton {
+    background-color: color(surface-dark-secondary);
+    border-color: color(border-dark);
+
+    &:hover {
+      background-color: rgba(58, 69, 86, 1);
+      border-color: color(gray-600);
+    }
+  }
+}
+
+// Forest theme overrides
+[data-theme="forest"] {
+  .wishlistButton {
+    background: rgba(15, 40, 23, 0.95);
+
+    &:hover {
+      background: rgba(15, 40, 23, 1);
+    }
+  }
+
+  .imageWrapper {
+    background-color: color(primary-950);
+  }
+
+  .imageArrow {
+    background: rgba(15, 40, 23, 0.95);
+    color: color(primary-300);
+
+    &:hover {
+      background: rgba(15, 40, 23, 1);
+    }
+  }
+
+  .imageDot {
+    background: rgba(134, 239, 172, 0.5);
+
+    &:hover {
+      background: rgba(134, 239, 172, 0.8);
+    }
+
+    &.imageDotActive {
+      background: rgba(134, 239, 172, 1);
+    }
+  }
+
+  .price {
+    color: #4ade80; // Forest theme primary-light equivalent
+  }
+
+  .editButton {
+    background-color: #14532d; // Forest primary-900
+    border-color: #166534; // Forest border color
+
+    &:hover {
+      background-color: #166534; // Forest primary-800
+      border-color: #15803d; // Forest primary-700
+    }
+  }
+}
+
+// Responsive behavior notes:
+// - Fixed-width approach: Cards are always 300px wide at all viewport sizes
+// - Grid system uses auto-fit to automatically calculate column count based on available space
+// - Grid is centered when there's extra horizontal space (justify-content: center)
+// - No explicit breakpoints needed - grid naturally adapts to viewport width
+// - Mobile (narrow viewports): Typically 1 column
+// - Tablet (medium viewports): Typically 2 columns
+// - Desktop (wide viewports): Typically 3-4+ columns depending on sidebar state
+// - Images use responsive aspect ratios:
+//   - Mobile: 4:3 aspect ratio (wider) for better product visibility on small screens
+//   - Tablet/Desktop: 1:1 square aspect ratio for balanced grid layout
+// - Hybrid approach: Uses padding-top % technique with aspect-ratio as progressive enhancement
+// - CSS custom properties allow easy aspect ratio adjustments per breakpoint
