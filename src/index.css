@@ -234,6 +234,10 @@
     color: var(--color-error-600);
   }
 
+  .icon-error {
+    color: var(--color-error-600);
+  }
+
   /* ===== Component Interaction States ===== */
   /* Hover states for buttons/dropdowns */
   .hover-bg-muted:hover {
@@ -579,6 +583,10 @@
   }
 
   .text-error {
+    color: var(--color-error-400);
+  }
+
+  .icon-error {
     color: var(--color-error-400);
   }
 

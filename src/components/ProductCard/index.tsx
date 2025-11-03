@@ -74,15 +74,19 @@ export default function ProductCard({
   };
 
   const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, index) => (
-      <Star
-        key={index}
-        className={classnames(styles.star, {
-          [styles.starFilled]: index < rating,
-        })}
-        fill={index < rating ? "currentColor" : "none"}
-      />
-    ));
+    return Array.from({ length: 5 }, (_, index) => {
+      const isFilled = index < rating;
+      return (
+        <Star
+          key={index}
+          className="w-4 h-4 transition-colors duration-200 ease-in-out"
+          style={{
+            color: isFilled ? "#fbbf24" : "var(--color-gray-300)",
+          }}
+          fill={isFilled ? "currentColor" : "none"}
+        />
+      );
+    });
   };
 
   return (
@@ -98,9 +102,12 @@ export default function ProductCard({
         }
       >
         <Heart
-          className={classnames(styles.heartIcon, {
-            [styles.heartIconFilled]: isWishlisted,
-          })}
+          className="w-5 h-5 transition-all duration-200 ease-in-out"
+          style={{
+            color: isWishlisted
+              ? "var(--color-error-500)"
+              : "var(--color-gray-400)",
+          }}
           fill={isWishlisted ? "currentColor" : "none"}
         />
       </button>
@@ -151,18 +158,30 @@ export default function ProductCard({
       </div>
 
       {/* Product Info */}
-      <div className={styles.content}>
-        <h3 className={styles.productName}>{product.name}</h3>
-        <p className={styles.price}>${product.price.toFixed(2)}</p>
+      <div className="flex flex-col flex-1">
+        <h3 className="text-base font-semibold text-primary mb-2 leading-snug overflow-hidden text-ellipsis line-clamp-2">
+          {product.name}
+        </h3>
+        <p
+          className="text-xl font-bold mb-3"
+          style={{ color: "var(--color-primary-600)" }}
+        >
+          ${product.price.toFixed(2)}
+        </p>
 
         {/* Rating */}
-        <div className={styles.rating}>
-          <div className={styles.stars}>{renderStars(product.rating)}</div>
-          <span className={styles.reviewCount}>({product.reviewCount})</span>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="flex gap-0.5">{renderStars(product.rating)}</div>
+          <span className="text-sm text-secondary font-normal">
+            ({product.reviewCount})
+          </span>
         </div>
 
         {/* Edit Button */}
-        <button className={styles.editButton} onClick={handleEditClick}>
+        <button
+          onClick={handleEditClick}
+          className="inline-flex items-center justify-center px-3 py-2 rounded-md bg-primary text-on-primary border border-primary hover-bg-primary-dark transition-colors duration-200 text-sm font-medium"
+        >
           {t("products.editProduct")}
         </button>
       </div>
