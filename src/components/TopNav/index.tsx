@@ -18,11 +18,11 @@ export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
         {/* Search Bar */}
         <div className="flex-1 max-w-xl">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-topnav-search-placeholder" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary" />
             <input
               type="text"
               placeholder={t("common:search")}
-              className="w-full pl-10 pr-4 py-2 rounded-lg text-sm focus:outline-none text-topnav-text-primary bg-topnav-search-bg border border-topnav-border focus:ring-2 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 rounded-lg text-sm text-primary focus:outline-none placeholder:text-topnav-text-secondary bg-topnav-search-bg border border-topnav-border focus:border-transparent"
             />
           </div>
         </div>
