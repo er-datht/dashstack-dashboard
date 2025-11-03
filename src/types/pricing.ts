@@ -41,3 +41,15 @@ export type Subscription = {
 };
 
 export type SubscriptionStatus = "active" | "cancelled" | "expired" | "trial";
+
+export type Feature = {
+  name: string;
+  available: boolean;
+};
+
+export type PricingCardProps = {
+  planName: string;
+  price: string;
+  features: Feature[];
+  isRecommended?: boolean;
+};
