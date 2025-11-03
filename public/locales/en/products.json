@@ -23,5 +23,12 @@
   "sortBy": "Sort by",
   "priceRange": "Price Range",
   "deleteConfirm": "Are you sure you want to delete this product?",
-  "favorites": "Favorites"
+  "favorites": "Favorites",
+  "productStock": "Product Stock",
+  "amount": "Amount",
+  "availableColor": "Available Color",
+  "action": "Action",
+  "edit": "Edit",
+  "delete": "Delete",
+  "searchByName": "Search by product name..."
 }

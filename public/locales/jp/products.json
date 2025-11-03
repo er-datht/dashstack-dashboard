@@ -23,5 +23,12 @@
   "sortBy": "並べ替え",
   "priceRange": "価格帯",
   "deleteConfirm": "この商品を削除してもよろしいですか？",
-  "favorites": "お気に入り"
+  "favorites": "お気に入り",
+  "productStock": "商品在庫",
+  "amount": "数量",
+  "availableColor": "利用可能な色",
+  "action": "アクション",
+  "edit": "編集",
+  "delete": "削除",
+  "searchByName": "商品名で検索..."
 }

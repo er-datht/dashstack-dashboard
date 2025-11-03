@@ -214,6 +214,9 @@
   .bg-brand-light {
     background-color: var(--color-primary-50);
   }
+  .hover-bg-brand-light:hover {
+    background-color: var(--color-primary-50);
+  }
 
   .icon-brand {
     color: var(--color-primary-600);
@@ -317,6 +320,9 @@
   .bg-table-row-hover {
     background-color: var(--color-table-row-hover);
   }
+  .bg-table-row-hover-secondary:hover {
+    background-color: var(--color-table-row-hover-secondary);
+  }
 
   .text-table-cell {
     color: var(--color-table-cell-text);
@@ -412,6 +418,7 @@
   --color-table-header-text: #4b5563;
   --color-table-body-bg: #f9fafb;
   --color-table-row-hover: #ffffff;
+  --color-table-row-hover-secondary: #e9f0f7;
   --color-table-cell-text: #374151;
 
   /* ===== Semantic Sidebar Colors ===== */
@@ -552,6 +559,7 @@
   --color-table-header-text: #9ca3af;
   --color-table-body-bg: #1f2937;
   --color-table-row-hover: #374151;
+  --color-table-row-hover-secondary: #29313d;
   --color-table-cell-text: #d1d5db;
 
   /* Semantic Sidebar Colors - Dark Theme */
@@ -692,6 +700,7 @@
   --color-table-header-text: #86efac;
   --color-table-body-bg: #14532d;
   --color-table-row-hover: #166534;
+  --color-table-row-hover-secondary: #12552c;
   --color-table-cell-text: #dcfce7;
 
   /* Semantic Sidebar Colors - Forest Theme */
