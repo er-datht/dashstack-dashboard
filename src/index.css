@@ -185,7 +185,19 @@
       border-color var(--transition-base);
   }
 
-  /* Text colors */
+  /* Text Brand Primary */
+  .text-brand-primary {
+    color: var(--color-primary-600);
+  }
+
+  .\!text-brand-primary {
+    color: var(--color-primary-600) !important;
+  }
+
+  .text-brand-secondary {
+    color: var(--color-secondary-600);
+  }
+  /* Text Primary */
   .text-primary {
     color: var(--color-text-primary);
   }

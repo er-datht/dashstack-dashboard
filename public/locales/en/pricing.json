@@ -1,0 +1,20 @@
+{
+  "title": "Pricing",
+  "monthlyCharge": "Monthly Charge",
+  "getStarted": "Get Started",
+  "freeTrial": "Start Your 30 Day Free Trial",
+  "plans": {
+    "basic": "Basic",
+    "standard": "Standard",
+    "premium": "Premium"
+  },
+  "features": {
+    "freeSetup": "Free Setup",
+    "bandwidthLimit": "Bandwidth Limit 10GB",
+    "userConnection": "20 User Connection",
+    "analyticsReport": "Analytics Report",
+    "publicApiAccess": "Public API Access",
+    "pluginsIntegration": "Plugins Integration",
+    "customContentManagement": "Custom Content Management"
+  }
+}
