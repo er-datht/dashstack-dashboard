@@ -1,0 +1,7 @@
+{
+  "emptyTitle": "No Favorites Yet",
+  "emptyDescription": "Start adding products to your favorites by clicking the heart icon on any product.",
+  "browseProducts": "Browse Products",
+  "loading": "Loading favorites...",
+  "error": "Failed to load favorites"
+}

@@ -1,3 +1,4 @@
+@use "sass:map";
 @use "../../assets/styles/variables" as *;
 
 .bannerContainer {
@@ -15,7 +16,7 @@
         button:before {
           font-size: 10px;
           color: rgba(255, 255, 255, 0.5);
-          transition: color map-get($transitions, base) map-get($transition-timing, ease-in-out);
+          transition: color map.get($transitions, base) map.get($transition-timing, ease-in-out);
         }
 
         &.slick-active button:before {
@@ -37,14 +38,14 @@
   overflow: hidden;
   box-shadow: var(--shadow-md);
   border: none;
-  transition: background map-get($transitions, slow) map-get($transition-timing, ease-in-out);
+  transition: background map.get($transitions, slow) map.get($transition-timing, ease-in-out);
 
-  @media (max-width: map-get($breakpoints, md)) {
+  @media (max-width: map.get($breakpoints, md)) {
     height: 260px;
     padding: spacing(6);
   }
 
-  @media (max-width: map-get($breakpoints, sm)) {
+  @media (max-width: map.get($breakpoints, sm)) {
     height: 240px;
     padding: spacing(5);
   }
@@ -63,7 +64,7 @@
       transparent 70%
     );
     border-radius: 50%;
-    transition: background map-get($transitions, slow) map-get($transition-timing, ease-in-out);
+    transition: background map.get($transitions, slow) map.get($transition-timing, ease-in-out);
   }
 
   &::after {
@@ -79,7 +80,7 @@
       transparent 70%
     );
     border-radius: 50%;
-    transition: background map-get($transitions, slow) map-get($transition-timing, ease-in-out);
+    transition: background map.get($transitions, slow) map.get($transition-timing, ease-in-out);
   }
 }
 
@@ -90,7 +91,7 @@
   padding-left: 88px;
   padding-right: 88px;
 
-  @media (max-width: map-get($breakpoints, sm)) {
+  @media (max-width: map.get($breakpoints, sm)) {
     padding-left: 60px;
     padding-right: 60px;
   }
@@ -99,7 +100,7 @@
 .dateRange {
   color: rgba(255, 255, 255, 0.9);
   font-size: font-size(sm);
-  font-weight: map-get($font-weights, medium);
+  font-weight: map.get($font-weights, medium);
   margin-bottom: spacing(3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -108,16 +109,16 @@
 .title {
   color: white;
   font-size: font-size(4xl);
-  font-weight: map-get($font-weights, bold);
-  line-height: map-get($line-heights, tight);
+  font-weight: map.get($font-weights, bold);
+  line-height: map.get($line-heights, tight);
   margin-bottom: spacing(3);
   max-width: 500px;
 
-  @media (max-width: map-get($breakpoints, md)) {
+  @media (max-width: map.get($breakpoints, md)) {
     font-size: font-size(3xl);
   }
 
-  @media (max-width: map-get($breakpoints, sm)) {
+  @media (max-width: map.get($breakpoints, sm)) {
     font-size: font-size(2xl);
   }
 }
@@ -125,11 +126,11 @@
 .subtitle {
   color: rgba(255, 255, 255, 0.95);
   font-size: font-size(base);
-  line-height: map-get($line-heights, relaxed);
+  line-height: map.get($line-heights, relaxed);
   margin-bottom: spacing(6);
   max-width: 450px;
 
-  @media (max-width: map-get($breakpoints, sm)) {
+  @media (max-width: map.get($breakpoints, sm)) {
     font-size: font-size(sm);
   }
 }
@@ -140,10 +141,10 @@
   padding: spacing(3) spacing(6);
   border-radius: spacing(2);
   font-size: font-size(base);
-  font-weight: map-get($font-weights, semibold);
+  font-weight: map.get($font-weights, semibold);
   border: none;
   cursor: pointer;
-  transition: all map-get($transitions, base) map-get($transition-timing, ease-in-out);
+  transition: all map.get($transitions, base) map.get($transition-timing, ease-in-out);
   box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
 
   &:hover {
@@ -171,7 +172,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all map-get($transitions, base) map-get($transition-timing, ease-in-out);
+  transition: all map.get($transitions, base) map.get($transition-timing, ease-in-out);
   color: color(primary-600);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 
@@ -185,7 +186,7 @@
     transform: translateY(-50%) scale(1);
   }
 
-  @media (max-width: map-get($breakpoints, sm)) {
+  @media (max-width: map.get($breakpoints, sm)) {
     width: 40px;
     height: 40px;
 
@@ -199,7 +200,7 @@
 .arrowNext {
   right: 24px;
 
-  @media (max-width: map-get($breakpoints, sm)) {
+  @media (max-width: map.get($breakpoints, sm)) {
     right: 12px;
   }
 }
@@ -207,7 +208,7 @@
 .arrowPrev {
   left: 24px;
 
-  @media (max-width: map-get($breakpoints, sm)) {
+  @media (max-width: map.get($breakpoints, sm)) {
     left: 12px;
   }
 }

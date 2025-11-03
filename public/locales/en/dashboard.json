@@ -71,6 +71,12 @@
     "reviews": "reviews",
     "getStarted": "Get Started",
     "loading": "Loading products...",
-    "error": "Failed to load products. Please try again later."
+    "error": "Failed to load products. Please try again later.",
+    "favorites": "Favorites"
+  },
+  "favorites": {
+    "emptyTitle": "No Favorites Yet",
+    "emptyDescription": "Start adding products to your favorites by clicking the heart icon on any product.",
+    "browseProducts": "Browse Products"
   }
 }

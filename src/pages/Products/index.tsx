@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Package } from "lucide-react";
 import PromotionalBanner from "../../components/PromotionalBanner";
 import ProductCard from "../../components/ProductCard";
 import { useProducts } from "../../hooks/useProducts";
 import { useBanners } from "../../hooks/useBanners";
+import { useWishlist } from "../../contexts/WishlistContext";
 import styles from "./Products.module.scss";
 import classnames from "classnames";
 
@@ -21,22 +21,15 @@ export default function Products() {
     isLoading: isLoadingBanners,
     error: bannersError,
   } = useBanners();
-  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
+
+  const { toggleWishlist, isWishlisted } = useWishlist();
 
   // Combined loading and error states
   const isLoading = isLoadingProducts || isLoadingBanners;
   const error = productsError || bannersError;
 
   const handleWishlistToggle = (productId: string) => {
-    setWishlist((prev) => {
-      const newWishlist = new Set(prev);
-      if (newWishlist.has(productId)) {
-        newWishlist.delete(productId);
-      } else {
-        newWishlist.add(productId);
-      }
-      return newWishlist;
-    });
+    toggleWishlist(productId);
   };
 
   if (isLoading) {
@@ -91,7 +84,7 @@ export default function Products() {
           <ProductCard
             key={product.id}
             product={product}
-            isWishlisted={wishlist.has(product.id)}
+            isWishlisted={isWishlisted(product.id)}
             onWishlistToggle={handleWishlistToggle}
           />
         ))}
