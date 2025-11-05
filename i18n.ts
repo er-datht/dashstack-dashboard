@@ -21,8 +21,20 @@ i18n
     debug: false,
 
     // Namespace for translations
-    ns: ["dashboard"],
-    defaultNS: "dashboard",
+    ns: [
+      "common",
+      "navigation",
+      "auth",
+      "dashboard",
+      "products",
+      "orders",
+      "settings",
+      "todo",
+      "theme",
+      "errors",
+      "messages",
+    ],
+    defaultNS: "common",
 
     // Language detection options
     detection: {

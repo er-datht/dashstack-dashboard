@@ -1,5 +1,6 @@
 import axios from "axios";
 import { appConfig } from "./app-config";
+import { ROUTES } from "../routes/routes";
 
 /**
  * Axios Instance Configuration
@@ -69,7 +70,7 @@ apiClient.interceptors.response.use(
           // Unauthorized - clear token and redirect to login
           localStorage.removeItem(appConfig.auth.tokenKey);
           localStorage.removeItem(appConfig.auth.refreshTokenKey);
-          window.location.href = appConfig.routes.login;
+          window.location.href = ROUTES.LOGIN;
           break;
 
         case 403:

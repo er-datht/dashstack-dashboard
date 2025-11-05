@@ -2,17 +2,18 @@
 
 // Color Palette
 $colors: (
-  // Primary Colors
-  primary-50: #eff6ff,
-  primary-100: #dbeafe,
-  primary-200: #bfdbfe,
-  primary-300: #93c5fd,
-  primary-400: #60a5fa,
-  primary-500: #3b82f6,
-  primary-600: #2563eb,
-  primary-700: #1d4ed8,
-  primary-800: #1e40af,
-  primary-900: #1e3a8a,
+  // Primary Colors - Based on #4880FF
+  primary-50: #eff4ff,
+  primary-100: #dbe6ff,
+  primary-200: #bfd2ff,
+  primary-300: #93b4ff,
+  primary-400: #6691ff,
+  primary-500: #4880ff,
+  primary-600: #2b5ff7,
+  primary-700: #1e47e3,
+  primary-800: #1d3bb7,
+  primary-900: #1d3590,
+  primary-950: #162157,
 
   // Gray Colors
   gray-50: #f9fafb,
@@ -67,29 +68,29 @@ $colors: (
 // Spacing
 $spacing: (
   0: 0,
-  1: 0.25rem,
+  1: 4px,
   // 4px
-  2: 0.5rem,
+  2: 8px,
   // 8px
-  3: 0.75rem,
+  3: 12px,
   // 12px
-  4: 1rem,
+  4: 16px,
   // 16px
-  5: 1.25rem,
+  5: 20px,
   // 20px
-  6: 1.5rem,
+  6: 24px,
   // 24px
-  8: 2rem,
+  8: 32px,
   // 32px
-  10: 2.5rem,
+  10: 40px,
   // 40px
-  12: 3rem,
+  12: 48px,
   // 48px
-  16: 4rem,
+  16: 64px,
   // 64px
-  20: 5rem,
+  20: 80px,
   // 80px
-  24: 6rem,
+  24: 96px,
   // 96px
 );
 
@@ -101,23 +102,23 @@ $font-family-mono: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
   monospace;
 
 $font-sizes: (
-  xs: 0.75rem,
+  xs: 12px,
   // 12px
-  sm: 0.875rem,
+  sm: 14px,
   // 14px
-  base: 1rem,
+  base: 16px,
   // 16px
-  lg: 1.125rem,
+  lg: 18px,
   // 18px
-  xl: 1.25rem,
+  xl: 20px,
   // 20px
-  2xl: 1.5rem,
+  2xl: 24px,
   // 24px
-  3xl: 1.875rem,
+  3xl: 30px,
   // 30px
-  4xl: 2.25rem,
+  4xl: 36px,
   // 36px
-  5xl: 3rem,
+  5xl: 48px,
   // 48px
 );
 
@@ -140,19 +141,19 @@ $line-heights: (
 // Border Radius
 $border-radius: (
   none: 0,
-  sm: 0.125rem,
+  sm: 2px,
   // 2px
-  base: 0.25rem,
+  base: 4px,
   // 4px
-  md: 0.375rem,
+  md: 6px,
   // 6px
-  lg: 0.5rem,
+  lg: 8px,
   // 8px
-  xl: 0.75rem,
+  xl: 12px,
   // 12px
-  2xl: 1rem,
+  2xl: 16px,
   // 16px
-  3xl: 1.5rem,
+  3xl: 24px,
   // 24px
   full: 9999px,
 );
@@ -215,9 +216,9 @@ $transition-timing: (
 );
 
 // Layout
-$sidebar-width-expanded: 16rem; // 256px
-$sidebar-width-collapsed: 5rem; // 80px
-$topnav-height: 4.3125rem; // 69px
+$sidebar-width-expanded: 256px; // 256px
+$sidebar-width-collapsed: 80px; // 80px
+$topnav-height: 69px; // 69px
 
 // Helper function to get color
 @function color($key) {

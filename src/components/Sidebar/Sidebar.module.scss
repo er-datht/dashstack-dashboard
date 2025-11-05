@@ -1,2 +1,99 @@
-@use "../../assets/styles/variables" as *;
 @use "../../assets/styles/mixins" as *;
+
+.sidebarWrapper {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  z-index: 40;
+
+  // Flexbox layout for fixed header/footer pattern
+  .sidebarContentWrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  // Logo section - fixed at top
+  .logoSection {
+    flex-shrink: 0;
+  }
+
+  // Navigation section - scrollable middle area
+  .navigationSection {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  // Bottom section - fixed at bottom
+  .bottomSection {
+    flex-shrink: 0;
+  }
+
+  // Add a border to the sidebar with theme-aware styling
+  .ps-sidebar-container {
+    position: fixed;
+    left: 0;
+    top: 0;
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-right-color: var(--color-sidebar-border);
+  }
+
+  // Ensure smooth transitions
+  .ps-sidebar-root {
+    transition: width var(--transition-base) ease-in-out,
+      background-color var(--transition-base) ease-in-out;
+  }
+
+  // Icon styling
+  .ps-menu-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+  }
+
+  // Active menu item icon color
+  .ps-active .ps-menu-icon svg {
+    color: var(--color-sidebar-menu-active-text);
+  }
+
+  // Collapsed state - center icons perfectly
+  .ps-collapsed {
+    .ps-menu-button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px !important;
+    }
+
+    .ps-menu-icon {
+      margin: 0 !important;
+    }
+
+    .ps-menu-label {
+      display: none;
+    }
+  }
+
+  // Submenu styling with theme tokens
+  .ps-submenu-content {
+    background-color: var(--color-sidebar-submenu-bg) !important;
+  }
+
+  // Ensure menu items have proper spacing and use theme transitions
+  .ps-menu-button {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-fast) ease-in-out;
+  }
+
+  // Theme button special styling (no active state)
+  .theme-button {
+    .ps-menu-button {
+      background-color: var(--color-transparent) !important;
+    }
+  }
+}

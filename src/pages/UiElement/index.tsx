@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { Layers } from 'lucide-react';
+import { useTranslation } from "react-i18next";
+import { Layers } from "lucide-react";
 
 export default function UiElement() {
   const { t } = useTranslation();
@@ -8,18 +8,21 @@ export default function UiElement() {
     <div className="p-6">
       {/* Page Header */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-violet-100 dark:bg-violet-900/20 rounded-lg flex items-center justify-center">
-          <Layers className="w-6 h-6 text-violet-600 dark:text-violet-400" />
+        <div className="w-10 h-10 bg-brand-light rounded-lg flex items-center justify-center">
+          <Layers className="w-6 h-6 icon-brand" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          {t('navigation.uiElement', 'UI Element')}
+        <h1 className="text-2xl font-bold text-primary">
+          {t("navigation.uiElement", "UI Element")}
         </h1>
       </div>
 
       {/* Content */}
-      <div className="bg-white dark:bg-[#1a1d24] p-6 rounded-lg shadow-sm">
-        <p className="text-gray-600 dark:text-gray-400">
-          {t('uiElement.description', 'Explore UI components and elements here.')}
+      <div className="card p-6">
+        <p className="text-secondary">
+          {t(
+            "uiElement.description",
+            "Explore UI components and elements here."
+          )}
         </p>
       </div>
     </div>

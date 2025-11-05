@@ -421,4 +421,8 @@ FodyWeavers.xsd
 # Claude Code files
 CLAUDE.md
 .claude/
+.cursor/
 resource
+
+# misc
+.DS_Store

@@ -10,7 +10,7 @@ export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
   const { t } = useTranslation();
   return (
     <header
-      className={`fixed top-0 right-0 h-[69px] bg-white dark:bg-[#1a1d24] border-b border-gray-200 dark:border-gray-700 z-30 transition-all duration-300 ${
+      className={`fixed top-0 right-0 z-30 h-topnav text-topnav-bg border border-topnav-border bg-topnav-bg ${
         sidebarCollapsed ? "left-20" : "left-64"
       }`}
     >
@@ -18,11 +18,11 @@ export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
         {/* Search Bar */}
         <div className="flex-1 max-w-xl">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-secondary" />
             <input
               type="text"
-              placeholder={t("common.search")}
-              className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-[#242831] border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+              placeholder={t("common:search")}
+              className="w-full pl-10 pr-4 py-2 rounded-lg text-sm text-primary focus:outline-none placeholder:text-topnav-text-secondary bg-topnav-search-bg border border-topnav-border focus:border-transparent"
             />
           </div>
         </div>
@@ -31,28 +31,38 @@ export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
         <div className="flex items-center gap-4 ml-6">
           {/* Notification Bell */}
           <button
-            className="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors cursor-pointer"
-            aria-label={t("navigation.notifications")}
+            className="relative p-2 rounded-lg transition-colors cursor-pointer"
+            aria-label={t("navigation:notifications")}
+            style={{
+              backgroundColor: "transparent",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor =
+                "var(--color-topnav-button-hover)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+            }}
           >
-            <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+            <Bell className="w-5 h-5 text-topnav-text-secondary" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-topnav-notification"></span>
           </button>
 
           {/* Language Selector */}
           <LanguageSwitcher />
 
           {/* User Profile */}
-          <div className="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-3 pl-4 border-l border-l-topnav-border">
             <img
               src="https://ui-avatars.com/api/?name=Moni+Roy&background=818cf8&color=fff&size=128"
               alt="Moni Roy"
               className="w-9 h-9 rounded-full"
             />
             <div className="hidden sm:block">
-              <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-tight">
+              <p className="text-sm font-semibold leading-tight text-topnav-text-primary">
                 Moni Roy
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+              <p className="text-xs leading-tight text-topnav-text-secondary">
                 Admin
               </p>
             </div>

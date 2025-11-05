@@ -1,0 +1,33 @@
+{
+  "title": "To-Do",
+  "description": "タスクとTo-Doリストをここで管理します。",
+  "addPlaceholder": "新しいタスクを追加...",
+  "addButton": "タスクを追加",
+  "emptyState": "タスクがまだありません。追加して始めましょう！",
+  "emptyFilteredState": "このフィルターに一致するタスクが見つかりません。",
+  "completedTasks": "完了したタスク",
+  "activeTasks": "アクティブなタスク",
+  "loading": "タスクを読み込み中...",
+  "error": "タスクの読み込みに失敗しました",
+  "errorAdding": "タスクの追加に失敗しました",
+  "errorUpdating": "タスクの更新に失敗しました",
+  "errorDeleting": "タスクの削除に失敗しました",
+  "filters": {
+    "all": "すべて",
+    "active": "アクティブ",
+    "completed": "完了",
+    "starred": "スター付き"
+  },
+  "actions": {
+    "complete": "完了としてマーク",
+    "incomplete": "未完了としてマーク",
+    "star": "スターを付ける",
+    "unstar": "スターを外す",
+    "delete": "タスクを削除"
+  },
+  "pagination": {
+    "showing": "{{total}}件中{{from}}〜{{to}}件を表示",
+    "previous": "前のページ",
+    "next": "次のページ"
+  }
+}

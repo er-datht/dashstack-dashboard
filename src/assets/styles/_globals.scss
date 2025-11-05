@@ -17,12 +17,11 @@ html {
 
 body {
   margin: 0;
-  font-family: $font-family-base;
-  font-size: font-size(base);
-  line-height: map.get($line-heights, normal);
-  @include theme-aware(color, color(gray-900), color(gray-100));
-  @include theme-aware(background-color, color(bg-light), color(bg-dark));
-  @include transition(background-color, map.get($transitions, slow));
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  @include theme-aware(color, var(--color-gray-900), var(--color-gray-100));
+  @include transition(color, var(--transition-slow));
 }
 
 // Code Fonts
@@ -30,7 +29,7 @@ code,
 kbd,
 pre,
 samp {
-  font-family: $font-family-mono;
+  font-family: var(--font-family-mono);
 }
 
 // Links
@@ -40,7 +39,7 @@ a {
   @include transition(color);
 
   @include hover {
-    color: color(primary-600);
+    color: var(--color-primary-600);
   }
 }
 
@@ -60,18 +59,18 @@ button {
 
 // Focus Visible (Keyboard Navigation)
 :focus-visible {
-  outline: 2px solid color(primary-500);
+  outline: 2px solid var(--color-primary-500);
   outline-offset: 2px;
 }
 
 // Selection
 ::selection {
-  background-color: color(primary-200);
-  color: color(primary-900);
+  background-color: var(--color-primary-200);
+  color: var(--color-primary-900);
 
   :global(.dark) & {
-    background-color: color(primary-800);
-    color: color(primary-100);
+    background-color: var(--color-primary-800);
+    color: var(--color-primary-100);
   }
 }
 
@@ -106,7 +105,7 @@ button {
   @include loading-shimmer;
 }
 
-// Animations
+// Animations (keep as-is, these are simple animations without variable dependencies)
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -202,11 +201,11 @@ button {
 
 // Animation Utility Classes
 .animate-fadeIn {
-  animation: fadeIn map.get($transitions, base) ease-in-out;
+  animation: fadeIn var(--transition-base) ease-in-out;
 }
 
 .animate-slideInUp {
-  animation: slideInUp map.get($transitions, slow) ease-out;
+  animation: slideInUp var(--transition-slow) ease-out;
 }
 
 .animate-spin {

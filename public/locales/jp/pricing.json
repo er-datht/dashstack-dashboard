@@ -1,0 +1,20 @@
+{
+  "title": "料金プラン",
+  "monthlyCharge": "月額料金",
+  "getStarted": "始める",
+  "freeTrial": "30日間無料トライアルを開始",
+  "plans": {
+    "basic": "ベーシック",
+    "standard": "スタンダード",
+    "premium": "プレミアム"
+  },
+  "features": {
+    "freeSetup": "無料セットアップ",
+    "bandwidthLimit": "帯域幅制限10GB",
+    "userConnection": "20ユーザー接続",
+    "analyticsReport": "分析レポート",
+    "publicApiAccess": "パブリックAPIアクセス",
+    "pluginsIntegration": "プラグイン統合",
+    "customContentManagement": "カスタムコンテンツ管理"
+  }
+}
