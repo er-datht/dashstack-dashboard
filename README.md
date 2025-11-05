@@ -133,23 +133,140 @@ Add a new namespace: add JSON file under `public/locales/<lng>/<namespace>.json`
 
 ## Theming
 
-Multi-theme support with three built-in themes: Light, Dark, and Forest. Themes are managed via `ThemeContext` and applied using data attributes (`data-theme`). Theme preference is saved in localStorage and system preference is detected on initial load.
+DashStack features a comprehensive multi-theme design system with three built-in themes: **Light**, **Dark**, and **Forest**. The theming architecture combines SCSS variables with CSS custom properties for maximum flexibility and performance.
 
-**Usage:**
+### Quick Start
+
+**Switch themes programmatically:**
 
 ```tsx
-import { useTheme } from "@/hooks/useTheme";
+import { useTheme } from "./hooks/useTheme";
 
 function MyComponent() {
   const { theme, setTheme, cycleTheme } = useTheme();
 
-  return <button onClick={() => setTheme("dark")}>Switch to Dark</button>;
+  return (
+    <div>
+      <button onClick={() => setTheme("dark")}>Dark Mode</button>
+      <button onClick={cycleTheme}>Next Theme</button>
+    </div>
+  );
 }
 ```
 
-**Available themes:** `light`, `dark`, `forest`
+### Supported Themes
 
-**Theme switching:** Use the `ThemeSwitcher` component in the sidebar or call `cycleTheme()` to rotate through available themes.
+| Theme | Description | Primary Color |
+|-------|-------------|---------------|
+| **Light** (default) | Clean, bright interface | Blue (#4880FF) |
+| **Dark** | Modern dark mode for low-light | Blue (#4880FF) |
+| **Forest** | Nature-inspired green palette | Emerald (#059669) |
+
+### Theme Features
+
+- **Automatic system preference detection** - Detects OS dark/light mode preference
+- **localStorage persistence** - Theme selection persists across sessions
+- **Instant switching** - CSS variables enable theme changes without page reload
+- **Type-safe** - Full TypeScript support for theme types
+- **Dual-token system** - SCSS variables + CSS custom properties
+
+### Using Theme-Aware Styles
+
+**Method 1: Tailwind Utility Classes (Recommended)**
+
+```tsx
+<div className="bg-surface text-primary border border-gray-200">
+  <h3 className="text-lg font-semibold">Theme-aware card</h3>
+</div>
+```
+
+Available theme-aware classes:
+- `.bg-surface` - Card/panel background (auto-adjusts per theme)
+- `.text-primary` - Main text color
+- `.text-secondary` - Muted text color
+- `.card` - Complete card styling with theme support
+
+**Method 2: CSS Custom Properties**
+
+```tsx
+<div style={{
+  backgroundColor: 'var(--color-surface)',
+  color: 'var(--color-text-primary)',
+  padding: 'var(--spacing-4)',
+  borderRadius: 'var(--border-radius-lg)',
+}}>
+  Dynamic theme-aware styles
+</div>
+```
+
+**Method 3: SCSS Modules**
+
+```scss
+@use "../../assets/styles/variables" as *;
+@use "../../assets/styles/mixins" as *;
+
+.container {
+  @include surface; // Theme-aware surface styling
+  @include theme-aware(border-color, color("gray", 200), color("gray", 700));
+  padding: spacing(4);
+}
+```
+
+### Design Tokens
+
+The theme system provides a comprehensive set of design tokens:
+
+**Colors**: Primary, semantic (success/warning/error/info), grayscale, theme-adaptive tokens
+**Spacing**: 8-point grid system (4px base unit) from `spacing(1)` to `spacing(32)`
+**Typography**: Font sizes (xs-5xl), weights (400-700), line heights
+**Shadows**: Auto-adjusting shadows (sm, base, md, lg, xl, 2xl) optimized for dark themes
+**Border Radius**: From `border-radius("sm")` to `border-radius("full")`
+**Transitions**: Consistent timing (fast: 150ms, base: 200ms, slow: 300ms)
+
+### SCSS Mixins
+
+Powerful mixins for theme-aware components:
+
+```scss
+@include flex-center;           // Center content
+@include surface;                // Theme-aware surface styling
+@include transition(opacity transform);  // Smooth transitions
+@include breakpoint(md) { }      // Responsive breakpoints
+@include theme-aware($prop, $light, $dark);  // Theme-specific values
+@include hover { }               // Hover-capable devices only
+@include focus-ring();           // Accessible focus states
+```
+
+### Adding a New Theme
+
+1. Update theme type in `src/contexts/ThemeContext.tsx`:
+```tsx
+export type Theme = 'light' | 'dark' | 'forest' | 'ocean';
+```
+
+2. Define theme tokens in `src/index.css`:
+```css
+[data-theme="ocean"] {
+  --color-primary-600: #0EA5E9;
+  --color-text-primary: #0F172A;
+  --color-bg-primary: #F0F9FF;
+  /* ... other tokens */
+}
+```
+
+3. Add translations in `public/locales/*/theme.json`
+
+### Complete Documentation
+
+For comprehensive theme system documentation including all design tokens, implementation patterns, and best practices, see **[themeSystem.md](./themeSystem.md)**.
+
+**Topics covered:**
+- Complete design token reference (colors, spacing, typography, shadows)
+- Theme implementation guide
+- SCSS mixins and utilities reference
+- Component theming patterns with examples
+- Best practices and troubleshooting
+- Migration checklist for adding theme support to components
 
 ## Data Fetching (React Query)
 
@@ -161,54 +278,6 @@ Custom wrapper: `src/hooks/useReactQuery.ts` exports pre-bound `useQuery`, `useM
 - `useDeals.ts` - Fetch deals data for revenue charts and deal details tables
 
 Devtools available via `@tanstack/react-query-devtools` (add `<ReactQueryDevtools />` to your root if desired).
-
-## Domain Modules
-
-### Todos Module
-
-Service: `src/services/todos.ts` (maps external API shape to internal `TodoItem`).
-Optimistic updates: implemented in mutations inside `useTodos.ts` (cache update, rollback on error).
-
-**Usage:**
-
-```tsx
-const { todos, addTodo, updateTodo, deleteTodo } = useTodos();
-```
-
-### Deals Module
-
-Service: `src/services/deals.ts` (fetches deal data from API).
-Hook: `src/hooks/useDeals.ts` provides access to deals data with React Query caching.
-
-**Usage:**
-
-```tsx
-const { deals, isLoading, error } = useDeals();
-```
-
-Components using deals data:
-
-- `RevenueChart` - Visualizes revenue over time
-- `DealDetailsTable` - Displays detailed deal information with status badges
-
-### Revenue & Sales Charts
-
-The `RevenueChart` component consumes deal data via `useDeals()` and renders a time-series revenue trend (e.g. monthly totals). To extend or customize:
-
-- Data source: `src/hooks/useDeals.ts` (React Query) backed by `src/services/deals.ts`.
-- Shape: Each deal item should include amount, status, and created/closed dates. Aggregate logic lives inside the chart component.
-- Add metrics: Extend transformation in `RevenueChart` to compute additional series (e.g. average deal size). Keep expensive calculations memoized.
-- Loading state: Wrapped with `LoadingWrapper` for skeleton/ spinner UX.
-- Styling: Tailwind utilities + optional SCSS module overrides.
-
-Basic usage (already wired in Dashboard page):
-
-```tsx
-import RevenueChart from "@/components/RevenueChart";
-// <RevenueChart /> inside dashboard layout
-```
-
-Add a new chart (e.g. SalesDetailsChart) by duplicating the folder, adjusting aggregation logic, and exporting from its index.
 
 ## API Layer
 
