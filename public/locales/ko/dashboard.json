@@ -1,0 +1,82 @@
+{
+  "title": "대시보드",
+  "overview": "개요",
+  "statistics": "통계",
+  "recentActivity": "최근 활동",
+  "quickActions": "빠른 작업",
+  "totalRevenue": "총 매출",
+  "totalOrders": "총 주문",
+  "totalCustomers": "총 고객",
+  "activeUsers": "활성 사용자",
+  "revenue": "매출",
+  "orders": "주문",
+  "customers": "고객",
+  "growth": "성장",
+  "thisMonth": "이번 달",
+  "lastMonth": "지난 달",
+  "thisWeek": "이번 주",
+  "today": "오늘",
+  "viewAll": "전체 보기",
+  "viewDetails": "상세 보기",
+  "totalUser": "총 사용자",
+  "totalOrder": "총 주문",
+  "totalSales": "총 판매",
+  "totalPending": "총 보류",
+  "upFromYesterday": "어제보다 상승",
+  "upFromPastWeek": "지난주보다 상승",
+  "downFromYesterday": "어제보다 하락",
+  "welcomeTitle": "DashStack에 오신 것을 환영합니다",
+  "welcomeMessage": "관리자 대시보드입니다. 사이드바 내비게이션을 사용하여 다양한 섹션을 탐색하세요.",
+  "salesDetailsTitle": "판매 상세",
+  "dealDetailsTitle": "거래 상세",
+  "revenueTitle": "매출",
+  "revenueChartSales": "판매",
+  "revenueChartProfit": "수익",
+  "noDataAvailable": "데이터가 없습니다",
+  "dealDetails": {
+    "headers": {
+      "productName": "상품명",
+      "location": "위치",
+      "dateTime": "날짜 - 시간",
+      "amount": "수량",
+      "price": "가격",
+      "status": "상태"
+    }
+  },
+  "loadingChartData": "차트 데이터 로딩 중...",
+  "months": {
+    "january": "1월",
+    "february": "2월",
+    "march": "3월",
+    "april": "4월",
+    "may": "5월",
+    "june": "6월",
+    "july": "7월",
+    "august": "8월",
+    "september": "9월",
+    "october": "10월",
+    "november": "11월",
+    "december": "12월"
+  },
+  "status": {
+    "delivered": "배송 완료",
+    "pending": "보류 중",
+    "rejected": "거부됨"
+  },
+  "products": {
+    "title": "상품",
+    "editProduct": "상품 편집",
+    "addToWishlist": "위시리스트에 추가",
+    "removeFromWishlist": "위시리스트에서 제거",
+    "reviews": "리뷰",
+    "getStarted": "시작하기",
+    "loading": "상품 로딩 중...",
+    "error": "상품을 불러오지 못했습니다. 나중에 다시 시도해 주세요.",
+    "favorites": "즐겨찾기"
+  },
+  "favorites": {
+    "emptyTitle": "즐겨찾기가 없습니다",
+    "emptyDescription": "상품의 하트 아이콘을 클릭하여 즐겨찾기에 추가하세요.",
+    "browseProducts": "상품 둘러보기"
+  }
+}

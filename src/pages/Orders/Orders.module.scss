@@ -1,0 +1,256 @@
+@use "../../assets/styles/mixins" as *;
+
+// ===== Filter Bar (Segmented Control) =====
+.filterBar {
+  position: relative;
+  z-index: var(--z-index-dropdown);
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.filterSegment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 64px;
+  padding: 0 18px;
+  background-color: var(--color-surface-secondary);
+  border-left: 0.5px solid var(--color-border);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  user-select: none;
+  @include transition(background-color);
+
+  @include hover {
+    background-color: var(--color-surface-tertiary);
+  }
+
+  &:first-child {
+    border-left: none;
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+  }
+
+  &:last-child {
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    border: 0.5px solid var(--color-border);
+  }
+}
+
+.filterSegmentReset {
+  color: var(--color-error-500);
+}
+
+// ===== Calendar Popup =====
+.calendarPopup {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: var(--z-index-dropdown);
+  width: 378px;
+  background-color: var(--color-surface);
+  border-radius: 24px;
+  box-shadow: 0px 4px 42px 17px rgba(0, 0, 0, 0.08);
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: center;
+  padding: 24px 32px;
+  border-bottom: 0.5px solid var(--color-border);
+}
+
+.calendarBody {
+  padding: 24px 32px;
+  border-bottom: 0.5px solid var(--color-border);
+}
+
+.calendarFooter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 32px;
+  gap: 12px;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 8px;
+  text-align: center;
+}
+
+.dayHeader {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  opacity: 0.6;
+  padding: 8px 0;
+}
+
+.dayCell {
+  @include button-reset;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  opacity: 0.5;
+  @include flex-center;
+  margin: 0 auto;
+  @include transition(background-color);
+
+  @include hover {
+    background-color: var(--color-primary-50);
+    opacity: 1;
+  }
+
+  &.selected {
+    background-color: var(--color-primary-500);
+    color: #fff;
+    opacity: 1;
+  }
+
+  &.otherMonth {
+    opacity: 0.25;
+  }
+
+  &.today {
+    font-weight: 700;
+    opacity: 0.8;
+  }
+}
+
+.noteText {
+  font-size: 14px;
+  color: #434343;
+  opacity: 0.8;
+}
+
+.applyButton {
+  width: 126px;
+  height: 34px;
+  border-radius: 8px;
+  background-color: var(--color-primary-500);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  @include transition(background-color);
+
+  @include hover {
+    background-color: var(--color-primary-600);
+  }
+}
+
+// ===== Order Type Popup =====
+.orderTypePopup {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: var(--z-index-dropdown);
+  width: 543px;
+  background-color: var(--color-surface);
+  border-radius: 24px;
+  box-shadow: 0px 4px 42px 17px rgba(0, 0, 0, 0.08);
+}
+
+.orderTypeHeader {
+  padding: 24px 24px 12px;
+  border-bottom: 0.5px solid var(--color-border);
+}
+
+.orderTypeChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px 24px 24px;
+  border-bottom: 0.5px solid var(--color-border);
+}
+
+.orderTypeFooter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  gap: 12px;
+}
+
+.chip {
+  @include button-reset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 149px;
+  padding: 8px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  @include transition(all);
+
+  @include hover {
+    border-color: var(--color-primary-400);
+  }
+
+  &.chipSelected {
+    border-color: var(--color-primary-600);
+    background-color: var(--color-primary-50);
+    color: var(--color-primary-600);
+  }
+}
+
+// ===== Status Dropdown (unchanged) =====
+.popup {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: var(--z-index-dropdown);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 16px;
+  min-width: 280px;
+}
+
+.statusOption {
+  @include button-reset;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--color-text-primary);
+  @include transition(background-color);
+
+  @include hover {
+    background-color: var(--color-primary-50);
+  }
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: 2px solid var(--color-border);
+  @include flex-center;
+  flex-shrink: 0;
+  @include transition(all);
+
+  &.checked {
+    border-color: var(--color-primary-600);
+    background-color: var(--color-primary-600);
+  }
+}

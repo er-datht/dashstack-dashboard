@@ -32,5 +32,37 @@
   "filterByStatus": "ステータスでフィルター",
   "updateStatus": "ステータスを更新",
   "viewInvoice": "請求書を表示",
-  "printInvoice": "請求書を印刷"
+  "printInvoice": "請求書を印刷",
+  "columns": {
+    "id": "ID",
+    "name": "名前",
+    "address": "住所",
+    "date": "日付",
+    "type": "種類",
+    "status": "ステータス"
+  },
+  "filterBy": "フィルター",
+  "dateFilter": "日付",
+  "orderTypeFilter": "注文種類",
+  "orderStatusFilter": "注文ステータス",
+  "resetFilter": "フィルターリセット",
+  "applyNow": "適用する",
+  "multiDateNote": "*複数の日付を選択できます",
+  "status": {
+    "completed": "完了",
+    "processing": "処理中",
+    "on_hold": "保留中",
+    "rejected": "却下"
+  },
+  "orderTypes": {
+    "health_medicine": "健康・医薬",
+    "book_stationary": "書籍・文具",
+    "services_industry": "サービス・産業",
+    "fashion_beauty": "ファッション・美容",
+    "home_living": "家庭・生活",
+    "electronics": "電子機器",
+    "mobile_phone": "携帯電話",
+    "accessories": "アクセサリー"
+  },
+  "selectOrderType": "注文種類を選択"
 }
