@@ -125,7 +125,7 @@ const SidebarTooltip = ({
     <Tooltip
       id="sidebar-tooltip"
       place="right"
-      className="rounded-md py-2 px-3 text-sm font-medium bg-sidebar-tooltip-bg text-sidebar-tooltip shadow-lg z-1000"
+      className="rounded-md py-2 px-3 text-sm font-medium bg-sidebar-tooltip-bg text-sidebar-tooltip shadow-lg z-[1070]"
       offset={12}
     />
   );
@@ -215,31 +215,33 @@ export default function Sidebar({
   );
 
   return (
-    <SidebarWrapper>
-      <SidebarContainer isCollapsed={isCollapsed}>
-        <div
-          className={cn(styles.sidebarContentWrapper, "flex flex-col h-full")}
-        >
-          {/* Logo Section */}
-          <LogoSection isCollapsed={isCollapsed} onToggle={handleToggle} />
+    <>
+      <SidebarWrapper>
+        <SidebarContainer isCollapsed={isCollapsed}>
+          <div
+            className={cn(styles.sidebarContentWrapper, "flex flex-col h-full")}
+          >
+            {/* Logo Section */}
+            <LogoSection isCollapsed={isCollapsed} onToggle={handleToggle} />
 
-          {/* Navigation Sections */}
-          <NavigationSection
-            navSections={navSections}
-            isCollapsed={isCollapsed}
-            renderMenuItem={renderMenuItem}
-          />
+            {/* Navigation Sections */}
+            <NavigationSection
+              navSections={navSections}
+              isCollapsed={isCollapsed}
+              renderMenuItem={renderMenuItem}
+            />
 
-          {/* Bottom Section */}
-          <BottomSection
-            bottomItems={bottomItems}
-            renderMenuItem={renderMenuItem}
-          />
-        </div>
-      </SidebarContainer>
+            {/* Bottom Section */}
+            <BottomSection
+              bottomItems={bottomItems}
+              renderMenuItem={renderMenuItem}
+            />
+          </div>
+        </SidebarContainer>
+      </SidebarWrapper>
 
       {/* Tooltip for collapsed sidebar */}
       <SidebarTooltip isCollapsed={isCollapsed} />
-    </SidebarWrapper>
+    </>
   );
 }

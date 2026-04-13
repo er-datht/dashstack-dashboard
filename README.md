@@ -29,13 +29,13 @@ src/
 ├── components/          # Reusable UI pieces (Sidebar, TopNav, Charts, etc.)
 ├── configs/             # App level config (api, app-config)
 ├── constants/           # Static values / environment helpers
-├── contexts/            # React contexts (ThemeContext)
+├── contexts/            # React contexts (ThemeContext, WishlistContext)
 ├── hoc/                 # Higher-order components (withAuth)
-├── hooks/               # Custom hooks (useTheme, useTodos, useDeals, useReactQuery)
+├── hooks/               # Custom hooks (useTheme, useTodos, useDeals, useProducts, useBanners, useReactQuery)
 ├── layouts/             # Layout wrappers (DashboardLayout)
 ├── pages/               # Route pages (Dashboard, Products, Todo, ...)
 ├── routes/              # Centralized routing (`AppRoutes.tsx`, `routes.ts`)
-├── services/            # API & domain service layers (api, todos, deals)
+├── services/            # API & domain service layers (api, todos, deals, products, productStock)
 ├── types/               # TypeScript type definitions per domain
 └── utils/               # Small pure utility helpers (formatters, cn)
 ```
@@ -69,26 +69,9 @@ Route constants: `src/routes/routes.ts` • Configuration + lazy loading: `src/r
 
 Node.js 18+ (LTS recommended).
 
-### Installation & Scripts (npm)
+### Installation & Scripts
 
-```bash
-# Install deps
-npm install
-
-# Dev server
-npm run dev
-
-# Type check + build
-npm run build
-
-# Preview production build
-npm run preview
-
-# Lint all sources
-npm run lint
-```
-
-### Installation & Scripts (Yarn)
+This project uses **Yarn** as its package manager (yarn.lock is tracked).
 
 ```bash
 # Install deps
@@ -128,7 +111,7 @@ Configure runtime values via `.env` files (e.g. API base URL) without listing ac
 Configuration: `i18n.ts` (language detector + HTTP backend loading from `public/locales`).
 Supported languages: `en`, `jp`.
 Switching UI: `LanguageSwitcher` component.
-Translation namespaces: common, navigation, auth, dashboard, products, orders, settings, todo, theme, errors, messages.
+Translation namespaces: common, navigation, auth, dashboard, products, orders, settings, todo, theme, errors, messages, pricing.
 Add a new namespace: add JSON file under `public/locales/<lng>/<namespace>.json` and extend `ns` array in `i18n.ts` if needed.
 
 ## Theming
@@ -156,11 +139,11 @@ function MyComponent() {
 
 ### Supported Themes
 
-| Theme | Description | Primary Color |
-|-------|-------------|---------------|
-| **Light** (default) | Clean, bright interface | Blue (#4880FF) |
-| **Dark** | Modern dark mode for low-light | Blue (#4880FF) |
-| **Forest** | Nature-inspired green palette | Emerald (#059669) |
+| Theme               | Description                    | Primary Color     |
+| ------------------- | ------------------------------ | ----------------- |
+| **Light** (default) | Clean, bright interface        | Blue (#4880FF)    |
+| **Dark**            | Modern dark mode for low-light | Blue (#4880FF)    |
+| **Forest**          | Nature-inspired green palette  | Emerald (#059669) |
 
 ### Theme Features
 
@@ -181,6 +164,7 @@ function MyComponent() {
 ```
 
 Available theme-aware classes:
+
 - `.bg-surface` - Card/panel background (auto-adjusts per theme)
 - `.text-primary` - Main text color
 - `.text-secondary` - Muted text color
@@ -189,12 +173,14 @@ Available theme-aware classes:
 **Method 2: CSS Custom Properties**
 
 ```tsx
-<div style={{
-  backgroundColor: 'var(--color-surface)',
-  color: 'var(--color-text-primary)',
-  padding: 'var(--spacing-4)',
-  borderRadius: 'var(--border-radius-lg)',
-}}>
+<div
+  style={{
+    backgroundColor: "var(--color-surface)",
+    color: "var(--color-text-primary)",
+    padding: "var(--spacing-4)",
+    borderRadius: "var(--border-radius-lg)",
+  }}
+>
   Dynamic theme-aware styles
 </div>
 ```
@@ -228,28 +214,32 @@ The theme system provides a comprehensive set of design tokens:
 Powerful mixins for theme-aware components:
 
 ```scss
-@include flex-center;           // Center content
-@include surface;                // Theme-aware surface styling
-@include transition(opacity transform);  // Smooth transitions
-@include breakpoint(md) { }      // Responsive breakpoints
-@include theme-aware($prop, $light, $dark);  // Theme-specific values
-@include hover { }               // Hover-capable devices only
-@include focus-ring();           // Accessible focus states
+@include flex-center; // Center content
+@include surface; // Theme-aware surface styling
+@include transition(opacity transform); // Smooth transitions
+@include breakpoint(md) {
+} // Responsive breakpoints
+@include theme-aware($prop, $light, $dark); // Theme-specific values
+@include hover {
+} // Hover-capable devices only
+@include focus-ring(); // Accessible focus states
 ```
 
 ### Adding a New Theme
 
 1. Update theme type in `src/contexts/ThemeContext.tsx`:
+
 ```tsx
-export type Theme = 'light' | 'dark' | 'forest' | 'ocean';
+export type Theme = "light" | "dark" | "forest" | "ocean";
 ```
 
 2. Define theme tokens in `src/index.css`:
+
 ```css
 [data-theme="ocean"] {
-  --color-primary-600: #0EA5E9;
-  --color-text-primary: #0F172A;
-  --color-bg-primary: #F0F9FF;
+  --color-primary-600: #0ea5e9;
+  --color-text-primary: #0f172a;
+  --color-bg-primary: #f0f9ff;
   /* ... other tokens */
 }
 ```
@@ -261,6 +251,7 @@ export type Theme = 'light' | 'dark' | 'forest' | 'ocean';
 For comprehensive theme system documentation including all design tokens, implementation patterns, and best practices, see **[themeSystem.md](./themeSystem.md)**.
 
 **Topics covered:**
+
 - Complete design token reference (colors, spacing, typography, shadows)
 - Theme implementation guide
 - SCSS mixins and utilities reference
@@ -272,23 +263,27 @@ For comprehensive theme system documentation including all design tokens, implem
 
 Custom wrapper: `src/hooks/useReactQuery.ts` exports pre-bound `useQuery`, `useMutation`, `useQueryClient` with sensible defaults.
 
-**Example domain hooks:**
+**Domain hooks:**
 
 - `useTodos.ts` - Fetch, create, update, delete todos with optimistic cache updates and error rollback
 - `useDeals.ts` - Fetch deals data for revenue charts and deal details tables
+- `useProducts.ts` - Product data operations
+- `useBanners.ts` - Promotional banner data
 
-Devtools available via `@tanstack/react-query-devtools` (add `<ReactQueryDevtools />` to your root if desired).
+Devtools enabled via `<ReactQueryDevtools />` in `App.tsx`.
 
 ## API Layer
 
 Generic fetch abstraction: `src/services/api.ts` (`apiService.get/post/put/patch/delete`).
 
-**Existing domain services:**
+**Domain services:**
 
 - `todos.ts` - Todo CRUD operations
 - `deals.ts` - Deal data fetching
+- `products.ts` - Product operations
+- `productStock.ts` - Product stock/inventory data
 
-**Extending:** Add domain-specific service modules (e.g. `products.ts`, `orders.ts`). Handle transformation from API DTOs to internal types for consistency. Create corresponding hooks in `src/hooks/` for React Query integration.
+**Extending:** Add domain-specific service modules following the same pattern. Handle transformation from API DTOs to internal types for consistency. Create corresponding hooks in `src/hooks/` for React Query integration.
 
 ## Adding a New Page
 
@@ -313,13 +308,11 @@ import { Home, Settings } from "lucide-react";
 
 ## ESLint & TypeScript
 
-Config: `eslint.config.js`. Recommended to upgrade to type-aware configs (see section below). For stricter React rules, optionally install:
+Config: `eslint.config.js` (flat config). Plugins: TypeScript ESLint, React Hooks, React Refresh. For stricter React rules, optionally install:
 
 ```bash
-npm install eslint-plugin-react-x eslint-plugin-react-dom -D
+yarn add -D eslint-plugin-react-x eslint-plugin-react-dom
 ```
-
-Configuration example (type-aware + React rules) shown in README earlier.
 
 ## React Compiler
 
@@ -371,8 +364,8 @@ Note: Use `configs/` (plural) as per actual directory for configuration modules.
 ## Contributing
 
 1. Fork + create feature branch: `git checkout -b feature/my-change`
-2. Install deps & run `npm run dev` or `yarn dev`
-3. Ensure lint passes: `npm run lint` or `yarn lint`
+2. Install deps & run `yarn dev`
+3. Ensure lint passes: `yarn lint`
 4. Open PR with clear description.
 
 ## License

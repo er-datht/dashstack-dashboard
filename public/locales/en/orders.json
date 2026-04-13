@@ -1,6 +1,6 @@
 {
   "title": "Orders",
-  "orderList": "Order List",
+  "orderList": "Order Lists",
   "orderDetails": "Order Details",
   "orderId": "Order ID",
   "orderNumber": "Order Number",
@@ -32,5 +32,37 @@
   "filterByStatus": "Filter by status",
   "updateStatus": "Update Status",
   "viewInvoice": "View Invoice",
-  "printInvoice": "Print Invoice"
+  "printInvoice": "Print Invoice",
+  "columns": {
+    "id": "ID",
+    "name": "NAME",
+    "address": "ADDRESS",
+    "date": "DATE",
+    "type": "TYPE",
+    "status": "STATUS"
+  },
+  "filterBy": "Filter By",
+  "dateFilter": "Date",
+  "orderTypeFilter": "Order Type",
+  "orderStatusFilter": "Order Status",
+  "resetFilter": "Reset Filter",
+  "applyNow": "Apply Now",
+  "multiDateNote": "*You can choose multiple date",
+  "status": {
+    "completed": "Completed",
+    "processing": "Processing",
+    "on_hold": "On Hold",
+    "rejected": "Rejected"
+  },
+  "orderTypes": {
+    "health_medicine": "Health & Medicine",
+    "book_stationary": "Book & Stationary",
+    "services_industry": "Services & Industry",
+    "fashion_beauty": "Fashion & Beauty",
+    "home_living": "Home & Living",
+    "electronics": "Electronics",
+    "mobile_phone": "Mobile Phone",
+    "accessories": "Accessories"
+  },
+  "selectOrderType": "Select Order Type"
 }

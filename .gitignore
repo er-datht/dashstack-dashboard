@@ -419,9 +419,7 @@ FodyWeavers.xsd
 *.msp
 
 # Claude Code files
-CLAUDE.md
-.claude/
-.cursor/
+.agents
 resource
 
 # misc

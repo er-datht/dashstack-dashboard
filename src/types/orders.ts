@@ -49,3 +49,38 @@ export type Address = {
   postalCode: string;
   phone?: string;
 };
+
+/**
+ * Order List Page Types
+ */
+
+export type OrderListStatus =
+  | "completed"
+  | "processing"
+  | "on_hold"
+  | "rejected";
+
+export type OrderType =
+  | "health_medicine"
+  | "book_stationary"
+  | "services_industry"
+  | "fashion_beauty"
+  | "home_living"
+  | "electronics"
+  | "mobile_phone"
+  | "accessories";
+
+export type OrderListItem = {
+  id: string;
+  name: string;
+  address: string;
+  date: string;
+  type: OrderType;
+  status: OrderListStatus;
+};
+
+export type OrderFilters = {
+  dates: Date[];
+  types: OrderType[];
+  statuses: OrderListStatus[];
+};
