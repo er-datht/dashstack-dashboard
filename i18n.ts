@@ -33,6 +33,7 @@ i18n
       "theme",
       "errors",
       "messages",
+      "calendar",
     ],
     defaultNS: "common",
 
