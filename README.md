@@ -7,7 +7,7 @@ A modern, production-ready React 19 + TypeScript dashboard built with Vite, Tail
 - ⚡ Vite 7 for fast HMR, TS build integration
 - ⚛ React 19 with React Compiler (experimental performance optimizations)
 - 🧠 React Query (data fetching, caching, optimistic updates)
-- 🌐 i18next internationalization (English + Japanese) with language detection
+- 🌐 i18next internationalization (English, Japanese, Korean) with language detection
 - 🧭 React Router v7 with code-split lazy routes
 - 🌓 Multi-theme support (Light / Dark / Forest) with system preference detection
 - 🎨 Tailwind CSS 4 + SCSS Modules (utility + component scope styling)
@@ -19,7 +19,7 @@ A modern, production-ready React 19 + TypeScript dashboard built with Vite, Tail
 
 ## Tech Stack
 
-React 19, TypeScript 5.9, Vite 7, Tailwind CSS 4, SCSS Modules, React Router v7, React Query, i18next, Lucide Icons, Recharts.
+React 19, TypeScript 5.9, Vite 7, Tailwind CSS 4, SCSS Modules, React Router v7, React Query, i18next (en/jp/ko), Lucide Icons, Recharts.
 
 ## Project Structure
 
@@ -48,10 +48,10 @@ src/
 | `/products`      | Products listing UI                |
 | `/favorites`     | Favorites module                   |
 | `/inbox`         | Inbox / messaging placeholder      |
-| `/orders`        | Orders management                  |
+| `/orders`        | Order list with status management   |
 | `/product-stock` | Inventory / stock view             |
 | `/pricing`       | Pricing tables                     |
-| `/calendar`      | Calendar page                      |
+| `/calendar`      | Calendar with event CRUD & popover  |
 | `/todo`          | Todos CRUD with optimistic updates |
 | `/contact`       | Contact form page                  |
 | `/invoice`       | Invoice layout example             |
@@ -109,9 +109,9 @@ Configure runtime values via `.env` files (e.g. API base URL) without listing ac
 ## Internationalization (i18n)
 
 Configuration: `i18n.ts` (language detector + HTTP backend loading from `public/locales`).
-Supported languages: `en`, `jp`.
+Supported languages: `en`, `jp`, `ko`.
 Switching UI: `LanguageSwitcher` component.
-Translation namespaces: common, navigation, auth, dashboard, products, orders, settings, todo, theme, errors, messages, pricing.
+Translation namespaces: common, navigation, auth, calendar, dashboard, products, orders, settings, todo, theme, errors, messages, pricing, favorites.
 Add a new namespace: add JSON file under `public/locales/<lng>/<namespace>.json` and extend `ns` array in `i18n.ts` if needed.
 
 ## Theming
@@ -360,6 +360,15 @@ Note: Use `configs/` (plural) as per actual directory for configuration modules.
 - Accessibility audit.
 - Data export (CSV / XLSX) from tables.
 - Real backend integration for deals & products.
+
+## Development Workflow (OpenSpec + Agent Pipeline)
+
+This project uses a spec-driven development workflow powered by [OpenSpec](https://github.com/Fission-AI/OpenSpec) and Claude Code subagents. Every code change follows: **propose** → **review** → **apply** → **archive**.
+
+- **[WORKFLOW-SETUP-GUIDE.md](./WORKFLOW-SETUP-GUIDE.md)** — Full step-by-step setup guide for any project
+- **[QUICK-WORKFLOW-SETUP.md](./QUICK-WORKFLOW-SETUP.md)** — 10-minute quick setup version
+
+OpenSpec specs and change history live in the `openspec/` directory.
 
 ## Contributing
 
