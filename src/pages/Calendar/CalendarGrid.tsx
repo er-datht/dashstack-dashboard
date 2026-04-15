@@ -19,6 +19,7 @@ type CalendarDay = {
   date: Date;
   dayOfMonth: number;
   isCurrentMonth: boolean;
+  isToday: boolean;
 };
 
 const MONTH_KEYS = [
@@ -54,10 +55,15 @@ const DAYS_PER_WEEK = 7;
  * for the given month and year, including leading/trailing days from
  * adjacent months.
  */
-function generateCalendarDays(
+export function generateCalendarDays(
   month: number,
   year: number
 ): CalendarDay[] {
+  const today = new Date();
+  const isSameDay = (d: Date) =>
+    d.getFullYear() === today.getFullYear() &&
+    d.getMonth() === today.getMonth() &&
+    d.getDate() === today.getDate();
   const firstDayOfMonth = new Date(year, month, 1);
   const startDayOfWeek = firstDayOfMonth.getDay();
 
@@ -70,20 +76,24 @@ function generateCalendarDays(
 
   for (let i = startDayOfWeek - 1; i >= 0; i--) {
     const dayNum = daysInPrevMonth - i;
+    const date = new Date(prevYear, prevMonth, dayNum);
     days.push({
-      date: new Date(prevYear, prevMonth, dayNum),
+      date,
       dayOfMonth: dayNum,
       isCurrentMonth: false,
+      isToday: isSameDay(date),
     });
   }
 
   // Current month days
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, month, d);
     days.push({
-      date: new Date(year, month, d),
+      date,
       dayOfMonth: d,
       isCurrentMonth: true,
+      isToday: isSameDay(date),
     });
   }
 
@@ -92,10 +102,12 @@ function generateCalendarDays(
   const nextYear = month === 11 ? year + 1 : year;
   let nextDayNum = 1;
   while (days.length < TOTAL_CELLS) {
+    const date = new Date(nextYear, nextMonth, nextDayNum);
     days.push({
-      date: new Date(nextYear, nextMonth, nextDayNum),
+      date,
       dayOfMonth: nextDayNum,
       isCurrentMonth: false,
+      isToday: isSameDay(date),
     });
     nextDayNum++;
   }
@@ -291,7 +303,7 @@ export default function CalendarGrid({
                   role={onDayClick ? "button" : undefined}
                   tabIndex={onDayClick ? 0 : undefined}
                 >
-                  <span className={styles.dayNumber}>
+                  <span className={cn(styles.dayNumber, { [styles.todayNumber]: day.isToday })}>
                     {day.dayOfMonth}
                   </span>
                 </div>
