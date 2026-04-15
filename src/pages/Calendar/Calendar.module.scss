@@ -397,3 +397,354 @@
     background-color: rgba(239, 68, 68, 0.1);
   }
 }
+
+// ── Shared Time Grid Styles ──────────────────────────────────────────
+
+.hourGutter {
+  width: 60px;
+  min-width: 60px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-right: 8px;
+  padding-top: 0;
+  position: relative;
+  z-index: 3;
+}
+
+.hourLabel {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  line-height: 1;
+  transform: translateY(-50%);
+  background-color: var(--color-surface);
+  padding: 0 2px;
+}
+
+.hourRow {
+  display: flex;
+  min-height: 60px;
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+
+.hourSlot {
+  flex: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  border-left: 1px solid var(--color-border);
+
+  &:hover {
+    background-color: var(--color-primary-50);
+  }
+}
+
+.timeGridScroll {
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+}
+
+.timeGrid {
+  position: relative;
+  min-height: calc(24 * 60px);
+}
+
+// ── All-Day Row ──────────────────────────────────────────────────────
+
+.allDayRow {
+  display: flex;
+  min-height: 40px;
+  border-bottom: 2px solid var(--color-border);
+  padding: 6px 0;
+  align-items: center;
+}
+
+.allDayGutter {
+  width: 60px;
+  min-width: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+
+.allDayLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+}
+
+.allDayContent {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 2px 4px;
+}
+
+.allDayEventBar {
+  height: 22px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-left: 3px solid;
+  border-radius: 2px;
+  font-weight: 600;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+// ── Timed Event Block ────────────────────────────────────────────────
+
+.timedEventBlock {
+  position: absolute;
+  border-left: 3px solid;
+  border-radius: 4px;
+  padding: 2px 6px;
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 2;
+  transition: opacity 0.15s ease;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.timedEventTitle {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ── Current Time Indicator ───────────────────────────────────────────
+
+.currentTimeIndicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.currentTimeDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-primary-600);
+  flex-shrink: 0;
+  margin-left: -4px;
+
+  [data-theme="forest"] & {
+    background-color: var(--color-primary);
+  }
+}
+
+.currentTimeLine {
+  flex: 1;
+  height: 2px;
+  background-color: var(--color-primary-600);
+
+  [data-theme="forest"] & {
+    background-color: var(--color-primary);
+  }
+}
+
+// ── Day View ─────────────────────────────────────────────────────────
+
+.dayViewContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.dayEventsColumn {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 60px;
+  right: 0;
+}
+
+// ── Week View ────────────────────────────────────────────────────────
+
+.weekViewContainer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.weekColumnHeaders {
+  display: flex;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.weekHeaderGutter {
+  width: 60px;
+  min-width: 60px;
+}
+
+.weekColumnHeader {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  gap: 2px;
+}
+
+.weekColumnHeaderToday {
+  // Just a marker for today — active styling via children
+}
+
+.weekDayName {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+}
+
+.weekDateNumber {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.weekDateNumberToday {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--color-primary-600);
+  color: var(--color-white);
+
+  [data-theme="forest"] & {
+    background-color: var(--color-primary);
+  }
+}
+
+.weekAllDayRow {
+  display: flex;
+  min-height: 40px;
+  border-bottom: 2px solid var(--color-border);
+  padding: 6px 0;
+  position: relative;
+  align-items: center;
+}
+
+.weekAllDayGrid {
+  flex: 1;
+  position: relative;
+  min-height: 28px;
+  padding: 2px 0;
+}
+
+.weekTimeGrid {
+  position: relative;
+  min-height: calc(24 * 60px);
+}
+
+.weekHourRow {
+  display: flex;
+  min-height: 60px;
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+
+.weekHourSlot {
+  flex: 1;
+  cursor: pointer;
+  border-left: 1px solid var(--color-border);
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: var(--color-primary-50);
+  }
+}
+
+.weekDayEventsColumn {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+// ── AddEventModal Time Inputs ────────────────────────────────────────
+
+.timeInputRow {
+  display: flex;
+  gap: 12px;
+}
+
+.timeInputRow > div {
+  flex: 1;
+}
+
+.allDayToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.allDayToggleLabel {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.toggleSwitch {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s ease;
+  background-color: var(--color-border);
+  padding: 0;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: var(--color-white);
+    transition: transform 0.2s ease;
+  }
+}
+
+.toggleSwitchOn {
+  background-color: var(--color-primary-600);
+
+  [data-theme="forest"] & {
+    background-color: var(--color-primary);
+  }
+
+  &::after {
+    transform: translateX(20px);
+  }
+}
