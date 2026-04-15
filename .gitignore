@@ -423,5 +423,8 @@ FodyWeavers.xsd
 .claude/worktrees/
 resource
 
+# Test coverage
+coverage/
+
 # misc
 .DS_Store

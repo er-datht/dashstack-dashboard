@@ -54,9 +54,10 @@ Before proposing or implementing any change, you MUST review the existing knowle
 ### Agent Priority Order
 
 1. **Proposal reviewer after propose** — validates artifacts, identifies gaps, asks clarifying questions, and refines the proposal before any code is written.
-2. **Implementation specialist first during apply** — handles all UI, component, layout, state, and accessibility work.
-3. **Security reviewer before external trust** — gates package installs, dependency changes, external URLs, and web-searched code.
-4. **Code reviewer last** — final quality gate before considering work done.
+2. **Unit test writer first during apply** — writes tests from specs before implementation (TDD). Only for tasks that produce testable units.
+3. **Implementation specialist after tests** — implements code to make tests pass. Handles all UI, component, layout, state, and accessibility work. Runs `yarn test` after each task.
+4. **Security reviewer before external trust** — gates package installs, dependency changes, external URLs, and web-searched code.
+5. **Code reviewer last** — final quality gate before considering work done.
 
 ### Agent Roles
 
@@ -88,6 +89,35 @@ After review, the proposal reviewer:
 3. Updates artifacts based on answers
 4. Confirms readiness for `opsx:apply`
 
+#### Unit test writer
+
+Use when:
+
+- implementation is about to begin and tests have not been written yet
+- the change includes tasks that produce testable units (components, utilities, hooks, services)
+- you want to establish the behavioral contract before code is written
+
+Do not use for:
+
+- changes that only affect config, routing, styling, or i18n files
+- dependency-only changes (no testable units)
+- writing implementation code (that's the implementation specialist)
+- reviewing code (that's the code reviewer)
+
+The unit test writer:
+
+1. Reads the OpenSpec artifacts (specs, design, tasks) for the change
+2. Identifies which tasks produce testable units, skips the rest
+3. Writes lean test files: happy path + key edge cases (3-5 tests per unit)
+4. Reports what was created, what was skipped, and any spec ambiguities found
+5. Follows project test conventions: Vitest globals, `@testing-library/react`, `__tests__/` directories, i18n key assertions
+
+After the unit test writer completes:
+- Tests will initially fail (implementation doesn't exist yet) — this is expected TDD behavior
+- The implementation specialist writes code to make them pass
+- Minor test fixes (import paths, type tweaks) can be made by the implementation specialist inline
+- Major behavioral mismatches must be flagged and traced back to the spec
+
 #### Implementation specialist
 
 Use when:
@@ -104,6 +134,7 @@ Do not use as the first choice for:
 - dependency trust decisions
 - package selection from the web
 - final cross-cutting review
+- writing tests before implementation (that's the unit test writer)
 
 #### Security reviewer
 
@@ -146,14 +177,17 @@ Start here:
 1. Has the proposal just been generated and not yet reviewed?
    Yes -> use proposal reviewer.
    No -> continue.
-2. Is this mainly a UI, layout, accessibility, or frontend-state task?
-   Yes -> use implementation specialist.
+2. Is implementation about to begin and tests not yet written?
+   Yes -> use unit test writer to create tests from specs first.
    No -> continue.
-3. Does this task require trusting something external?
+3. Is this mainly a UI, layout, accessibility, or frontend-state task?
+   Yes -> use implementation specialist (run `yarn test` after each task to verify tests pass).
+   No -> continue.
+4. Does this task require trusting something external?
    Examples: new package, package upgrade, remote URL, script from the internet, web-searched library or code snippet.
    Yes -> use security reviewer before proceeding.
    No -> continue.
-4. Is the work implemented and ready for validation?
+5. Is the work implemented and ready for validation?
    Yes -> use code reviewer.
    No -> continue with the implementation path.
 
@@ -164,55 +198,62 @@ Start here:
 1. **Review existing specs and archive first** — read relevant specs in `openspec/specs/` and archived changes in `openspec/changes/archive/` to understand established patterns, data models, and prior decisions that the new work must respect.
 2. After `opsx:propose` completes, launch the proposal reviewer to validate and refine artifacts.
 3. Once the proposal reviewer confirms readiness, proceed with `opsx:apply`.
-4. Understand the task and inspect local code first.
-5. If the task is frontend/UI work, use the implementation specialist to design and implement the change.
-6. If implementation requires a new dependency, stop before installation and use the security reviewer.
-7. Only proceed with dependency installation if the security reviewer returns `allow`, or if the user explicitly accepts an `ask` result.
-8. Finish implementation.
-9. Run code reviewer as the final review pass.
+4. Launch the unit test writer to create tests from specs before any implementation begins.
+5. Understand the task and inspect local code first.
+6. If the task is frontend/UI work, use the implementation specialist to implement the change and make the tests pass.
+7. If implementation requires a new dependency, stop before installation and use the security reviewer.
+8. Only proceed with dependency installation if the security reviewer returns `allow`, or if the user explicitly accepts an `ask` result.
+9. Finish implementation. Ensure `yarn test` passes.
+10. Run code reviewer as the final review pass.
 
 ### Fixing a Bug
 
 1. **Review existing specs and archive first** — read relevant specs in `openspec/specs/` and archived changes in `openspec/changes/archive/` to understand the original design intent and constraints before diagnosing the bug.
 2. After `opsx:propose` generates the fix proposal, launch the proposal reviewer to validate the diagnosis and planned fix.
 3. Once confirmed, proceed with `opsx:apply`.
-4. Reproduce and understand the bug using local code and existing tools.
-5. If the bug is in UI, layout, state, rendering, or accessibility, use the implementation specialist.
-6. If the proposed fix involves upgrading, downgrading, or adding a dependency, use the security reviewer before making that change. (For bugs fixed entirely with existing local code, the security reviewer is not needed.)
-7. After the fix is implemented, use code reviewer to look for regressions, missed edge cases, and production risks.
+4. Launch the unit test writer to create regression tests from the bug spec (tests that reproduce the bug and verify the fix).
+5. Reproduce and understand the bug using local code and existing tools.
+6. If the bug is in UI, layout, state, rendering, or accessibility, use the implementation specialist to fix and make the tests pass.
+7. If the proposed fix involves upgrading, downgrading, or adding a dependency, use the security reviewer before making that change. (For bugs fixed entirely with existing local code, the security reviewer is not needed.)
+8. After the fix is implemented, ensure `yarn test` passes, then use code reviewer to look for regressions, missed edge cases, and production risks.
 
 ### Common Sequences
 
 **New feature without new dependencies:**
 1. Proposal reviewer
-2. Implementation specialist
-3. Code reviewer
+2. Unit test writer
+3. Implementation specialist
+4. Code reviewer
 
 **New feature with a new package:**
 1. Proposal reviewer
-2. Implementation specialist for design and implementation planning
-3. Security reviewer before installing or trusting the package
-4. Implementation specialist to finish implementation
-5. Code reviewer for final review
+2. Unit test writer
+3. Implementation specialist for design and implementation planning
+4. Security reviewer before installing or trusting the package
+5. Implementation specialist to finish implementation
+6. Code reviewer for final review
 
 **Bug fix using existing code only:**
 1. Proposal reviewer
-2. Implementation specialist
-3. Code reviewer
+2. Unit test writer
+3. Implementation specialist
+4. Code reviewer
 
 **Bug fix that likely needs a dependency upgrade:**
 1. Proposal reviewer
-2. Investigate locally first
-3. Security reviewer before any upgrade or replacement
-4. Implement the chosen fix
-5. Code reviewer
+2. Unit test writer
+3. Investigate locally first
+4. Security reviewer before any upgrade or replacement
+5. Implement the chosen fix
+6. Code reviewer
 
 **Web search for a library:**
 1. Proposal reviewer
 2. Security reviewer reviews candidate packages and URLs first
 3. Choose package only after review
-4. Implement with implementation specialist if the change is frontend
-5. Finish with code reviewer
+4. Unit test writer
+5. Implement with implementation specialist if the change is frontend
+6. Finish with code reviewer
 
 ## Stop Rules
 
@@ -246,6 +287,7 @@ After proposing:
 
 Before starting implementation:
 
+- Did the unit test writer create tests from the specs?
 - Is this a frontend task?
 - Does it require a new external dependency or URL?
 - Which agent should go first?
@@ -257,13 +299,17 @@ Before installing anything:
 
 Before finishing:
 
+- Do all tests pass (`yarn test`)?
 - Did the code reviewer review the final change?
 
 ## Working Agreement
 
 - Do not skip the proposal reviewer after propose — it catches gaps before they become rework.
+- Do not skip the unit test writer before implementation — tests define the behavioral contract.
+- Do not use the unit test writer for non-testable tasks (config, routing, styling, i18n).
 - Do not use the security reviewer for ordinary local coding.
 - Do not skip the security reviewer when external trust is involved.
 - Do not treat the code reviewer as a replacement for implementation.
 - Do not treat the implementation specialist as a package trust reviewer.
 - Do not treat the proposal reviewer as a code reviewer — it reviews specs, not code.
+- The implementation specialist may fix minor test issues inline but must flag major behavioral mismatches back to the spec.

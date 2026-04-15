@@ -13,11 +13,14 @@ yarn dev        # Start development server with HMR
 yarn build      # TypeScript compile + Vite build
 yarn lint       # ESLint (flat config)
 yarn preview    # Preview production build
+yarn test       # Run unit tests (single run)
+yarn test:watch # Run tests in watch mode
+yarn test:coverage # Run tests with coverage report
 ```
 
 **Package Manager**: Use **Yarn** exclusively (NOT npm).
 
-**No test framework is configured.** There are no test files in the codebase.
+**Testing**: Vitest with jsdom, React Testing Library, and `@testing-library/jest-dom` matchers. Config in `vitest.config.ts`, setup in `src/test/setup.ts`. Test files use `__tests__/` directories co-located with source. Global `vi`, `describe`, `it`, `expect` are available (no imports needed). `react-i18next` is globally mocked in setup to return translation keys as-is.
 
 ## Environment
 
@@ -115,7 +118,7 @@ i18next + react-i18next. Config at **project root** `i18n.ts` (not in `src/`). T
 
 1. **Context first** — Before anything else, review existing specs (`openspec/specs/`) and archived changes (`openspec/changes/archive/`) relevant to the area being changed. Summarize findings (data models, component contracts, patterns, edge cases, prior decisions) to inform the proposal. Also check active changes (`openspec/changes/`) for overlap.
 2. **Propose** — Invoke the `opsx:propose` skill with the user's description plus context findings to generate proposal, design, specs, and tasks before writing any code.
-3. **Review proposal** — Launch the `proposal-reviewer` subagent to validate artifacts, identify gaps, ask clarifying questions, and refine the proposal before implementation.
+3. **Review proposal** — Launch the `proposal-reviewer` subagent to validate artifacts, exhaustively question the user on every ambiguity and unstated assumption, and refine the proposal before implementation. The reviewer will ask as many questions as needed (multi-round Q&A) to prevent hallucinated requirements.
 4. **STOP and wait for user** — After the proposal review completes, present a summary of the artifacts (proposal, design, specs, tasks) and **stop**. Do NOT proceed to implementation automatically. Tell the user: "Run `/opsx:apply` when you're ready to implement." The user must explicitly type `/opsx:apply` to start the apply phase. This gives the user a chance to review, adjust, or reject the proposal before any code is written.
 5. **Apply with agent pipeline** — Only when the user invokes `/opsx:apply`, implement tasks. During apply, you MUST use the specialized subagents defined below (see **Mandatory Subagent Usage**). Never implement tasks inline — always dispatch to the appropriate Agent.
 6. **Archive when done** — Suggest `opsx:archive` once all tasks are complete. **When archiving, always update the "Existing specs" list in this file** — append a new numbered entry with the change name and a brief description.
@@ -131,20 +134,22 @@ i18next + react-i18next. Config at **project root** `i18n.ts` (not in `src/`). T
 
 During the **apply** phase, you MUST use the Agent tool with these specialized `subagent_type` values — do NOT implement code changes yourself:
 
-1. **`proposal-reviewer`** (Proposal quality gate) — Launch AFTER `opsx:propose` completes. Reviews all artifacts for completeness, identifies gaps, asks the user clarifying questions, suggests improvements, and updates artifacts. Do not proceed to implementation until the reviewer confirms the proposal is ready.
+1. **`proposal-reviewer`** (Proposal quality gate) — Launch AFTER `opsx:propose` completes. Exhaustively questions the user to clarify every ambiguity, surfaces all implicit assumptions in generated artifacts, and asks for explicit confirmation before proceeding. Uses multi-round Q&A — never assumes or fills in gaps on its own. Do not proceed to implementation until the reviewer confirms the proposal is ready.
 
-2. **`react-frontend-specialist`** (Implementation) — Launch FIRST during apply for all code implementation tasks: UI components, layouts, state management, API integration, bug fixes, refactoring, accessibility, and any code writing. Provide the agent with full task context from the OpenSpec specs.
+2. **`unit-test-writer`** (TDD gate) — Launch FIRST during apply, before implementation. Reads specs, design, and tasks to write unit tests that define the behavioral contract. Only tests tasks that produce testable units (components, utilities, hooks) — skips config/routing/styling tasks. Uses a lean approach: happy path + key edge cases.
 
-3. **`security-reviewer`** (Security gate) — Launch BEFORE any external trust action: installing packages (`yarn add`), fetching URLs, using web-searched code, or upgrading dependencies. Block implementation until verdict is `✅ allow` or user accepts `⚠️ ask`.
+3. **`react-frontend-specialist`** (Implementation) — Launch AFTER unit-test-writer during apply. Implements code to make the tests pass. Handles all code implementation tasks: UI components, layouts, state management, API integration, bug fixes, refactoring, accessibility. Must run `yarn test` after each task and ensure tests pass. May fix minor test issues (import paths, slight type mismatches) inline; must flag major behavioral mismatches back to the spec.
 
-4. **`code-reviewer`** (Final quality gate) — Launch LAST after implementation is complete. Provide the agent with the diff or list of changed files for review. Do not consider the task done until code review passes.
+4. **`security-reviewer`** (Security gate) — Launch BEFORE any external trust action: installing packages (`yarn add`), fetching URLs, using web-searched code, or upgrading dependencies. Block implementation until verdict is `✅ allow` or user accepts `⚠️ ask`.
+
+5. **`code-reviewer`** (Final quality gate) — Launch LAST after implementation is complete. Provide the agent with the diff or list of changed files for review. Do not consider the task done until code review passes.
 
 **Sequencing rules:**
-- Simple feature/fix: `proposal-reviewer` → `react-frontend-specialist` → `code-reviewer`
-- Feature/fix needing new dependency: `proposal-reviewer` → `react-frontend-specialist` (plan) → `security-reviewer` → `react-frontend-specialist` (implement) → `code-reviewer`
+- Simple feature/fix: `proposal-reviewer` → `unit-test-writer` → `react-frontend-specialist` → `code-reviewer`
+- Feature/fix needing new dependency: `proposal-reviewer` → `unit-test-writer` → `react-frontend-specialist` (plan) → `security-reviewer` → `react-frontend-specialist` (implement) → `code-reviewer`
 - Dependency-only change: `proposal-reviewer` → `security-reviewer` → `code-reviewer`
 
-**Never skip subagents.** Even for one-line changes, at minimum use `react-frontend-specialist` for implementation and `code-reviewer` for review.
+**Never skip subagents.** Even for one-line changes, at minimum use `unit-test-writer` for tests, `react-frontend-specialist` for implementation, and `code-reviewer` for review.
 
 All code changes follow the spec-driven workflow defined in `.claude/workflow.md`, which combines OpenSpec planning with agent-based execution.
 
@@ -158,6 +163,7 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 
 **Agent mapping for this project:**
 - **Proposal reviewer** → `proposal-reviewer`
+- **Unit test writer** → `unit-test-writer`
 - **Implementation specialist** → `react-frontend-specialist`
 - **Security reviewer** → `security-reviewer`
 - **Code reviewer** → `code-reviewer`
@@ -179,9 +185,12 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 14. `calendar-modal-image-participants` — Image upload, participants input, popover image display, sidebar avatar
 15. `fix-popover-viewport-overflow` — Popover viewport boundary clamping (top/bottom/left/right)
 16. `popover-guests-avatar-row` — Horizontal avatar row for popover guests section
+17. `setup-unit-testing` — Vitest + React Testing Library setup, test conventions, example tests
+18. `pin-package-versions` — Pin all dependency versions to exact (no ^ or ~ prefixes)
 
 **Project notes:**
-- Most tasks start with `react-frontend-specialist`
+- After proposal review, `unit-test-writer` runs first to create tests from specs (TDD)
+- `react-frontend-specialist` implements code to make tests pass; may fix minor test issues inline, must flag major mismatches
 - Package recommendations from web search go through `security-reviewer` first
 - Final sign-off goes through `code-reviewer`
 
