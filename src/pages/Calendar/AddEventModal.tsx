@@ -19,10 +19,12 @@ type AddEventModalProps = {
     organizer: string;
     image?: string;
     participants: Participant[];
+    allDay: boolean;
   }) => void;
   onDelete?: (id: string) => void;
   initialDate?: Date;
   editEvent?: CalendarEvent;
+  defaultAllDay?: boolean;
 };
 
 function formatDateToInput(date: Date): string {
@@ -32,6 +34,12 @@ function formatDateToInput(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+function formatTimeToInput(date: Date): string {
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+}
+
 export default function AddEventModal({
   isOpen,
   onClose,
@@ -39,6 +47,7 @@ export default function AddEventModal({
   onDelete,
   initialDate,
   editEvent,
+  defaultAllDay = true,
 }: AddEventModalProps): React.JSX.Element | null {
   const { t } = useTranslation("calendar");
   const modalRef = useRef<HTMLDivElement>(null);
@@ -47,6 +56,9 @@ export default function AddEventModal({
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [startTime, setStartTime] = useState("09:00");
+  const [endTime, setEndTime] = useState("10:00");
+  const [allDay, setAllDay] = useState(true);
   const [location, setLocation] = useState("");
   const [organizer, setOrganizer] = useState("");
   const [titleError, setTitleError] = useState(false);
@@ -70,6 +82,14 @@ export default function AddEventModal({
         setTitle(editEvent.title);
         setStartDate(formatDateToInput(editEvent.startDate));
         setEndDate(editEvent.endDate ? formatDateToInput(editEvent.endDate) : "");
+        setAllDay(editEvent.allDay !== false);
+        if (editEvent.allDay === false) {
+          setStartTime(formatTimeToInput(editEvent.startDate));
+          setEndTime(editEvent.endDate ? formatTimeToInput(editEvent.endDate) : "10:00");
+        } else {
+          setStartTime("09:00");
+          setEndTime("10:00");
+        }
         setLocation(editEvent.location);
         setOrganizer(editEvent.organizer);
         setImage(editEvent.image);
@@ -78,6 +98,17 @@ export default function AddEventModal({
         setTitle("");
         setStartDate(initialDate ? formatDateToInput(initialDate) : "");
         setEndDate("");
+        setAllDay(defaultAllDay);
+        if (initialDate && !defaultAllDay) {
+          // Pre-fill time from the clicked time slot
+          setStartTime(formatTimeToInput(initialDate));
+          const endHour = new Date(initialDate);
+          endHour.setHours(endHour.getHours() + 1);
+          setEndTime(formatTimeToInput(endHour));
+        } else {
+          setStartTime("09:00");
+          setEndTime("10:00");
+        }
         setLocation("");
         setOrganizer("");
         setImage(undefined);
@@ -89,7 +120,7 @@ export default function AddEventModal({
       setParticipantInput("");
       setIsDragOver(false);
     }
-  }, [isOpen, initialDate, editEvent]);
+  }, [isOpen, initialDate, editEvent, defaultAllDay]);
 
   // Focus trap, Escape key, and body scroll lock
   useEffect(() => {
@@ -260,13 +291,27 @@ export default function AddEventModal({
     }
 
     const now = new Date();
-    const startDateObj = startDate
-      ? new Date(startDate + "T00:00:00")
-      : new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const endDateObj = endDate ? new Date(endDate + "T00:00:00") : undefined;
+    let startDateObj: Date;
+    let endDateObj: Date | undefined;
+
+    if (allDay) {
+      startDateObj = startDate
+        ? new Date(startDate + "T00:00:00")
+        : new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      endDateObj = endDate ? new Date(endDate + "T00:00:00") : undefined;
+    } else {
+      const baseDateStr = startDate || formatDateToInput(now);
+      startDateObj = new Date(`${baseDateStr}T${startTime}:00`);
+      const endBaseDateStr = endDate || baseDateStr;
+      endDateObj = new Date(`${endBaseDateStr}T${endTime}:00`);
+    }
 
     if (endDateObj && endDateObj < startDateObj) {
-      setEndDate(startDate);
+      if (allDay) {
+        setEndDate(startDate);
+      } else {
+        setEndTime(startTime);
+      }
       return;
     }
 
@@ -278,6 +323,7 @@ export default function AddEventModal({
       organizer: organizer.trim(),
       image,
       participants,
+      allDay,
     });
   };
 
@@ -301,7 +347,7 @@ export default function AddEventModal({
         </h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          {/* Image Upload Area — above Event Title */}
+          {/* Image Upload Area -- above Event Title */}
           <div>
             <label className={styles.modalLabel}>
               {t("modal.uploadImage")}
@@ -411,6 +457,24 @@ export default function AddEventModal({
             )}
           </div>
 
+          {/* All Day Toggle */}
+          <div className={styles.allDayToggle}>
+            <span className={styles.allDayToggleLabel}>
+              {t("modal.allDay")}
+            </span>
+            <button
+              type="button"
+              className={cn(
+                styles.toggleSwitch,
+                allDay && styles.toggleSwitchOn
+              )}
+              onClick={() => setAllDay((prev) => !prev)}
+              role="switch"
+              aria-checked={allDay}
+              aria-label={t("modal.allDay")}
+            />
+          </div>
+
           {/* Start Date */}
           <div>
             <label htmlFor="event-start-date" className={styles.modalLabel}>
@@ -424,6 +488,36 @@ export default function AddEventModal({
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
+
+          {/* Time inputs (visible when not all-day) */}
+          {!allDay && (
+            <div className={styles.timeInputRow}>
+              <div>
+                <label htmlFor="event-start-time" className={styles.modalLabel}>
+                  {t("modal.startTime")}
+                </label>
+                <input
+                  id="event-start-time"
+                  type="time"
+                  className={styles.modalInput}
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="event-end-time" className={styles.modalLabel}>
+                  {t("modal.endTime")}
+                </label>
+                <input
+                  id="event-end-time"
+                  type="time"
+                  className={styles.modalInput}
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
 
           {/* End Date */}
           <div>

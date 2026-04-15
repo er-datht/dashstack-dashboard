@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "../../utils/cn";
 import type { CalendarEvent } from "../../types/calendar";
 import styles from "./Calendar.module.scss";
@@ -8,9 +7,6 @@ type CalendarGridProps = {
   events: CalendarEvent[];
   currentMonth: number;
   currentYear: number;
-  onPrevMonth: () => void;
-  onNextMonth: () => void;
-  onToday: () => void;
   onDayClick?: (date: Date) => void;
   onEventClick?: (event: CalendarEvent, position: { top: number; left: number }) => void;
 };
@@ -21,21 +17,6 @@ type CalendarDay = {
   isCurrentMonth: boolean;
   isToday: boolean;
 };
-
-const MONTH_KEYS = [
-  "jan",
-  "feb",
-  "mar",
-  "apr",
-  "may",
-  "jun",
-  "jul",
-  "aug",
-  "sep",
-  "oct",
-  "nov",
-  "dec",
-] as const;
 
 const DAY_KEYS = [
   "sun",
@@ -170,15 +151,11 @@ export default function CalendarGrid({
   events,
   currentMonth,
   currentYear,
-  onPrevMonth,
-  onNextMonth,
-  onToday,
   onDayClick,
   onEventClick,
 }: CalendarGridProps): React.JSX.Element {
   const { t } = useTranslation("calendar");
 
-  const monthLabel = t(`monthNames.${MONTH_KEYS[currentMonth]}`);
   const days = generateCalendarDays(currentMonth, currentYear);
 
   // Split days into week rows
@@ -188,164 +165,82 @@ export default function CalendarGrid({
   }
 
   return (
-    <div
-      className="card flex-1 flex flex-col overflow-hidden"
-      style={{ border: "0.5px solid var(--color-border)" }}
-    >
-      {/* Top bar */}
-      <div className="flex justify-between items-center pt-[18px] px-[18px]">
-        {/* Today button */}
-        <button
-          type="button"
-          onClick={onToday}
-          className={cn(
-            "text-sm font-medium text-primary opacity-80",
-            "cursor-pointer bg-transparent border-none",
-            "hover:opacity-100 transition-opacity"
-          )}
-        >
-          {t("today")}
-        </button>
-
-        {/* Month navigation */}
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={onPrevMonth}
-            className={cn(
-              "w-8 h-8 flex items-center justify-center",
-              "rounded-full cursor-pointer",
-              "bg-transparent border-none",
-              "text-primary hover:bg-surface-muted",
-              "transition-colors"
-            )}
-            aria-label={t("previousMonth")}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <span className="font-bold text-2xl text-primary min-w-[200px] text-center">
-            {monthLabel} {currentYear}
-          </span>
-          <button
-            type="button"
-            onClick={onNextMonth}
-            className={cn(
-              "w-8 h-8 flex items-center justify-center",
-              "rounded-full cursor-pointer",
-              "bg-transparent border-none",
-              "text-primary hover:bg-surface-muted",
-              "transition-colors"
-            )}
-            aria-label={t("nextMonth")}
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* View toggle */}
-        <div className={styles.viewToggle}>
-          <button
-            type="button"
-            className={styles.viewToggleButton}
-          >
-            {t("viewDay")}
-          </button>
-          <button
-            type="button"
-            className={styles.viewToggleButton}
-          >
-            {t("viewWeek")}
-          </button>
-          <button
-            type="button"
-            className={cn(
-              styles.viewToggleButton,
-              styles.viewToggleButtonActive
-            )}
-          >
-            {t("viewMonth")}
-          </button>
-        </div>
+    <div className="p-[18px]">
+      {/* Day-of-week header */}
+      <div className={styles.headerRow}>
+        {DAY_KEYS.map((dayKey) => (
+          <div key={dayKey} className={styles.headerCell}>
+            {t(`dayNames.${dayKey}`)}
+          </div>
+        ))}
       </div>
 
-      {/* Calendar grid */}
-      <div className="p-[18px]">
-        {/* Day-of-week header */}
-        <div className={styles.headerRow}>
-          {DAY_KEYS.map((dayKey) => (
-            <div key={dayKey} className={styles.headerCell}>
-              {t(`dayNames.${dayKey}`)}
-            </div>
-          ))}
-        </div>
+      {/* Week rows */}
+      {weeks.map((week, weekIndex) => {
+        const weekEvents = getEventsForWeek(week, events);
 
-        {/* Week rows */}
-        {weeks.map((week, weekIndex) => {
-          const weekEvents = getEventsForWeek(week, events);
+        return (
+          <div key={weekIndex} className={styles.weekRow}>
+            {/* Day cells */}
+            {week.map((day, dayIndex) => (
+              <div
+                key={dayIndex}
+                className={cn(styles.dayCell, {
+                  [styles.dayCellClickable]: !!onDayClick,
+                  [styles.outOfMonth]: !day.isCurrentMonth,
+                })}
+                onClick={() => onDayClick?.(day.date)}
+                onKeyDown={(e) => {
+                  if ((e.key === "Enter" || e.key === " ") && onDayClick) {
+                    e.preventDefault();
+                    onDayClick(day.date);
+                  }
+                }}
+                role={onDayClick ? "button" : undefined}
+                tabIndex={onDayClick ? 0 : undefined}
+              >
+                <span className={cn(styles.dayNumber, { [styles.todayNumber]: day.isToday })}>
+                  {day.dayOfMonth}
+                </span>
+              </div>
+            ))}
 
-          return (
-            <div key={weekIndex} className={styles.weekRow}>
-              {/* Day cells */}
-              {week.map((day, dayIndex) => (
+            {/* Event bars */}
+            {weekEvents.map(({ event, startCol, span }, eventIndex) => {
+              const leftPercent = (startCol / DAYS_PER_WEEK) * 100;
+              const widthPercent = (span / DAYS_PER_WEEK) * 100;
+              const bottomOffset = 4 + eventIndex * 22;
+
+              return (
                 <div
-                  key={dayIndex}
-                  className={cn(styles.dayCell, {
-                    [styles.dayCellClickable]: !!onDayClick,
-                    [styles.outOfMonth]: !day.isCurrentMonth,
-                  })}
-                  onClick={() => onDayClick?.(day.date)}
-                  onKeyDown={(e) => {
-                    if ((e.key === "Enter" || e.key === " ") && onDayClick) {
-                      e.preventDefault();
-                      onDayClick(day.date);
-                    }
+                  key={event.id}
+                  className={styles.eventBar}
+                  style={{
+                    left: `${leftPercent}%`,
+                    width: `calc(${widthPercent}% - 8px)`,
+                    marginLeft: "4px",
+                    bottom: `${bottomOffset}px`,
+                    borderLeftColor: event.color.border,
+                    backgroundColor: event.color.bg,
+                    color: event.color.text,
                   }}
-                  role={onDayClick ? "button" : undefined}
-                  tabIndex={onDayClick ? 0 : undefined}
+                  title={event.title}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    onEventClick?.(event, {
+                      top: rect.top,
+                      left: rect.right + 12,
+                    });
+                  }}
                 >
-                  <span className={cn(styles.dayNumber, { [styles.todayNumber]: day.isToday })}>
-                    {day.dayOfMonth}
-                  </span>
+                  {event.title}
                 </div>
-              ))}
-
-              {/* Event bars */}
-              {weekEvents.map(({ event, startCol, span }, eventIndex) => {
-                const leftPercent = (startCol / DAYS_PER_WEEK) * 100;
-                const widthPercent = (span / DAYS_PER_WEEK) * 100;
-                const bottomOffset = 4 + eventIndex * 22;
-
-                return (
-                  <div
-                    key={event.id}
-                    className={styles.eventBar}
-                    style={{
-                      left: `${leftPercent}%`,
-                      width: `calc(${widthPercent}% - 8px)`,
-                      marginLeft: "4px",
-                      bottom: `${bottomOffset}px`,
-                      borderLeftColor: event.color.border,
-                      backgroundColor: event.color.bg,
-                      color: event.color.text,
-                    }}
-                    title={event.title}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      onEventClick?.(event, {
-                        top: rect.top,
-                        left: rect.right + 12,
-                      });
-                    }}
-                  >
-                    {event.title}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+        );
+      })}
     </div>
   );
 }

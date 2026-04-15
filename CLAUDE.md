@@ -189,6 +189,8 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 18. `pin-package-versions` — Pin all dependency versions to exact (no ^ or ~ prefixes)
 19. `remove-korean-language` — Removed Korean (ko) language support: i18n config, LanguageSwitcher, 14 translation files, docs
 20. `calendar-today-highlight` — Visual highlight (colored circle badge) for today's date in the calendar grid
+21. `calendar-day-week-views` — Day and Week views with 24-hour time grids, CalendarHeader extraction, view state management, modal time inputs, timed events
+22. `sidebar-paginated-events` — Paginated event sidebar showing max 4 events with incremental "See More" button
 
 **Project notes:**
 - After proposal review, `unit-test-writer` runs first to create tests from specs (TDD)

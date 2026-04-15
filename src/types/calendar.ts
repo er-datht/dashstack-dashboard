@@ -14,6 +14,7 @@ export type CalendarEvent = {
   title: string;
   startDate: Date;
   endDate?: Date;
+  allDay?: boolean;
   location: string;
   organizer: string;
   image?: string;

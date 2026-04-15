@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../utils/cn";
 import type { CalendarEvent } from "../../types/calendar";
@@ -139,6 +140,10 @@ export default function EventsSidebar({
   onEventClick,
 }: EventsSidebarProps): React.JSX.Element {
   const { t, i18n } = useTranslation("calendar");
+  const PAGE_SIZE = 4;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const visibleEvents = events.slice(0, visibleCount);
+  const hasMore = visibleCount < events.length;
 
   return (
     <div
@@ -170,25 +175,28 @@ export default function EventsSidebar({
 
       {/* Event list */}
       <div className="w-full flex flex-col">
-        {events.map((event) => (
+        {visibleEvents.map((event) => (
           <EventItem key={event.id} event={event} language={i18n.language} onEventClick={onEventClick} />
         ))}
       </div>
 
       {/* See More button */}
-      <button
-        type="button"
-        className={cn(
-          "bg-brand-light rounded-[14px]",
-          "h-10 w-[120px]",
-          "font-bold text-sm text-primary",
-          "cursor-pointer",
-          "hover:opacity-80",
-          "transition-opacity"
-        )}
-      >
-        {t("seeMore")}
-      </button>
+      {hasMore && (
+        <button
+          type="button"
+          onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+          className={cn(
+            "bg-brand-light rounded-[14px]",
+            "h-10 w-[120px]",
+            "font-bold text-sm text-primary",
+            "cursor-pointer",
+            "hover:opacity-80",
+            "transition-opacity"
+          )}
+        >
+          {t("seeMore")}
+        </button>
+      )}
     </div>
   );
 }
