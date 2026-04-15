@@ -1,35 +1,57 @@
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "../../utils/cn";
 
-interface LanguageSwitcherProps {
+type LanguageSwitcherProps = {
   className?: string;
-}
+  forceClose?: boolean;
+  onOpen?: () => void;
+};
 
-const LanguageSwitcher = ({ className = "" }: LanguageSwitcherProps) => {
+const LanguageSwitcher = ({
+  className = "",
+  forceClose,
+  onOpen,
+}: LanguageSwitcherProps) => {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   const languages = [
-    { code: "en", label: "English", flag: "🇺🇸" },
-    { code: "jp", label: "日本語", flag: "🇯🇵" },
+    { code: "en", label: "English", flag: "\u{1F1FA}\u{1F1F8}" },
+    { code: "jp", label: "\u65E5\u672C\u8A9E", flag: "\u{1F1EF}\u{1F1F5}" },
   ];
 
   const currentLang = i18n.language;
   const currentLanguageData =
     languages.find((lang) => lang.code === currentLang) || languages[0];
 
+  // Handle forceClose prop
+  useEffect(() => {
+    if (forceClose) {
+      setIsOpen(false);
+    }
+  }, [forceClose]);
+
   const handleLanguageChange = (langCode: string) => {
     i18n.changeLanguage(langCode);
+    setIsOpen(false);
+  };
+
+  const handleMouseEnter = () => {
+    setIsOpen(true);
+    onOpen?.();
+  };
+
+  const handleMouseLeave = () => {
     setIsOpen(false);
   };
 
   return (
     <div
       className={`relative ${className}`}
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <button className="flex items-center gap-2 px-3 py-2 rounded-lg transition-colors cursor-pointer bg-transparent hover:bg-topnav-button-hover">
         <span className="text-lg">{currentLanguageData.flag}</span>
@@ -45,14 +67,6 @@ const LanguageSwitcher = ({ className = "" }: LanguageSwitcherProps) => {
             <button
               key={lang.code}
               onClick={() => handleLanguageChange(lang.code)}
-              // className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors text-left ${
-              //   lang.code === languages[0].code ? "rounded-t-lg" : ""
-              // } ${
-              //   lang.code === languages[languages.length - 1].code
-              //     ? "rounded-b-lg"
-              //     : ""
-              // }`}
-
               className={cn(
                 "w-full  flex items-center gap-3 px-4 py-2.5 transition-colors text-left text-topnav-text-primary",
                 {
@@ -86,13 +100,12 @@ const LanguageSwitcher = ({ className = "" }: LanguageSwitcherProps) => {
                 }
               }}
             >
-              <span className="text-lg">{lang.flag}</span>
-              <span className="text-sm font-medium text-topnav-text-primary">
-                {lang.label}
+              <span className="text-lg flex items-center gap-3">
+                {lang.flag} {lang.label}
               </span>
               {(lang.code === currentLang ||
                 currentLang.startsWith(lang.code + "-")) && (
-                <span className="ml-auto text-primary">✓</span>
+                <span className="ml-auto text-primary">&#10003;</span>
               )}
             </button>
           ))}
