@@ -83,6 +83,13 @@
   --color-topnav-search-placeholder: var(--color-gray-400);
   --color-topnav-button-hover: var(--color-gray-100);
   --color-topnav-notification: var(--color-error-500);
+
+  /* UserMenu */
+  --color-usermenu-bg: var(--color-usermenu-bg);
+  --color-usermenu-border: var(--color-usermenu-border);
+  --color-usermenu-text: var(--color-usermenu-text);
+  --color-usermenu-hover: var(--color-usermenu-hover);
+  --color-usermenu-separator: var(--color-usermenu-separator);
 }
 
 /* ===== Custom Utility Classes ===== */
@@ -163,6 +170,23 @@
   }
   .bg-topnav-text-active {
     background-color: var(--color-topnav-active-bg);
+  }
+
+  /* UserMenu */
+  .bg-usermenu-bg {
+    background-color: var(--color-usermenu-bg);
+  }
+  .text-usermenu-text {
+    color: var(--color-usermenu-text);
+  }
+  .border-usermenu-border {
+    border-color: var(--color-usermenu-border);
+  }
+  .bg-usermenu-hover {
+    background-color: var(--color-usermenu-hover);
+  }
+  .border-usermenu-separator {
+    border-color: var(--color-usermenu-separator);
   }
 
   .h-topnav {
@@ -538,6 +562,13 @@
   --topnav-height: 69px;
 
   --color-topnav-active-bg: var(--color-gray-200);
+
+  /* ===== UserMenu Colors ===== */
+  --color-usermenu-bg: #ffffff;
+  --color-usermenu-border: #e5e7eb;
+  --color-usermenu-text: #111827;
+  --color-usermenu-hover: #f3f4f6;
+  --color-usermenu-separator: #e5e7eb;
 }
 
 /* ===== Dark Theme Overrides ===== */
@@ -576,6 +607,13 @@
   --color-topnav-button-hover: #3a4556;
   --color-topnav-search-placeholder: var(--color-gray-500);
   --color-topnav-active-bg: var(--color-surface-secondary);
+
+  /* UserMenu Colors - Dark Theme */
+  --color-usermenu-bg: #344152;
+  --color-usermenu-border: #3d4e5e;
+  --color-usermenu-text: #f9fafb;
+  --color-usermenu-hover: #3a4556;
+  --color-usermenu-separator: #3d4e5e;
 
   /* Shadows - darker for dark mode */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
@@ -718,6 +756,13 @@
   --color-topnav-search-placeholder: var(--color-gray-500);
   --color-topnav-active-bg: var(--color-primary-800);
 
+  /* UserMenu Colors - Forest Theme */
+  --color-usermenu-bg: #0f2817;
+  --color-usermenu-border: #166534;
+  --color-usermenu-text: #f0fdf4;
+  --color-usermenu-hover: #14332a;
+  --color-usermenu-separator: #166534;
+
   /* Shadows - green tinted */
   --shadow-sm: 0 1px 2px 0 rgba(34, 197, 94, 0.15);
   --shadow-base: 0 1px 3px 0 rgba(34, 197, 94, 0.2),
@@ -772,6 +817,22 @@
     background-color: var(--color-primary-dark);
     border-color: var(--color-primary-dark);
   }
+}
+
+/* ===== UserMenu Animation ===== */
+@keyframes usermenu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-usermenu-enter {
+  animation: usermenu-enter 150ms ease-out forwards;
 }
 
 body {

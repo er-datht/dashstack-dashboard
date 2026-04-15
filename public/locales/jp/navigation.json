@@ -17,5 +17,12 @@
   "team": "チーム",
   "table": "テーブル",
   "expandSidebar": "サイドバーを展開",
-  "collapseSidebar": "サイドバーを折りたたむ"
+  "collapseSidebar": "サイドバーを折りたたむ",
+  "userMenu": {
+    "manageAccount": "アカウント管理",
+    "changePassword": "パスワード変更",
+    "activityLog": "アクティビティログ",
+    "logOut": "ログアウト",
+    "comingSoon": "近日公開"
+  }
 }

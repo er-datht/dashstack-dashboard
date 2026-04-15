@@ -17,5 +17,12 @@
   "team": "Team",
   "table": "Table",
   "expandSidebar": "Expand sidebar",
-  "collapseSidebar": "Collapse sidebar"
+  "collapseSidebar": "Collapse sidebar",
+  "userMenu": {
+    "manageAccount": "Manage Account",
+    "changePassword": "Change Password",
+    "activityLog": "Activity Log",
+    "logOut": "Log Out",
+    "comingSoon": "Coming soon"
+  }
 }

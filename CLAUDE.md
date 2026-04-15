@@ -194,6 +194,7 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 23. `settings-page` — General Settings page: logo upload, 5-field form, validation, save with loading/toast, theme support
 24. `settings-page-enhancements` — Drag & drop logo upload, placeholder text for form fields
 25. `settings-logo-upload-toast` — Success toast notification on logo upload, generalized toast system
+26. `user-menu-header` — User profile dropdown menu in TopNav with gradient icons, multi-dropdown coordination, toast notifications, theme support
 
 **Project notes:**
 - After proposal review, `unit-test-writer` runs first to create tests from specs (TDD)
