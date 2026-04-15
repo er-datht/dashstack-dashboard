@@ -28,5 +28,20 @@
   "saveChanges": "Save Changes",
   "discardChanges": "Discard Changes",
   "settingsSaved": "Settings saved successfully",
-  "settingsError": "Error saving settings"
+  "settingsError": "Error saving settings",
+  "siteName": "Site Name",
+  "copyright": "Copyright",
+  "seoTitle": "SEO Title",
+  "seoKeywords": "SEO Keywords",
+  "seoDescription": "SEO Description",
+  "uploadLogo": "Upload Logo",
+  "removeLogo": "Remove Logo",
+  "fieldRequired": "This field is required",
+  "logoPreview": "Logo preview",
+  "siteNamePlaceholder": "Enter your site name",
+  "copyrightPlaceholder": "e.g. 2026 Your Company",
+  "seoTitlePlaceholder": "Enter SEO title",
+  "seoKeywordsPlaceholder": "e.g. dashboard, admin, analytics",
+  "seoDescriptionPlaceholder": "Enter a brief description for search engines",
+  "logoUploaded": "Logo uploaded successfully"
 }
