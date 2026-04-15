@@ -6,11 +6,13 @@ Set up the OpenSpec + Agent Pipeline workflow in any project in ~10 minutes.
 
 Every code change follows: **propose** -> **review** -> **apply** -> **archive**
 
-4 agents work in sequence:
+5 agents work in sequence:
+
 1. `proposal-reviewer` — validates plan before coding
-2. `<your-specialist>` — writes all code (name varies by stack)
-3. `security-reviewer` — gates package installs
-4. `code-reviewer` — final quality check
+2. `unit-test-writer` — writes tests from specs before implementation (TDD)
+3. `<your-specialist>` — writes code to make tests pass (name varies by stack)
+4. `security-reviewer` — gates package installs
+5. `code-reviewer` — final quality check
 
 ---
 
@@ -65,16 +67,16 @@ for c in propose apply archive explore new continue ff verify sync bulk-archive 
 done
 ```
 
-## Step 4: Create 4 agent files
+## Step 4: Create 5 agent files
 
 ### Pick your specialist name
 
-| Your Stack | Agent Name |
-|---|---|
+| Your Stack      | Agent Name                  |
+| --------------- | --------------------------- |
 | React / Next.js | `react-frontend-specialist` |
-| Python | `python-backend-specialist` |
-| Go | `go-backend-specialist` |
-| Generic | `implementation-specialist` |
+| Python          | `python-backend-specialist` |
+| Go              | `go-backend-specialist`     |
+| Generic         | `implementation-specialist` |
 
 ### Create `.claude/agents/<your-specialist>.md`
 
@@ -92,20 +94,41 @@ Implement code following project conventions. Proper error handling, type safety
 Propose plan before coding. Self-review before presenting.
 ```
 
+### Create `.claude/agents/unit-test-writer.md`
+
+```markdown
+---
+name: unit-test-writer
+description: "TDD specialist that writes unit tests from OpenSpec artifacts BEFORE implementation begins. Analyzes which tasks produce testable units and creates test files. Lean approach: happy path + key edge cases."
+tools: Read, Edit, Write, Bash, Glob, Grep, TaskCreate, TaskGet, TaskUpdate, TaskList
+model: opus
+color: green
+---
+
+TDD specialist. Write tests from specs BEFORE implementation exists.
+Test components, utilities, hooks. Skip config/routing/styling tasks.
+Lean coverage: happy path + key edge cases (3-5 tests per unit).
+Follow project test conventions. Never write implementation code.
+```
+
 ### Create `.claude/agents/proposal-reviewer.md`
 
 ```markdown
 ---
 name: proposal-reviewer
-description: "Review OpenSpec artifacts for completeness, gaps, and clarity. Use AFTER propose, BEFORE apply."
+description: "Review OpenSpec artifacts for completeness, gaps, and clarity. Exhaustively questions the user to prevent hallucinated requirements. Use AFTER propose, BEFORE apply."
 tools: Read, Edit, Write, Glob, Grep, Bash, Skill, TaskCreate, TaskGet, TaskUpdate, TaskList
 model: opus
 color: green
 ---
 
 Review OpenSpec change artifacts (proposal, design, specs, tasks).
+Core principle: Ask, don't assume. Every gap is a question, not a decision.
+Exhaustively mine assumptions, ask multi-round clarifying questions,
+surface all implicit decisions in artifacts for user confirmation.
+Never invent requirements or fill in "reasonable defaults" silently.
 Validate completeness, consistency, feasibility. Report issues by severity.
-Ask user targeted questions. Update artifacts. Confirm readiness for apply.
+Confirm readiness for apply only after user explicitly confirms.
 ```
 
 ### Create `.claude/agents/code-reviewer.md`
@@ -149,14 +172,17 @@ Replace `<your-specialist>` below:
 All code changes: Context -> Propose -> Review -> Apply -> Archive
 
 ## Agent Pipeline (during apply)
+
 1. proposal-reviewer (validates artifacts)
-2. <your-specialist> (all code tasks)
-3. security-reviewer (before package installs)
-4. code-reviewer (final gate)
+2. unit-test-writer (writes tests from specs — TDD)
+3. <your-specialist> (implements code to make tests pass)
+4. security-reviewer (before package installs)
+5. code-reviewer (final gate)
 
 ## Sequences
-- Standard: proposal-reviewer -> <your-specialist> -> code-reviewer
-- With new package: proposal-reviewer -> <your-specialist> -> security-reviewer -> <your-specialist> -> code-reviewer
+
+- Standard: proposal-reviewer -> unit-test-writer -> <your-specialist> -> code-reviewer
+- With new package: proposal-reviewer -> unit-test-writer -> <your-specialist> -> security-reviewer -> <your-specialist> -> code-reviewer
 ```
 
 ## Step 6: Add to CLAUDE.md
@@ -182,13 +208,15 @@ Skip only for non-code actions (questions, git ops, reading files).
 ### Mandatory Subagent Usage
 
 - `proposal-reviewer` — after propose
-- `<your-specialist>` — all code implementation
+- `unit-test-writer` — writes tests from specs before implementation (TDD)
+- `<your-specialist>` — implements code to make tests pass
 - `security-reviewer` — before package installs
 - `code-reviewer` — after implementation
 
 **Commands:** /opsx:propose, /opsx:apply, /opsx:archive, /opsx:explore
 
 **Existing specs** (update as you archive):
+
 <!-- 1. change-name — description -->
 ```
 
@@ -197,16 +225,8 @@ Skip only for non-code actions (questions, git ops, reading files).
 ```json
 {
   "permissions": {
-    "allow": [
-      "Bash(npx openspec:*)",
-      "Bash(openspec:*)",
-      "WebSearch"
-    ],
-    "deny": [
-      "Bash(curl:*)",
-      "Read(./.env)",
-      "Read(./.env.*)"
-    ]
+    "allow": ["Bash(npx openspec:*)", "Bash(openspec:*)", "WebSearch"],
+    "deny": ["Bash(curl:*)", "Read(./.env)", "Read(./.env.*)"]
   }
 }
 ```
@@ -217,7 +237,7 @@ Add your build/test commands to `allow` (e.g. `"Bash(yarn build)"`, `"Bash(npm t
 
 ```bash
 openspec --version                   # CLI works
-ls .claude/agents/                   # 4 files
+ls .claude/agents/                   # 5 files
 ls .claude/skills/                   # 10 dirs with SKILL.md each
 ls .claude/commands/opsx/            # 11 files
 grep "Auto-Trigger" CLAUDE.md       # workflow section exists
@@ -229,13 +249,14 @@ Open Claude Code and run `/opsx:onboard` for a guided test.
 
 ## What to Customize vs Copy As-Is
 
-| Customize per project | Copy unchanged |
-|---|---|
-| Implementation specialist agent | 10 skill files |
-| CLAUDE.md (agent names) | 11 command files |
-| workflow.md (agent names) | proposal-reviewer agent |
-| settings.local.json (build cmds) | code-reviewer agent |
-| security-reviewer (approved pkgs) | |
+| Customize per project             | Copy unchanged          |
+| --------------------------------- | ----------------------- |
+| Implementation specialist agent   | 10 skill files          |
+| unit-test-writer (test conventions)| 11 command files       |
+| CLAUDE.md (agent names)           | proposal-reviewer agent |
+| workflow.md (agent names)         | code-reviewer agent     |
+| settings.local.json (build cmds)  |                         |
+| security-reviewer (approved pkgs) |                         |
 
 ## For Existing Projects
 
@@ -249,11 +270,11 @@ Then archive the findings as your baseline specs.
 
 ## Command Cheat Sheet
 
-| Command | What |
-|---|---|
-| `/opsx:propose "desc"` | Plan a change |
-| `/opsx:apply` | Implement |
-| `/opsx:archive` | Archive done change |
-| `/opsx:explore` | Think mode |
-| `/opsx:onboard` | Guided tutorial |
-| `/opsx:verify` | Check impl matches specs |
+| Command                | What                     |
+| ---------------------- | ------------------------ |
+| `/opsx:propose "desc"` | Plan a change            |
+| `/opsx:apply`          | Implement                |
+| `/opsx:archive`        | Archive done change      |
+| `/opsx:explore`        | Think mode               |
+| `/opsx:onboard`        | Guided tutorial          |
+| `/opsx:verify`         | Check impl matches specs |

@@ -68,10 +68,10 @@ User request
 
 ```
 Simple feature/fix:
-  proposal-reviewer → implementation-specialist → code-reviewer
+  proposal-reviewer → unit-test-writer → implementation-specialist → code-reviewer
 
 With new dependency:
-  proposal-reviewer → implementation-specialist → security-reviewer → implementation-specialist → code-reviewer
+  proposal-reviewer → unit-test-writer → implementation-specialist → security-reviewer → implementation-specialist → code-reviewer
 ```
 
 ---
@@ -175,6 +175,7 @@ Your project needs this structure under `.claude/`:
 │   ├── code-reviewer.md
 │   ├── proposal-reviewer.md
 │   ├── security-reviewer.md
+│   ├── unit-test-writer.md               # TDD: tests from specs before implementation
 │   └── <implementation-specialist>.md    # Name varies by stack
 ├── skills/
 │   ├── openspec-propose/SKILL.md
@@ -292,28 +293,109 @@ You are an elite <stack> developer with deep expertise in <technologies>.
 - Proper error handling
 ```
 
-### 4.2 Proposal Reviewer
+### 4.2 Unit Test Writer
+
+**File:** `.claude/agents/unit-test-writer.md`
+
+This agent writes unit tests from OpenSpec artifacts **before** implementation begins (TDD approach). It analyzes which tasks produce testable units and creates test files following your project's test conventions.
+
+**Customize** the test conventions section (framework, file location, patterns) to match your project.
+
+```markdown
+---
+name: unit-test-writer
+description: "TDD specialist that writes unit tests from OpenSpec artifacts (specs, design, tasks) BEFORE implementation begins. Analyzes which tasks produce testable units and creates test files following project conventions. Uses a lean approach: happy path + key edge cases. Invoked after proposal-reviewer and before implementation specialist."
+tools: Read, Edit, Write, Bash, Glob, Grep, TaskCreate, TaskGet, TaskUpdate, TaskList
+model: opus
+color: green
+---
+
+You are a TDD specialist who writes unit tests from specifications before any implementation code exists. You read OpenSpec artifacts (specs, design, tasks) and create test files that define the behavioral contract for upcoming implementation.
+
+## Core Responsibility
+
+Write test files BEFORE implementation based on specs — not implementation details. Your tests define **what** the code should do, and the implementation specialist writes code to make them pass.
+
+You do NOT write implementation code. You only write test files.
+
+## What You Test
+
+Analyze each task and only write tests for tasks that produce testable units:
+
+**DO test:**
+- Components (render output, props behavior, user interactions, conditional rendering)
+- Utility functions (pure input/output)
+- Custom hooks (state transitions, return values)
+- Service functions (API call structure, data transformation)
+
+**DO NOT test (skip these tasks):**
+- Route/navigation config additions
+- Translation/i18n key additions
+- CSS/styling-only changes
+- Configuration file changes
+- File reorganization / moves / renames
+- Type-only files (type definitions, interfaces)
+
+## Test Coverage: Lean TDD
+
+- **Happy path**: The primary use case works correctly
+- **Key edge cases**: Empty states, boundary values, null/undefined inputs
+- **Error states**: What happens when things go wrong
+- **Conditional rendering**: Different outputs based on props/state
+
+3-5 focused tests per unit. More only for complex units with many distinct states.
+
+## Project Test Conventions (CUSTOMIZE THIS)
+
+<< Adapt these to match your project's test setup >>
+
+1. **Framework**: << Vitest / Jest / other >> with << jsdom / node >> environment
+2. **Component Testing**: << @testing-library/react / Enzyme / other >>
+3. **File location**: << __tests__/ dirs / *.test.ts co-located / other >>
+4. **Mocks**: << describe any global mocks in your setup file >>
+5. **Conventions**: << describe naming, import, and structure patterns >>
+
+## Pragmatic TDD Rules
+
+1. **Tests define the contract** — implementation specialist writes code to make them pass
+2. **Minor fixes allowed** — implementation specialist may fix trivial test issues inline (import paths, type tweaks)
+3. **Major mismatches get flagged** — fundamentally wrong expectations must be flagged back to the spec
+4. **Tests must pass before task completion** — implementation specialist runs tests after each task
+
+## Guardrails
+
+- NEVER write implementation code — only test files
+- NEVER guess at implementation details — test behavior from specs only
+- Follow existing project test patterns exactly
+- If a spec is too vague to write meaningful tests, flag it rather than guessing
+```
+
+### 4.3 Proposal Reviewer
 
 **File:** `.claude/agents/proposal-reviewer.md`
+
+This agent's #1 job is to **ask the user as many clarifying questions as needed** to prevent hallucinated requirements. It treats every gap in the proposal as a question for the user, never as a decision to make on its own.
 
 ```markdown
 ---
 name: proposal-reviewer
-description: "Review and refine OpenSpec proposal artifacts after the propose stage completes. Checks completeness, identifies gaps, asks the user targeted clarifying questions, suggests improvements, and updates artifacts before implementation begins. Use this agent AFTER opsx:propose completes and BEFORE opsx:apply starts."
+description: "Review and refine OpenSpec proposal artifacts after the propose stage completes. Exhaustively questions the user to clarify every ambiguity and prevent hallucinated requirements. Use this agent AFTER opsx:propose completes and BEFORE opsx:apply starts."
 tools: Read, Edit, Write, Glob, Grep, Bash, Skill, TaskCreate, TaskGet, TaskUpdate, TaskList
 model: opus
 color: green
 ---
 
-You are a meticulous proposal reviewer and requirements analyst. Your job is to review OpenSpec change artifacts (proposal, design, specs, tasks) after they are generated, identify gaps or ambiguities, ask the user targeted questions, and refine the artifacts before implementation begins.
+You are a meticulous proposal reviewer and requirements analyst. Your #1 job is to **ask the user as many clarifying questions as needed** to fully understand requirements before any implementation begins. You never assume, guess, or fill in gaps on your own — if something is unclear, ambiguous, or unstated, you ASK.
+
+## Core Principle: Ask, Don't Assume
+
+Every gap in the proposal is a question, not a decision for you to make. Hallucination in software comes from filling in unstated requirements with guesses. Your role is to surface every assumption and turn it into an explicit, user-confirmed requirement.
+
+Never write spec details from your imagination. Every behavioral detail in the final artifacts must trace back to either (a) the user's explicit statement or (b) a verifiable convention in the existing codebase.
 
 ## Purpose
 
-You are the quality gate between **planning** (opsx:propose) and **execution** (opsx:apply). Your goal is to ensure that the implementation team (subagents) receives clear, complete, and unambiguous specs so they can build the right thing the first time.
-
-## When You Run
-
-You are invoked after `opsx:propose` generates all artifacts for a change and before `opsx:apply` begins implementation.
+Quality gate between planning and execution. Ensure the implementation team receives clear, complete, unambiguous specs by exhaustively questioning the user until there are zero ambiguities left.
 
 ## Review Process
 
@@ -329,39 +411,41 @@ Check each artifact for:
 - **Specs**: Testable scenarios (WHEN/THEN), edge cases, empty/error/loading states
 - **Tasks**: Correct order, small enough, complete coverage, verification steps included
 
-### Phase 3: Cross-Cutting Analysis
-- Consistency between artifacts
-- Completeness (implied requirements written down?)
-- Feasibility given existing codebase
-- Missing patterns from project conventions
-- Dependency gaps
+### Phase 3: Exhaustive Assumption Mining (MOST CRITICAL)
+Go through EVERY artifact and extract EVERY implicit assumption. Mine for:
+- Behavioral, scope, data, UX, business logic, integration, visual/design, and edge case assumptions
+- Turn each into a question for the user
 
 ### Phase 4: Generate Review Report
-```
-## Proposal Review: <change-name>
-### Status: <APPROVED | NEEDS REVISION | NEEDS DISCUSSION>
-### Strengths
-### Issues Found
-#### Must Fix (blocks implementation)
-#### Should Fix (reduces quality if skipped)
-#### Consider (nice to have)
-### Questions for the User
-### Suggestions
-```
+- Questions for the User section is the CORE output (grouped by category)
+- Assumptions Made in Artifacts section lists every assumption for user confirmation
+- Aim for 10-15+ questions — better to over-ask than under-ask
 
-### Phase 5: Interactive Refinement
-1. Ask the user targeted questions
-2. Wait for answers
-3. Update artifacts based on answers
-4. Confirm readiness for opsx:apply
+### Phase 5: Interactive Refinement (Multi-Round)
+1. Ask ALL questions — explain WHY each matters
+2. Wait for answers before making changes
+3. Analyze answers for NEW questions or contradictions — ask follow-ups
+4. Repeat until no remaining ambiguities (2-3 rounds is normal)
+5. Update artifacts based ONLY on user-confirmed answers
+6. Final confirmation: "Does this fully capture what you want?"
+
+## Anti-Hallucination Rules
+1. Never invent requirements — if user didn't say it, ask
+2. Never fill in "reasonable defaults" silently — surface and confirm
+3. Never write spec scenarios from imagination — trace to user statement or codebase
+4. Flag vague language ruthlessly ("appropriate", "proper", "nice", "handle correctly")
+5. Prefer asking "dumb" questions over making "smart" assumptions
+6. One-line descriptions → expand into 10+ questions
+7. Treat proposal artifacts as a DRAFT full of interpolated assumptions
 
 ## What You Do NOT Do
 - You do NOT implement code
 - You do NOT review code (that's code-reviewer)
 - You do NOT assess package security (that's security-reviewer)
+- You do NOT assume answers to your own questions — you ALWAYS ask the user
 ```
 
-### 4.3 Code Reviewer
+### 4.4 Code Reviewer
 
 **File:** `.claude/agents/code-reviewer.md`
 
@@ -405,7 +489,7 @@ Final quality gate after implementation. Ensures code quality, security, perform
 - Balances thoroughness with practical development velocity
 ```
 
-### 4.4 Security Reviewer
+### 4.5 Security Reviewer
 
 **File:** `.claude/agents/security-reviewer.md`
 
@@ -606,27 +690,29 @@ Before proposing or implementing any change, review:
 ### Agent Priority Order
 
 1. **Proposal reviewer after propose** — validates artifacts before code is written
-2. **Implementation specialist first during apply** — handles all code work
-3. **Security reviewer before external trust** — gates package installs, URLs, web-searched code
-4. **Code reviewer last** — final quality gate
+2. **Unit test writer first during apply** — writes tests from specs before implementation (TDD)
+3. **Implementation specialist after tests** — implements code to make tests pass
+4. **Security reviewer before external trust** — gates package installs, URLs, web-searched code
+5. **Code reviewer last** — final quality gate
 
 ### Decision Tree
 
 1. Has the proposal just been generated? → use proposal reviewer
-2. Is this a code implementation task? → use implementation specialist
-3. Does this task require trusting something external? → use security reviewer
-4. Is the work done and ready for validation? → use code reviewer
+2. Is implementation about to begin and tests not yet written? → use unit test writer
+3. Is this a code implementation task? → use implementation specialist (run tests after each task)
+4. Does this task require trusting something external? → use security reviewer
+5. Is the work done and ready for validation? → use code reviewer
 
 ### Common Sequences
 
 **Feature without new dependencies:**
-proposal-reviewer → implementation-specialist → code-reviewer
+proposal-reviewer → unit-test-writer → implementation-specialist → code-reviewer
 
 **Feature with new package:**
-proposal-reviewer → implementation-specialist (plan) → security-reviewer → implementation-specialist (implement) → code-reviewer
+proposal-reviewer → unit-test-writer → implementation-specialist (plan) → security-reviewer → implementation-specialist (implement) → code-reviewer
 
 **Bug fix (existing code only):**
-proposal-reviewer → implementation-specialist → code-reviewer
+proposal-reviewer → unit-test-writer → implementation-specialist → code-reviewer
 
 ## Stop Rules
 
@@ -658,7 +744,7 @@ Your `CLAUDE.md` file needs a **Workflow** section that tells Claude Code to fol
 
 1. **Context first** — Before anything else, review existing specs (`openspec/specs/`) and archived changes (`openspec/changes/archive/`) relevant to the area being changed. Summarize findings to inform the proposal. Also check active changes (`openspec/changes/`) for overlap.
 2. **Propose** — Invoke the `opsx:propose` skill with the user's description plus context findings to generate proposal, design, specs, and tasks before writing any code.
-3. **Review proposal** — Launch the `proposal-reviewer` subagent to validate artifacts, identify gaps, ask clarifying questions, and refine the proposal before implementation.
+3. **Review proposal** — Launch the `proposal-reviewer` subagent to validate artifacts, exhaustively question the user on every ambiguity and unstated assumption, and refine the proposal before implementation. The reviewer uses multi-round Q&A to prevent hallucinated requirements.
 4. **STOP and wait for user** — After the proposal review completes, present a summary and **stop**. Do NOT proceed to implementation automatically. Tell the user: "Run `/opsx:apply` when you're ready to implement."
 5. **Apply with agent pipeline** — Only when the user invokes `/opsx:apply`, implement tasks using the specialized subagents (see **Mandatory Subagent Usage**). Never implement tasks inline.
 6. **Archive when done** — Suggest `opsx:archive` once all tasks are complete. **When archiving, always update the "Existing specs" list in this file.**
@@ -674,17 +760,18 @@ Your `CLAUDE.md` file needs a **Workflow** section that tells Claude Code to fol
 
 During the **apply** phase, you MUST use the Agent tool with these specialized `subagent_type` values:
 
-1. **`proposal-reviewer`** (Proposal quality gate) — Launch AFTER `opsx:propose` completes.
-2. **`<implementation-specialist>`** (Implementation) — Launch for all code implementation tasks.
-3. **`security-reviewer`** (Security gate) — Launch BEFORE any external trust action.
-4. **`code-reviewer`** (Final quality gate) — Launch LAST after implementation is complete.
+1. **`proposal-reviewer`** (Proposal quality gate) — Launch AFTER `opsx:propose` completes. Exhaustively questions the user to clarify every ambiguity and prevent hallucinated requirements.
+2. **`unit-test-writer`** (TDD gate) — Launch FIRST during apply, before implementation. Writes tests from specs.
+3. **`<implementation-specialist>`** (Implementation) — Launch AFTER unit-test-writer. Implements code to make tests pass.
+4. **`security-reviewer`** (Security gate) — Launch BEFORE any external trust action.
+5. **`code-reviewer`** (Final quality gate) — Launch LAST after implementation is complete.
 
 **Sequencing rules:**
-- Simple feature/fix: `proposal-reviewer` → `<implementation-specialist>` → `code-reviewer`
-- Feature needing new dependency: `proposal-reviewer` → `<implementation-specialist>` (plan) → `security-reviewer` → `<implementation-specialist>` (implement) → `code-reviewer`
+- Simple feature/fix: `proposal-reviewer` → `unit-test-writer` → `<implementation-specialist>` → `code-reviewer`
+- Feature needing new dependency: `proposal-reviewer` → `unit-test-writer` → `<implementation-specialist>` (plan) → `security-reviewer` → `<implementation-specialist>` (implement) → `code-reviewer`
 - Dependency-only change: `proposal-reviewer` → `security-reviewer` → `code-reviewer`
 
-**Never skip subagents.** Even for one-line changes, at minimum use the implementation specialist and code reviewer.
+**Never skip subagents.** Even for one-line changes, at minimum use unit-test-writer for tests, the implementation specialist for code, and code-reviewer for review.
 
 All code changes follow the spec-driven workflow defined in `.claude/workflow.md`.
 
@@ -698,6 +785,7 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 
 **Agent mapping for this project:**
 - **Proposal reviewer** → `proposal-reviewer`
+- **Unit test writer** → `unit-test-writer`
 - **Implementation specialist** → `<implementation-specialist>`
 - **Security reviewer** → `security-reviewer`
 - **Code reviewer** → `code-reviewer`
@@ -706,7 +794,8 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 <!-- Add entries as you archive changes -->
 
 **Project notes:**
-- Most tasks start with `<implementation-specialist>`
+- After proposal review, `unit-test-writer` runs first to create tests from specs (TDD)
+- `<implementation-specialist>` implements code to make tests pass; may fix minor test issues inline
 - Package recommendations from web search go through `security-reviewer` first
 - Final sign-off goes through `code-reviewer`
 ```
@@ -825,6 +914,7 @@ The **only files that need stack-specific changes** are:
 | File | What to Change |
 |------|---------------|
 | `.claude/agents/<specialist>.md` | Agent name, description, expertise, tools |
+| `.claude/agents/unit-test-writer.md` | Test framework, file conventions, patterns for your stack |
 | `.claude/workflow.md` | Agent name references |
 | `CLAUDE.md` (Workflow section) | Agent name in `subagent_type`, sequencing rules |
 | `.claude/agents/security-reviewer.md` | Approved packages list |
@@ -962,7 +1052,8 @@ If you already have a `CLAUDE.md`, just add the Workflow section from [Step 8](#
 | Agent | When Used | `subagent_type` |
 |-------|-----------|-----------------|
 | Proposal Reviewer | After propose, before apply | `proposal-reviewer` |
-| Implementation Specialist | During apply, for all code tasks | `<your-specialist-name>` |
+| Unit Test Writer | First during apply, writes tests from specs (TDD) | `unit-test-writer` |
+| Implementation Specialist | After tests, implements code to make tests pass | `<your-specialist-name>` |
 | Security Reviewer | Before installing packages or trusting external code | `security-reviewer` |
 | Code Reviewer | After implementation, before considering done | `code-reviewer` |
 
@@ -1023,6 +1114,7 @@ OpenSpec:
 
 Agents (.claude/agents/):
 - [ ] <implementation-specialist>.md — adapted for your stack
+- [ ] unit-test-writer.md — adapted for your test framework
 - [ ] proposal-reviewer.md
 - [ ] code-reviewer.md
 - [ ] security-reviewer.md
