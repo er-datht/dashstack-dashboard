@@ -16,7 +16,7 @@ i18n
     fallbackLng: "en",
 
     // Supported languages
-    supportedLngs: ["en", "jp", "ko"],
+    supportedLngs: ["en", "jp"],
 
     debug: false,
 
@@ -95,7 +95,7 @@ i18n
     load: "languageOnly", // Load 'en' instead of 'en-US'
 
     // Preload languages
-    preload: ["en", "jp", "ko"],
+    preload: ["en", "jp"],
 
     // Clean code on language change
     cleanCode: true,

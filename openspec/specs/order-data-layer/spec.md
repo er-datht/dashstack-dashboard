@@ -42,7 +42,7 @@ The `useOrders` hook in `src/hooks/useOrders.ts` SHALL use React Query's `useQue
 - **THEN** `useOrders()` returns `error` as the error message string and `orders: []`
 
 ### Requirement: i18n translation coverage
-The orders namespace SHALL provide translation files at `public/locales/{en,jp,ko}/orders.json` covering: page titles, column headers (columns.*), filter labels, status labels (status.*), order type labels (orderTypes.*), and action buttons. All UI text in Order components SHALL use the `t()` function from the `orders` namespace.
+The orders namespace SHALL provide translation files at `public/locales/{en,jp}/orders.json` covering: page titles, column headers (columns.*), filter labels, status labels (status.*), order type labels (orderTypes.*), and action buttons. All UI text in Order components SHALL use the `t()` function from the `orders` namespace.
 
 #### Scenario: English translations
 - **WHEN** the language is set to English
@@ -51,10 +51,6 @@ The orders namespace SHALL provide translation files at `public/locales/{en,jp,k
 #### Scenario: Japanese translations
 - **WHEN** the language is set to Japanese
 - **THEN** all order page text renders from `public/locales/jp/orders.json`
-
-#### Scenario: Korean translations
-- **WHEN** the language is set to Korean
-- **THEN** all order page text renders from `public/locales/ko/orders.json`
 
 ### Requirement: Theme support across all components
 All Orders page components SHALL support the 3 themes (light, dark, forest) via CSS custom properties. SCSS module styles SHALL use theme tokens (`--color-surface`, `--color-border`, `--color-text-primary`, `--color-primary-*`) rather than hardcoded colors for all theme-adaptive elements.

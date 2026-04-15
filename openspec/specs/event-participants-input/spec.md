@@ -36,5 +36,5 @@ When the user saves an event, the `onSave` callback SHALL include the current li
 All new labels (image upload text, participants label, chip remove aria-label) SHALL use i18n translation keys from the `calendar` namespace.
 
 #### Scenario: Labels render in selected language
-- **WHEN** the app language is set to en, jp, or ko
+- **WHEN** the app language is set to en or jp
 - **THEN** the image upload text and participants label display in the selected language

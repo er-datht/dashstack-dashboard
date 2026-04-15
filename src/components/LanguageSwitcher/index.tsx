@@ -14,7 +14,6 @@ const LanguageSwitcher = ({ className = "" }: LanguageSwitcherProps) => {
   const languages = [
     { code: "en", label: "English", flag: "🇺🇸" },
     { code: "jp", label: "日本語", flag: "🇯🇵" },
-    { code: "ko", label: "한국어", flag: "🇰🇷" },
   ];
 
   const currentLang = i18n.language;
