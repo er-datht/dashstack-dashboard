@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-DashStack is a React 19 + TypeScript dashboard application built with Vite 7, featuring multi-theme support (light/dark/forest), internationalization (en/jp/ko), and a hybrid styling approach combining Tailwind CSS v4 with SCSS modules.
+DashStack is a React 19 + TypeScript dashboard application built with Vite 7, featuring multi-theme support (light/dark/forest), internationalization (en/jp), and a hybrid styling approach combining Tailwind CSS v4 with SCSS modules.
 
 ## Development Commands
 
@@ -88,7 +88,7 @@ Domain services follow pattern: `src/services/{domain}.ts` → maps API DTOs to 
 
 ### Internationalization
 
-i18next + react-i18next. Config at **project root** `i18n.ts` (not in `src/`). Translation files at `public/locales/{en|jp|ko}/{namespace}.json`. Registered namespaces in `i18n.ts`: common, navigation, auth, dashboard, products, orders, settings, todo, theme, errors, messages. Additional locale files exist for: pricing, favorites (loaded on-demand by components). All UI text should use the `t()` function.
+i18next + react-i18next. Config at **project root** `i18n.ts` (not in `src/`). Translation files at `public/locales/{en|jp}/{namespace}.json`. Registered namespaces in `i18n.ts`: common, navigation, auth, dashboard, products, orders, settings, todo, theme, errors, messages. Additional locale files exist for: pricing, favorites (loaded on-demand by components). All UI text should use the `t()` function.
 
 ### Notable Libraries
 
@@ -177,7 +177,7 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 6. `dashboard-data-visualization` — Dashboard composition, recharts, DealDetailsTable
 7. `product-management-features` — Products, Favorites, ProductStock, WishlistContext
 8. `shared-ui-components-remaining-pages` — TableCommon, StatusBadge, Buttons, TopNav, Sidebar, remaining pages
-9. `add-korean-language` — Korean (ko) language support: i18n config, LanguageSwitcher, 13 translation files
+9. `add-korean-language` — (Removed by `remove-korean-language`) Korean (ko) language support was added then removed
 10. `calendar-page` — Calendar page: grid, events sidebar, month navigation
 11. `calendar-add-event` — Add event modal with form fields and save flow
 12. `calendar-edit-delete-event` — Edit/delete events via popover actions
@@ -187,6 +187,7 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 16. `popover-guests-avatar-row` — Horizontal avatar row for popover guests section
 17. `setup-unit-testing` — Vitest + React Testing Library setup, test conventions, example tests
 18. `pin-package-versions` — Pin all dependency versions to exact (no ^ or ~ prefixes)
+19. `remove-korean-language` — Removed Korean (ko) language support: i18n config, LanguageSwitcher, 14 translation files, docs
 
 **Project notes:**
 - After proposal review, `unit-test-writer` runs first to create tests from specs (TDD)

@@ -7,7 +7,7 @@ A modern, production-ready React 19 + TypeScript dashboard built with Vite, Tail
 - ⚡ Vite 7 for fast HMR, TS build integration
 - ⚛ React 19 with React Compiler (experimental performance optimizations)
 - 🧠 React Query (data fetching, caching, optimistic updates)
-- 🌐 i18next internationalization (English, Japanese, Korean) with language detection
+- 🌐 i18next internationalization (English, Japanese) with language detection
 - 🧭 React Router v7 with code-split lazy routes
 - 🌓 Multi-theme support (Light / Dark / Forest) with system preference detection
 - 🎨 Tailwind CSS 4 + SCSS Modules (utility + component scope styling)
@@ -19,7 +19,7 @@ A modern, production-ready React 19 + TypeScript dashboard built with Vite, Tail
 
 ## Tech Stack
 
-React 19, TypeScript 5.9, Vite 7, Tailwind CSS 4, SCSS Modules, React Router v7, React Query, i18next (en/jp/ko), Lucide Icons, Recharts.
+React 19, TypeScript 5.9, Vite 7, Tailwind CSS 4, SCSS Modules, React Router v7, React Query, i18next (en/jp), Lucide Icons, Recharts.
 
 ## Project Structure
 
@@ -109,7 +109,7 @@ Configure runtime values via `.env` files (e.g. API base URL) without listing ac
 ## Internationalization (i18n)
 
 Configuration: `i18n.ts` (language detector + HTTP backend loading from `public/locales`).
-Supported languages: `en`, `jp`, `ko`.
+Supported languages: `en`, `jp`.
 Switching UI: `LanguageSwitcher` component.
 Translation namespaces: common, navigation, auth, calendar, dashboard, products, orders, settings, todo, theme, errors, messages, pricing, favorites.
 Add a new namespace: add JSON file under `public/locales/<lng>/<namespace>.json` and extend `ns` array in `i18n.ts` if needed.
