@@ -36,3 +36,12 @@ export type DisplaySettings = {
   dateFormat: string;
   timeFormat: "12h" | "24h";
 };
+
+export type GeneralSettings = {
+  siteName: string;
+  copyright: string;
+  seoTitle: string;
+  seoKeywords: string;
+  seoDescription: string;
+  logoUrl?: string;
+};

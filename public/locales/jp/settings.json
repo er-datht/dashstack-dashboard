@@ -27,5 +27,21 @@
   "saveChanges": "変更を保存",
   "discardChanges": "変更を破棄",
   "settingsSaved": "設定が正常に保存されました",
-  "settingsError": "設定の保存中にエラーが発生しました"
+  "settingsError": "設定の保存中にエラーが発生しました",
+  "siteName": "サイト名",
+  "copyright": "著作権",
+  "seoTitle": "SEOタイトル",
+  "seoKeywords": "SEOキーワード",
+  "seoDescription": "SEO説明",
+  "uploadLogo": "ロゴをアップロード",
+  "removeLogo": "ロゴを削除",
+  "fieldRequired": "この項目は必須です",
+  "forestMode": "フォレストモード",
+  "logoPreview": "ロゴプレビュー",
+  "siteNamePlaceholder": "サイト名を入力してください",
+  "copyrightPlaceholder": "例: 2026 あなたの会社",
+  "seoTitlePlaceholder": "SEOタイトルを入力してください",
+  "seoKeywordsPlaceholder": "例: ダッシュボード, 管理, 分析",
+  "seoDescriptionPlaceholder": "検索エンジン向けの簡単な説明を入力してください",
+  "logoUploaded": "ロゴが正常にアップロードされました"
 }

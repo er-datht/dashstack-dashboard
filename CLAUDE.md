@@ -191,6 +191,9 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 20. `calendar-today-highlight` — Visual highlight (colored circle badge) for today's date in the calendar grid
 21. `calendar-day-week-views` — Day and Week views with 24-hour time grids, CalendarHeader extraction, view state management, modal time inputs, timed events
 22. `sidebar-paginated-events` — Paginated event sidebar showing max 4 events with incremental "See More" button
+23. `settings-page` — General Settings page: logo upload, 5-field form, validation, save with loading/toast, theme support
+24. `settings-page-enhancements` — Drag & drop logo upload, placeholder text for form fields
+25. `settings-logo-upload-toast` — Success toast notification on logo upload, generalized toast system
 
 **Project notes:**
 - After proposal review, `unit-test-writer` runs first to create tests from specs (TDD)
