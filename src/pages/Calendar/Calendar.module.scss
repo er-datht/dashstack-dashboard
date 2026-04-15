@@ -37,6 +37,23 @@
   text-align: right;
 }
 
+.todayNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--color-primary-600);
+  color: var(--color-white);
+  text-align: center;
+  float: right;
+
+  [data-theme="forest"] & {
+    background-color: var(--color-primary);
+  }
+}
+
 .outOfMonth {
   background: repeating-linear-gradient(
     -45deg,

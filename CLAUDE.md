@@ -188,6 +188,7 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 17. `setup-unit-testing` — Vitest + React Testing Library setup, test conventions, example tests
 18. `pin-package-versions` — Pin all dependency versions to exact (no ^ or ~ prefixes)
 19. `remove-korean-language` — Removed Korean (ko) language support: i18n config, LanguageSwitcher, 14 translation files, docs
+20. `calendar-today-highlight` — Visual highlight (colored circle badge) for today's date in the calendar grid
 
 **Project notes:**
 - After proposal review, `unit-test-writer` runs first to create tests from specs (TDD)
