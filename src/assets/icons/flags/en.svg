@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 30" width="44" height="30">
+  <clipPath id="c"><rect width="44" height="30" rx="2"/></clipPath>
+  <g clip-path="url(#c)">
+    <!-- Blue field -->
+    <rect width="44" height="30" fill="#012169"/>
+    <!-- White diagonals -->
+    <path d="M0 0L44 30M44 0L0 30" stroke="#FFF" stroke-width="5"/>
+    <!-- Red diagonals (offset for counterchanged cross) -->
+    <path d="M0 0L22 15M22 15L44 30" stroke="#C8102E" stroke-width="2" transform="translate(0.5,0.3)"/>
+    <path d="M44 0L22 15M22 15L0 30" stroke="#C8102E" stroke-width="2" transform="translate(-0.5,0.3)"/>
+    <!-- White cross -->
+    <path d="M22 0V30M0 15H44" stroke="#FFF" stroke-width="8"/>
+    <!-- Red cross -->
+    <path d="M22 0V30M0 15H44" stroke="#C8102E" stroke-width="4.8"/>
+  </g>
+</svg>

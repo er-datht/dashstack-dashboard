@@ -18,6 +18,9 @@
   "table": "Table",
   "expandSidebar": "Expand sidebar",
   "collapseSidebar": "Collapse sidebar",
+  "languageSwitcher": {
+    "selectLanguage": "Select Language"
+  },
   "userMenu": {
     "manageAccount": "Manage Account",
     "changePassword": "Change Password",
