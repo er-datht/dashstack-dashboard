@@ -4,7 +4,7 @@ import {
   CheckSquare,
   Plus,
   Star,
-  Trash2,
+  XCircle,
   Check,
   AlertCircle,
   Loader2,
@@ -13,6 +13,7 @@ import { useTodos } from "../../hooks/useTodos";
 import type { TodoFilter } from "../../types/todo";
 import LoadingWrapper from "../../components/LoadingWrapper";
 import Pagination from "../../components/Pagination";
+import { cn } from "../../utils/cn";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -204,109 +205,113 @@ export default function Todo() {
         </div>
 
         {/* Todo List */}
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
-          {filteredTodos.length === 0 ? (
-            <div className="p-12 text-center">
-              <CheckSquare className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4 opacity-30" />
-              <p className="text-gray-600 dark:text-gray-400 text-lg">
-                {todos.length === 0 ? t("emptyState") : t("emptyFilteredState")}
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                {paginatedTodos.map((todo) => (
-                  <div
-                    key={todo.id}
-                    className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group"
-                  >
-                    <div className="flex items-center gap-3">
-                      {/* Complete Checkbox */}
+        {filteredTodos.length === 0 ? (
+          <div className="py-12 text-center">
+            <CheckSquare className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4 opacity-30" />
+            <p className="text-gray-600 dark:text-gray-400 text-lg">
+              {todos.length === 0 ? t("emptyState") : t("emptyFilteredState")}
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-3">
+              {paginatedTodos.map((todo) => (
+                <div
+                  key={todo.id}
+                  className={cn(
+                    "rounded-xl p-4 transition-colors group",
+                    todo.starred
+                      ? "bg-warning-light"
+                      : "bg-surface border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    {/* Complete Checkbox */}
+                    <button
+                      onClick={() => toggleComplete(todo.id)}
+                      className={cn(
+                        "shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center transition-all",
+                        todo.completed
+                          ? "bg-primary-600 border-primary-600"
+                          : "bg-transparent border-gray-300 dark:border-gray-600 hover:border-primary-500 dark:hover:border-primary-400"
+                      )}
+                      aria-label={
+                        todo.completed
+                          ? t("actions.incomplete")
+                          : t("actions.complete")
+                      }
+                    >
+                      {todo.completed && (
+                        <Check className="w-4 h-4 text-white" />
+                      )}
+                    </button>
+
+                    {/* Todo Text */}
+                    <span
+                      className={cn(
+                        "flex-1 font-semibold text-primary",
+                        todo.completed && "line-through"
+                      )}
+                    >
+                      {todo.text}
+                    </span>
+
+                    {/* Action buttons (hover-gated) — rendered on every row */}
+                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {/* Star Button */}
                       <button
-                        onClick={() => toggleComplete(todo.id)}
-                        className={`shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center
-                                 transition-all ${
-                                   todo.completed
-                                     ? "bg-primary-600 border-primary-600"
-                                     : "border-gray-300 dark:border-gray-600 hover:border-primary-500 dark:hover:border-primary-400"
-                                 }`}
+                        onClick={() => toggleStar(todo.id)}
+                        className={cn(
+                          "p-2 rounded-lg transition-colors",
+                          todo.starred
+                            ? "text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
+                            : "text-gray-400 dark:text-gray-500 hover:text-yellow-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        )}
                         aria-label={
-                          todo.completed
-                            ? t("actions.incomplete")
-                            : t("actions.complete")
+                          todo.starred
+                            ? t("actions.unstar")
+                            : t("actions.star")
                         }
                       >
-                        {todo.completed && (
-                          <Check className="w-4 h-4 text-white" />
-                        )}
+                        <Star
+                          className={cn(
+                            "w-5 h-5",
+                            todo.starred && "fill-current"
+                          )}
+                        />
                       </button>
 
-                      {/* Todo Text */}
-                      <span
-                        className={`flex-1 text-gray-900 dark:text-gray-100 ${
-                          todo.completed
-                            ? "line-through text-gray-400 dark:text-gray-600"
-                            : ""
-                        }`}
+                      {/* Delete Button */}
+                      <button
+                        onClick={() => deleteTodo(todo.id)}
+                        className="p-2 rounded-lg transition-colors text-gray-400 dark:text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        aria-label={t("actions.delete")}
                       >
-                        {todo.text}
-                      </span>
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {/* Star Button */}
-                        <button
-                          onClick={() => toggleStar(todo.id)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            todo.starred
-                              ? "text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
-                              : "text-gray-400 dark:text-gray-500 hover:text-yellow-500 hover:bg-gray-100 dark:hover:bg-gray-700"
-                          }`}
-                          aria-label={
-                            todo.starred
-                              ? t("actions.unstar")
-                              : t("actions.star")
-                          }
-                        >
-                          <Star
-                            className={`w-5 h-5 ${
-                              todo.starred ? "fill-current" : ""
-                            }`}
-                          />
-                        </button>
-
-                        {/* Delete Button */}
-                        <button
-                          onClick={() => deleteTodo(todo.id)}
-                          className="p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                          aria-label={t("actions.delete")}
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
+                        <XCircle className="w-5 h-5" />
+                      </button>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {showPagination && (
-                <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-                  <Pagination
-                    currentPage={currentPage - 1}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                    pageSize={ITEMS_PER_PAGE}
-                    totalItems={filteredTodos.length}
-                    showInfo={true}
-                    pageRangeDisplayed={3}
-                    marginPagesDisplayed={1}
-                  />
                 </div>
-              )}
-            </>
-          )}
-        </div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {showPagination && (
+              <div className="pt-4">
+                <Pagination
+                  currentPage={currentPage - 1}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  pageSize={ITEMS_PER_PAGE}
+                  totalItems={filteredTodos.length}
+                  showInfo={true}
+                  pageRangeDisplayed={3}
+                  marginPagesDisplayed={1}
+                />
+              </div>
+            )}
+          </>
+        )}
       </div>
     </LoadingWrapper>
   );
