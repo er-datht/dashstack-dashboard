@@ -90,6 +90,12 @@
   --color-usermenu-text: var(--color-usermenu-text);
   --color-usermenu-hover: var(--color-usermenu-hover);
   --color-usermenu-separator: var(--color-usermenu-separator);
+
+  /* NotificationDropdown icon circle colors (theme-constant) */
+  --color-notification-icon-settings: #4880ff;
+  --color-notification-icon-event: #fe8bdb;
+  --color-notification-icon-profile: #9e8fff;
+  --color-notification-icon-error: #ff8f8f;
 }
 
 /* ===== Custom Utility Classes ===== */
@@ -187,6 +193,20 @@
   }
   .border-usermenu-separator {
     border-color: var(--color-usermenu-separator);
+  }
+
+  /* NotificationDropdown icon circle backgrounds */
+  .bg-notification-icon-settings {
+    background-color: var(--color-notification-icon-settings);
+  }
+  .bg-notification-icon-event {
+    background-color: var(--color-notification-icon-event);
+  }
+  .bg-notification-icon-profile {
+    background-color: var(--color-notification-icon-profile);
+  }
+  .bg-notification-icon-error {
+    background-color: var(--color-notification-icon-error);
   }
 
   .h-topnav {

@@ -6,7 +6,6 @@
   "logout": "Logout",
   "profile": "Profile",
   "help": "Help",
-  "notifications": "Notifications",
   "inbox": "Inbox",
   "pages": "PAGES",
   "pricing": "Pricing",
@@ -27,5 +26,27 @@
     "activityLog": "Activity Log",
     "logOut": "Log Out",
     "comingSoon": "Coming soon"
+  },
+  "notifications": {
+    "title": "Notification",
+    "seeAll": "See all notification",
+    "items": {
+      "settings": {
+        "title": "Settings",
+        "description": "Update Dashboard"
+      },
+      "eventUpdate": {
+        "title": "Event Update",
+        "description": "An event date update again"
+      },
+      "profile": {
+        "title": "Profile",
+        "description": "Update your profile"
+      },
+      "applicationError": {
+        "title": "Application Error",
+        "description": "Check your running application"
+      }
+    }
   }
 }

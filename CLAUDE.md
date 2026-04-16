@@ -196,6 +196,7 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 25. `settings-logo-upload-toast` — Success toast notification on logo upload, generalized toast system
 26. `user-menu-header` — User profile dropdown menu in TopNav with gradient icons, multi-dropdown coordination, toast notifications, theme support
 27. `update-language-dropdown` — Redesigned LanguageSwitcher: click-based dropdown with flag images, checkmark indicator, translated header, mutual exclusivity with UserMenu
+28. `notification-dropdown` — Notification dropdown panel in TopNav triggered by the bell icon: 4 static items with colored Lucide-icon circles, "Coming soon" toast on item/footer click, 3-way dropdown coordination, theme support
 
 **Project notes:**
 - After proposal review, `unit-test-writer` runs first to create tests from specs (TDD)
