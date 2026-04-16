@@ -1,8 +1,5 @@
-# remaining-pages Specification
+## MODIFIED Requirements
 
-## Purpose
-Defines the remaining routable pages (Todo, Login, Settings, and the secondary content pages) and the lazy-loading contract for all pages.
-## Requirements
 ### Requirement: Todo page with CRUD
 The Todo page SHALL provide task management functionality using the `useTodos()` hook, supporting creating, reading, updating, and deleting todos with optimistic updates. Each todo row SHALL render as its own independent card with `rounded-xl` corners and `p-4 transition-colors group` base classes. Card background SHALL be determined by `todo.starred` only: when `todo.starred` is `true` the card SHALL apply `bg-warning-light` with NO `border` utility and NO `hover:bg-*` color-shift; when `todo.starred` is `false` the card SHALL apply `bg-surface border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50`. `todo.completed` SHALL NOT affect the card background. Text SHALL render with `font-semibold text-primary` on every row (using the theme-semantic `.text-primary` utility from `src/index.css`) and SHALL add `line-through` when `todo.completed` is `true`. The checkbox `<button>` SHALL render as a filled primary square (`bg-primary-600 border-primary-600`) containing a white `<Check>` icon (`text-white`) when `todo.completed` is `true`, and as a transparent bordered square (`bg-transparent border-2 border-gray-300 dark:border-gray-600 hover:border-primary-500 dark:hover:border-primary-400`) with no icon when `todo.completed` is `false`. The hover-gated action wrapper (`opacity-0 group-hover:opacity-100 transition-opacity`) SHALL render on EVERY row (active and completed alike), containing a star `<button>` and a delete `<button>`; the delete button SHALL render a Lucide `<XCircle>` icon on every row. Rows SHALL be stacked with `space-y-3` and SHALL NOT use `divide-y`. Forest theme cards SHALL render with theme-appropriate text (`.text-primary` resolves to `#f0fdf4` in forest, which is legible on both white and yellow card surfaces); in forest theme, `.bg-warning-light` SHALL be overridden in `src/index.css` using `color-mix(in srgb, var(--color-warning-500) 15%, transparent)` (matching the dark-theme override pattern) so the yellow tint reads correctly on the dark forest surface while preserving AA contrast (≥ 4.5:1) with the row's `text-primary` text.
 
@@ -52,31 +49,16 @@ The Todo page SHALL provide task management functionality using the `useTodos()`
 - **WHEN** a row is rendered in forest theme (`data-theme="forest"`) with `todo.starred: true`
 - **THEN** its card SHALL use the forest-specific `.bg-warning-light` override defined in `src/index.css` (`color-mix(in srgb, var(--color-warning-500) 15%, transparent)`) that tints the card against the dark forest surface rather than painting an opaque yellow, AND the row's `text-primary` text (`#f0fdf4`) SHALL remain legible against that tinted surface with a contrast ratio of ≥ 4.5:1 (AA)
 
-### Requirement: Login page as public route
-The Login page SHALL render outside the DashboardLayout as the only public route, serving as the authentication entry point.
+## Migration Notes
 
-#### Scenario: Login page access
-- **WHEN** an unauthenticated user accesses the app
-- **THEN** the Login page renders without sidebar or topnav
+The following scenarios from prior archived changes are superseded by the Requirement rewrite above. Each entry states the origin change and which new scenario(s) replace it.
 
-### Requirement: Settings page
-The Settings page SHALL provide application settings management.
-
-#### Scenario: Settings access
-- **WHEN** a user navigates to Settings
-- **THEN** the settings page renders within the DashboardLayout
-
-### Requirement: Remaining content pages
-The following pages SHALL exist as routable pages within DashboardLayout: Orders, Calendar, Contact, Inbox, Invoice, Pricing, Team, Table, and UiElement.
-
-#### Scenario: Page routing
-- **WHEN** a user navigates to any of the remaining pages
-- **THEN** the corresponding page component renders within DashboardLayout
-
-### Requirement: All pages lazy-loaded
-All page components (including remaining pages) SHALL be lazy-loaded in AppRoutes.tsx for code splitting.
-
-#### Scenario: Lazy loading on navigation
-- **WHEN** a user navigates to a page for the first time
-- **THEN** the page's code bundle is loaded on demand
-
+- **Completed todo row visual treatment (blue card, `!text-on-primary`, `font-bold`)** — from `style-completed-todo-rows`. Superseded by "Checkbox filled primary on completed rows" + "Completed+non-starred todo card (white with strikethrough)" + "Theme-semantic text color on all rows".
+- **Completed row hover state (`hover-bg-primary-dark`)** — from `style-completed-todo-rows`. No blue card → no blue hover; the "Card background keyed on `starred` only" scenario and the Requirement statement cover hover implicitly.
+- **Completed row action icon buttons (`text-on-primary` + `hover:bg-white/10`, hidden star, always-visible `Trash2`)** — from `style-completed-todo-rows` + `redesign-todo-row-cards`. Superseded by "Action buttons on all rows (hover-gated)".
+- **Active row action icon buttons (separate from completed)** — from `style-completed-todo-rows`. The active-vs-completed distinction on action icons is gone; "Action buttons on all rows (hover-gated)" covers every row.
+- **Completed row actions (star hidden, trash always visible)** — from `redesign-todo-row-cards`. Superseded by "Action buttons on all rows (hover-gated)".
+- **Three-way card state mutual exclusivity** — from `starred-todo-yellow-background`. Mutual exclusivity collapses from three bg classes (`bg-primary` / `bg-warning-light` / `bg-surface`) to two (`bg-warning-light` / `bg-surface`); `bg-primary` SHALL never appear on a card. Superseded by "Card background keyed on `starred` only".
+- **Starred-then-completed transition (completed wins)** — from `starred-todo-yellow-background`. Completed no longer overrides starred yellow; "Completed+starred todo card (no completion override)" codifies the new behavior. No dedicated transition scenario needed.
+- **Completed-then-unstarred transition** — from `starred-todo-yellow-background`. Only star toggles change the card background; covered by "Card background keyed on `starred` only".
+- **Completed row visual treatment (starred priority rule)** — from `starred-todo-yellow-background`. No "starred priority rule" exists anymore — starred always determines the card background regardless of completion. Covered by "Completed+starred todo card" and "Completed+non-starred todo card" scenarios.

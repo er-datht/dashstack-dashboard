@@ -816,6 +816,14 @@
     );
   }
 
+  .bg-warning-light {
+    background-color: color-mix(
+      in srgb,
+      var(--color-warning-500) 15%,
+      transparent
+    );
+  }
+
   /* Forest theme overrides for new utilities */
   .hover-bg-muted:hover {
     background-color: var(--color-surface-secondary);
