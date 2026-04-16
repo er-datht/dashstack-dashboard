@@ -6,7 +6,6 @@
   "logout": "ログアウト",
   "profile": "プロフィール",
   "help": "ヘルプ",
-  "notifications": "通知",
   "inbox": "受信トレイ",
   "pages": "ページ",
   "pricing": "価格",
@@ -27,5 +26,27 @@
     "activityLog": "アクティビティログ",
     "logOut": "ログアウト",
     "comingSoon": "近日公開"
+  },
+  "notifications": {
+    "title": "通知",
+    "seeAll": "すべての通知を見る",
+    "items": {
+      "settings": {
+        "title": "設定",
+        "description": "ダッシュボードの更新"
+      },
+      "eventUpdate": {
+        "title": "イベントの更新",
+        "description": "イベントの日付が更新されました"
+      },
+      "profile": {
+        "title": "プロフィール",
+        "description": "プロフィールを更新"
+      },
+      "applicationError": {
+        "title": "アプリケーションエラー",
+        "description": "実行中のアプリケーションを確認してください"
+      }
+    }
   }
 }

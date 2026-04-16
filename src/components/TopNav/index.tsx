@@ -3,6 +3,7 @@ import { Search, Bell, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../LanguageSwitcher";
 import UserMenu from "../UserMenu";
+import NotificationDropdown from "../NotificationDropdown";
 
 type TopNavProps = {
   sidebarCollapsed?: boolean;
@@ -12,25 +13,44 @@ export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
   const { t } = useTranslation();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const langContainerRef = useRef<HTMLDivElement>(null);
+  const notifContainerRef = useRef<HTMLDivElement>(null);
 
   const toggleUserMenu = () => {
     setIsUserMenuOpen((prev) => {
-      if (!prev) setIsLangOpen(false);
+      if (!prev) {
+        setIsLangOpen(false);
+        setIsNotificationOpen(false);
+      }
       return !prev;
     });
   };
 
   const toggleLangSwitcher = () => {
     setIsLangOpen((prev) => {
-      if (!prev) setIsUserMenuOpen(false);
+      if (!prev) {
+        setIsUserMenuOpen(false);
+        setIsNotificationOpen(false);
+      }
+      return !prev;
+    });
+  };
+
+  const toggleNotification = () => {
+    setIsNotificationOpen((prev) => {
+      if (!prev) {
+        setIsUserMenuOpen(false);
+        setIsLangOpen(false);
+      }
       return !prev;
     });
   };
 
   const closeUserMenu = () => setIsUserMenuOpen(false);
   const closeLangSwitcher = () => setIsLangOpen(false);
+  const closeNotification = () => setIsNotificationOpen(false);
 
   // Click-outside detection for user menu
   useEffect(() => {
@@ -66,6 +86,23 @@ export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
     return () => document.removeEventListener("mousedown", handleMouseDown);
   }, [isLangOpen]);
 
+  // Click-outside detection for notification dropdown
+  useEffect(() => {
+    if (!isNotificationOpen) return;
+
+    const handleMouseDown = (e: MouseEvent) => {
+      if (
+        notifContainerRef.current &&
+        !notifContainerRef.current.contains(e.target as Node)
+      ) {
+        setIsNotificationOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleMouseDown);
+    return () => document.removeEventListener("mousedown", handleMouseDown);
+  }, [isNotificationOpen]);
+
   return (
     <header
       className={`fixed top-0 right-0 z-30 h-topnav text-topnav-bg border border-topnav-border bg-topnav-bg ${
@@ -87,24 +124,34 @@ export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
 
         {/* Right Section */}
         <div className="flex items-center gap-4 ml-6">
-          {/* Notification Bell */}
-          <button
-            className="relative p-2 rounded-lg transition-colors cursor-pointer"
-            aria-label={t("navigation:notifications")}
-            style={{
-              backgroundColor: "transparent",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor =
-                "var(--color-topnav-button-hover)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-            }}
-          >
-            <Bell className="w-5 h-5 text-topnav-text-secondary" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-topnav-notification"></span>
-          </button>
+          {/* Notification Bell + Dropdown */}
+          <div ref={notifContainerRef} className="relative">
+            <button
+              onClick={toggleNotification}
+              aria-haspopup="menu"
+              aria-expanded={isNotificationOpen ? "true" : "false"}
+              aria-label={t("navigation:notifications.title")}
+              className="relative p-2 rounded-lg transition-colors cursor-pointer"
+              style={{
+                backgroundColor: "transparent",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor =
+                  "var(--color-topnav-button-hover)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
+            >
+              <Bell className="w-5 h-5 text-topnav-text-secondary" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-topnav-notification"></span>
+            </button>
+
+            <NotificationDropdown
+              isOpen={isNotificationOpen}
+              onClose={closeNotification}
+            />
+          </div>
 
           {/* Language Selector */}
           <div ref={langContainerRef} className="relative">
