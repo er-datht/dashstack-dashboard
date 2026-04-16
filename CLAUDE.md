@@ -161,6 +161,15 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 
 [OpenSpec](https://github.com/Fission-AI/OpenSpec) specs live in `openspec/`.
 
+**OpenSpec spec-naming convention:**
+
+- **Pattern**: every spec directory under `openspec/specs/` is named `<category>__<short-name>` using `__` (double underscore) as the separator. The tree stays **one level deep** — no nested category folders.
+- **Why not nested**: the OpenSpec CLI scans `openspec/specs/` only one directory level deep. Layouts like `openspec/specs/calendar/<spec>/spec.md` silently break `openspec list --specs`, `show`, `validate`, and `archive`. Flat-with-prefix gives visual grouping (adjacent in alphabetical listings) without that cost.
+- **Short-name rule**: when the old/base spec ID starts with the category word, drop it in the short-name (`product-listing` → `product-list__listing`, `dashboard-layout` → `layout__dashboard`). When it does not, keep the full descriptive name (`today-highlight` → `calendar__today-highlight`). This avoids stutter without sacrificing clarity.
+- **Current 17 categories**: `calendar`, `product-list`, `orders`, `dashboard`, `layout`, `top-nav`, `i18n`, `design-system`, `data-layer`, `foundation`, `routing`, `settings`, `shared`, `todo`, `testing`, `tooling`, `pages`.
+- **Adding a new category**: if a new spec genuinely doesn't fit any existing category, introduce a new one through a normal OpenSpec change rather than forcing it into an unrelated bucket. Singleton categories are fine — `i18n`, `routing`, `testing`, `tooling`, `pages`, `todo`, `settings` each currently hold one spec.
+- **Archived changes keep old IDs**: change folders under `openspec/changes/archive/` retain their pre-rename spec IDs as a historical record of what was merged at that time. They are not rewritten when the spec taxonomy evolves.
+
 **Agent mapping for this project:**
 - **Proposal reviewer** → `proposal-reviewer`
 - **Unit test writer** → `unit-test-writer`
@@ -201,6 +210,7 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 30. `redesign-todo-row-cards` — Per-card row layout for Todo list: replaced shared `divide-y` with independent `rounded-xl` cards and `space-y-3` spacing; active-row delete icon switched to Lucide `XCircle`; completed rows hid the star button and showed an always-visible `Trash2`-in-translucent-square delete; font-weight differentiation (semibold active / bold completed); pagination and empty state moved outside the list card.
 31. `starred-todo-yellow-background` — Added a third card-background state (`bg-warning-light` yellow) for starred-but-not-completed todos; completed-blue wins when both flags are true. (Superseded by `simplify-completed-todo-styling`, which drops the "completed wins" rule.)
 32. `simplify-completed-todo-styling` — Partial revert of the three prior Todo changes: completed rows drop the blue background and instead inherit the card color keyed only on `starred` (white or yellow); completed checkbox reverts to filled-primary with white checkmark; text unified to `font-semibold .text-primary` + conditional `line-through`; star + `XCircle` delete restored on every row (no more always-visible trash); added forest-theme `.bg-warning-light` override in `src/index.css` using `color-mix(var(--color-warning-500) 15%, transparent)` for AA contrast.
+33. `reorganize-specs-by-category-prefix` — Renamed all 43 spec directories under `openspec/specs/` from flat kebab-case IDs to `<category>__<short-name>` prefixed IDs grouped into 17 categories (calendar, shared, top-nav, product-list, orders, dashboard, layout, data-layer, foundation, design-system, i18n, routing, settings, todo, testing, pages, tooling). No requirement content changes — pure filesystem reorganization via 43 `git mv`s. Also added a new "OpenSpec spec-naming convention" subsection to CLAUDE.md documenting the pattern, rationale, and category list. Archived changes under `openspec/changes/archive/` intentionally keep their old spec IDs as a historical record.
 
 **Project notes:**
 - After proposal review, `unit-test-writer` runs first to create tests from specs (TDD)
