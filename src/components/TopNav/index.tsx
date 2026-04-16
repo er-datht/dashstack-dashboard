@@ -11,32 +11,28 @@ type TopNavProps = {
 export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
   const { t } = useTranslation();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [langForceClose, setLangForceClose] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const langContainerRef = useRef<HTMLDivElement>(null);
 
   const toggleUserMenu = () => {
     setIsUserMenuOpen((prev) => {
-      const next = !prev;
-      if (next) {
-        // Force close language switcher when user menu opens
-        setLangForceClose(true);
-      }
-      return next;
+      if (!prev) setIsLangOpen(false);
+      return !prev;
     });
   };
 
-  const closeUserMenu = () => {
-    setIsUserMenuOpen(false);
+  const toggleLangSwitcher = () => {
+    setIsLangOpen((prev) => {
+      if (!prev) setIsUserMenuOpen(false);
+      return !prev;
+    });
   };
 
-  const handleLangSwitcherOpen = () => {
-    // Close user menu when language switcher opens
-    setIsUserMenuOpen(false);
-    // Reset force close so it can be triggered again
-    setLangForceClose(false);
-  };
+  const closeUserMenu = () => setIsUserMenuOpen(false);
+  const closeLangSwitcher = () => setIsLangOpen(false);
 
-  // Click-outside detection — only listen when menu is open
+  // Click-outside detection for user menu
   useEffect(() => {
     if (!isUserMenuOpen) return;
 
@@ -53,12 +49,22 @@ export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
     return () => document.removeEventListener("mousedown", handleMouseDown);
   }, [isUserMenuOpen]);
 
-  // Reset langForceClose after it takes effect
+  // Click-outside detection for language dropdown
   useEffect(() => {
-    if (langForceClose && !isUserMenuOpen) {
-      setLangForceClose(false);
-    }
-  }, [langForceClose, isUserMenuOpen]);
+    if (!isLangOpen) return;
+
+    const handleMouseDown = (e: MouseEvent) => {
+      if (
+        langContainerRef.current &&
+        !langContainerRef.current.contains(e.target as Node)
+      ) {
+        setIsLangOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleMouseDown);
+    return () => document.removeEventListener("mousedown", handleMouseDown);
+  }, [isLangOpen]);
 
   return (
     <header
@@ -101,10 +107,13 @@ export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
           </button>
 
           {/* Language Selector */}
-          <LanguageSwitcher
-            forceClose={langForceClose}
-            onOpen={handleLangSwitcherOpen}
-          />
+          <div ref={langContainerRef} className="relative">
+            <LanguageSwitcher
+              isOpen={isLangOpen}
+              onClose={closeLangSwitcher}
+              onToggle={toggleLangSwitcher}
+            />
+          </div>
 
           {/* User Profile + UserMenu */}
           <div ref={containerRef} className="relative">

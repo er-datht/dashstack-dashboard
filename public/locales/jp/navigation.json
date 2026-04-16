@@ -18,6 +18,9 @@
   "table": "テーブル",
   "expandSidebar": "サイドバーを展開",
   "collapseSidebar": "サイドバーを折りたたむ",
+  "languageSwitcher": {
+    "selectLanguage": "言語を選択"
+  },
   "userMenu": {
     "manageAccount": "アカウント管理",
     "changePassword": "パスワード変更",
