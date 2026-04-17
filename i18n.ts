@@ -34,6 +34,7 @@ i18n
       "errors",
       "messages",
       "calendar",
+      "contact",
     ],
     defaultNS: "common",
 
