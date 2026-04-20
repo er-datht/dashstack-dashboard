@@ -209,6 +209,8 @@ Use subagents when they add value. Not every change needs every agent.
 32. `simplify-completed-todo-styling` — Partial revert of the three prior Todo changes: completed rows drop the blue background and instead inherit the card color keyed only on `starred` (white or yellow); completed checkbox reverts to filled-primary with white checkmark; text unified to `font-semibold .text-primary` + conditional `line-through`; star + `XCircle` delete restored on every row (no more always-visible trash); added forest-theme `.bg-warning-light` override in `src/index.css` using `color-mix(var(--color-warning-500) 15%, transparent)` for AA contrast.
 33. `contact-page` — Contact page: responsive 3-col card grid with avatar photos (User icon fallback), truncated name/email with tooltips, outlined Message button, Load More pagination (6 per batch), mock data (18 contacts), i18n (en/jp), toast on Add New Contact
 34. `contact-message-navigate-inbox` — Changed Contact card Message button from "Coming soon" toast to `useNavigate(ROUTES.INBOX)` navigation
+35. `add-new-contact-page` — Add New Contact form page at /contact/add: photo upload, 6-field form (First Name, Last Name, Email, Phone, Date of Birth, Gender custom dropdown), validation, toast + navigate on submit, i18n (en/jp), Contact page button navigates to new route
+36. `required-field-asterisks` — Red asterisk (`*`) on required field labels across 3 pages: AddNewContact (3 fields), Settings (4 fields), Calendar AddEventModal (1 field), with Settings test regex matcher updates
 
 ## Common Gotchas
 

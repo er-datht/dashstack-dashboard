@@ -213,7 +213,7 @@ export default function Settings(): React.JSX.Element {
               htmlFor="siteName"
               className="text-primary font-bold text-base block mb-1.5"
             >
-              {t("siteName")}
+              {t("siteName")} <span className="text-error">*</span>
             </label>
             <input
               id="siteName"
@@ -244,7 +244,7 @@ export default function Settings(): React.JSX.Element {
               htmlFor="copyright"
               className="text-primary font-bold text-base block mb-1.5"
             >
-              {t("copyright")}
+              {t("copyright")} <span className="text-error">*</span>
             </label>
             <input
               id="copyright"
@@ -279,7 +279,7 @@ export default function Settings(): React.JSX.Element {
                 htmlFor="seoTitle"
                 className="text-primary font-bold text-base block mb-1.5"
               >
-                {t("seoTitle")}
+                {t("seoTitle")} <span className="text-error">*</span>
               </label>
               <input
                 id="seoTitle"
@@ -312,7 +312,7 @@ export default function Settings(): React.JSX.Element {
                 htmlFor="seoKeywords"
                 className="text-primary font-bold text-base block mb-1.5"
               >
-                {t("seoKeywords")}
+                {t("seoKeywords")} <span className="text-error">*</span>
               </label>
               <input
                 id="seoKeywords"

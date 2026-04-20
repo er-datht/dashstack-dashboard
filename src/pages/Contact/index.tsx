@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { Users } from "lucide-react";
 import { cn } from "../../utils/cn";
+import { ROUTES } from "../../routes/routes";
 import { mockContacts } from "./contactData";
 import ContactCard from "./ContactCard";
 
@@ -9,6 +11,7 @@ const CONTACTS_PER_PAGE = 6;
 
 export default function Contact(): React.JSX.Element {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [visibleCount, setVisibleCount] = useState(CONTACTS_PER_PAGE);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -22,10 +25,6 @@ export default function Contact(): React.JSX.Element {
 
     return () => clearTimeout(timer);
   }, [toast]);
-
-  const handleShowComingSoon = () => {
-    setToast(t("contact:comingSoon"));
-  };
 
   const handleLoadMore = () => {
     setVisibleCount((prev) => prev + CONTACTS_PER_PAGE);
@@ -47,7 +46,7 @@ export default function Contact(): React.JSX.Element {
           </h1>
         </div>
         <button
-          onClick={handleShowComingSoon}
+          onClick={() => navigate(ROUTES.ADD_CONTACT)}
           className={cn(
             "flex items-center gap-2 px-6 py-2.5 rounded-lg",
             "bg-primary text-on-primary font-medium",
