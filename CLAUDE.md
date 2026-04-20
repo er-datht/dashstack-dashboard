@@ -118,7 +118,7 @@ The workflow follows four OpenSpec principles:
 
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense for the change at hand.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point — a proposal written before reading the code may need to change after.
-- **Easy not complex** — Scale process to the change. A one-line fix doesn't need the same ceremony as a new feature. Start working immediately; add structure only when it earns its keep.
+- **Easy not complex** — Scale process to the change. Every change gets a proposal, but a one-line fix gets a one-line proposal — not the same ceremony as a new feature.
 - **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify *deltas* — not green-field descriptions.
 
 ### Right-Sizing the Process
@@ -126,9 +126,9 @@ The workflow follows four OpenSpec principles:
 Match the process to the change. Use judgment, not a checklist.
 
 **Small changes** (typos, renames, one-line fixes, simple styling tweaks):
+- Use `opsx:propose` to create a brief proposal (can be minimal for obvious changes).
 - Read the relevant code, make the change, verify it works (`yarn build`, `yarn test`).
 - Use `react-frontend-specialist` for implementation if it involves UI logic. Use `code-reviewer` if the change is subtle or risky.
-- OpenSpec proposal is optional — skip it if the change is obvious and self-contained.
 
 **Medium changes** (new component, bug fix spanning multiple files, refactor):
 - Review existing specs and code first to understand context.
@@ -143,7 +143,7 @@ Match the process to the change. Use judgment, not a checklist.
 
 ### When to Use OpenSpec
 
-Use `opsx:propose` when a change benefits from upfront planning — when there are design decisions to make, multiple files to coordinate, or behavior that should be specified before coding. Skip it when the change is obvious from context.
+Always use `opsx:propose` before implementing any change. The proposal scales to the change — a simple fix gets a brief proposal, a new feature gets a thorough one.
 
 **OpenSpec commands:**
 - `/opsx:propose "description"` — Plan a change (proposal, design, specs, tasks)

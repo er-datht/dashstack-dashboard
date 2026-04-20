@@ -4,7 +4,7 @@
 
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense for the change at hand.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point — a proposal written before reading the code may need to change after.
-- **Easy not complex** — Scale process to the change. A one-line fix doesn't need the same ceremony as a new feature. Start working immediately; add structure only when it earns its keep.
+- **Easy not complex** — Scale process to the change. Every change gets a proposal, but a one-line fix gets a one-line proposal — not the same ceremony as a new feature.
 - **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify *deltas* — not green-field descriptions.
 
 ## Overview
@@ -21,9 +21,9 @@ OpenSpec answers *what* to build. The agent pipeline answers *how* to build it.
 Match the process to the change. Use judgment, not a checklist.
 
 **Small changes** (typos, renames, one-line fixes, simple styling tweaks):
+- Use `opsx:propose` to create a brief proposal (can be minimal for obvious changes).
 - Read the relevant code, make the change, verify it works.
 - Use the implementation specialist for logic changes. Use code reviewer if subtle or risky.
-- OpenSpec proposal is optional — skip it if the change is obvious and self-contained.
 
 **Medium changes** (new component, bug fix spanning multiple files, refactor):
 - Review existing specs and code first to understand context.
@@ -39,7 +39,7 @@ Match the process to the change. Use judgment, not a checklist.
 
 ### When to Use
 
-Use `opsx:propose` when a change benefits from upfront planning — when there are design decisions to make, multiple files to coordinate, or behavior that should be specified before coding. Skip it when the change is obvious from context.
+Always use `opsx:propose` before implementing any change. The proposal scales to the change — a simple fix gets a brief proposal, a new feature gets a thorough one.
 
 ### Context Gathering
 
@@ -199,7 +199,7 @@ Start here:
 Adapt these to the change at hand — they're patterns, not mandates.
 
 **Small fix:**
-implementation specialist → done (add code reviewer if subtle)
+propose (brief) → implementation specialist → done (add code reviewer if subtle)
 
 **Feature (no new deps):**
 proposal reviewer → unit test writer → implementation specialist → code reviewer
@@ -208,7 +208,7 @@ proposal reviewer → unit test writer → implementation specialist → code re
 proposal reviewer → unit test writer → implementation specialist (plan) → security reviewer → implementation specialist (implement) → code reviewer
 
 **Bug fix:**
-Size it — small bugs skip the proposal. For larger bugs: proposal reviewer → unit test writer (regression tests) → implementation specialist → code reviewer.
+propose (brief for small bugs, thorough for larger) → unit test writer (regression tests) → implementation specialist → code reviewer.
 
 **New dependency:**
 security reviewer before installing → then proceed with implementation
