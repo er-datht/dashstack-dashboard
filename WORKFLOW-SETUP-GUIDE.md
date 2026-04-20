@@ -33,45 +33,38 @@ This workflow combines two systems:
 - **OpenSpec** — governs the planning lifecycle: proposing, designing, specifying, and tasking changes before any code is written.
 - **Agent Pipeline** — governs execution: which Claude Code subagent handles what, in what order, during implementation.
 
-**The flow for every code change:**
+**Four guiding principles:**
+
+- **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense.
+- **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
+- **Easy not complex** — Scale process to the change. A one-line fix doesn't need the same ceremony as a new feature.
+- **Brownfield-first** — Most work modifies existing systems. Read the code, understand what's there, specify deltas.
+
+**Process scales to the change:**
 
 ```
-User request
-    │
-    ▼
-┌─────────────────────┐
-│  1. Context Review   │  ← Review existing specs & archives
-└──────────┬──────────┘
-           ▼
-┌─────────────────────┐
-│  2. /opsx:propose    │  ← Generate proposal, design, specs, tasks
-└──────────┬──────────┘
-           ▼
-┌─────────────────────┐
-│  3. Proposal Review  │  ← proposal-reviewer agent validates
-└──────────┬──────────┘
-           ▼
-┌─────────────────────┐
-│  4. STOP & Wait      │  ← User reviews artifacts
-└──────────┬──────────┘
-           ▼
-┌─────────────────────┐
-│  5. /opsx:apply      │  ← Implementation via agent pipeline
-└──────────┬──────────┘
-           ▼
-┌─────────────────────┐
-│  6. /opsx:archive    │  ← Archive completed change
-└─────────────────────┘
+Small change (typo, one-line fix):
+  Read code → fix → verify. No proposal needed.
+
+Medium change (new component, multi-file bug fix):
+  Context review → propose → implement with agents → code review.
+
+Large change (new page, cross-cutting feature):
+  Context review → propose → proposal-reviewer Q&A → user approval →
+  unit-test-writer → implementation-specialist → code-reviewer → archive.
 ```
 
-**Agent pipeline during apply:**
+**Typical agent sequences (adapt as needed):**
 
 ```
-Simple feature/fix:
+Small fix:
+  implementation-specialist → done (add code-reviewer if subtle)
+
+Feature:
   proposal-reviewer → unit-test-writer → implementation-specialist → code-reviewer
 
-With new dependency:
-  proposal-reviewer → unit-test-writer → implementation-specialist → security-reviewer → implementation-specialist → code-reviewer
+New dependency:
+  security-reviewer → then proceed with implementation
 ```
 
 ---
@@ -651,80 +644,74 @@ This file defines the integrated workflow — when to use which agent and in wha
 ```markdown
 # Workflow
 
-## Overview
+## Principles
 
-This workflow combines two concerns:
+- **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense.
+- **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
+- **Easy not complex** — Scale process to the change. A one-line fix doesn't need the same ceremony as a new feature.
+- **Brownfield-first** — Read existing code first, then specify deltas — not green-field descriptions.
 
-- **OpenSpec** governs the planning lifecycle: proposing, designing, specifying, and tasking changes before any code is written.
-- **Agent pipeline** governs execution: which agent handles what, in what order, during implementation.
+## Right-Sizing the Process
 
-## OpenSpec: Spec-Driven Development
+**Small changes** (typos, renames, one-line fixes):
+- Read the code, make the change, verify it works.
+- Use implementation-specialist if it involves logic. Use code-reviewer if subtle or risky.
+- OpenSpec proposal is optional — skip it if the change is obvious.
 
-### Lifecycle
+**Medium changes** (new component, multi-file bug fix, refactor):
+- Review existing specs and code first to understand context.
+- Use `opsx:propose` to plan. Review with proposal-reviewer if ambiguities exist.
+- Implement with implementation-specialist. Write tests with unit-test-writer when testable.
+- Run code-reviewer on the result.
 
-All code changes follow five phases:
+**Large changes** (new page, new feature, cross-cutting refactor):
+- Full workflow: context review → propose → proposal-reviewer Q&A → wait for user approval → unit-test-writer → implementation-specialist → code-reviewer.
+- Archive with `opsx:archive` when done.
 
-1. **Context** — review existing specs and archived changes
-2. **Propose** — describe the change; generate proposal, design, specs, and tasks
-3. **Review** — validate artifacts, identify gaps, refine before implementation
-4. **Apply** — implement the tasks (execution follows the agent pipeline)
-5. **Archive** — finalize and archive the completed change
+## OpenSpec Commands
 
-### Context Gathering (Phase 0)
-
-Before proposing or implementing any change, review:
-
-1. **Main specs** (`openspec/specs/`) — authoritative feature definitions
-2. **Archived changes** (`openspec/changes/archive/`) — prior decisions and patterns
-3. **Active changes** (`openspec/changes/`) — in-progress work that may overlap
-
-### Commands
-
-- `/opsx:propose "description"` — Create a change with all artifacts
-- `/opsx:apply [change-name]` — Implement tasks
+- `/opsx:propose "description"` — Plan a change (proposal, design, specs, tasks)
+- `/opsx:apply [change-name]` — Implement tasks from a change
 - `/opsx:archive [change-name]` — Archive a completed change
 - `/opsx:explore [topic]` — Think mode (read-only)
 
-## Agent Pipeline: Execution During Apply
+## Available Agents
 
-### Agent Priority Order
+Use agents when they add value. Not every change needs every agent.
 
-1. **Proposal reviewer after propose** — validates artifacts before code is written
-2. **Unit test writer first during apply** — writes tests from specs before implementation (TDD)
-3. **Implementation specialist after tests** — implements code to make tests pass
-4. **Security reviewer before external trust** — gates package installs, URLs, web-searched code
-5. **Code reviewer last** — final quality gate
+- **proposal-reviewer** — validates artifacts, asks clarifying questions. Use when proposal has ambiguities.
+- **unit-test-writer** — writes tests from specs before implementation (TDD). Use when the change produces testable units.
+- **implementation-specialist** — implements code. The primary agent for all code changes.
+- **security-reviewer** — always use before package installs, fetching URLs, or using web-searched code.
+- **code-reviewer** — reviews the diff for quality. Use after implementation, especially for non-trivial changes.
 
-### Decision Tree
+## Typical Sequences (adapt as needed)
 
-1. Has the proposal just been generated? → use proposal reviewer
-2. Is implementation about to begin and tests not yet written? → use unit test writer
-3. Is this a code implementation task? → use implementation specialist (run tests after each task)
-4. Does this task require trusting something external? → use security reviewer
-5. Is the work done and ready for validation? → use code reviewer
+- Small fix: implementation-specialist → done (add code-reviewer if subtle)
+- Feature: proposal-reviewer → unit-test-writer → implementation-specialist → code-reviewer
+- Large feature: ... → code-reviewer → `opsx:verify` → `opsx:archive`
+- New dependency: security-reviewer before installing → then proceed with implementation
 
-### Common Sequences
+## Verify Before Archiving
 
-**Feature without new dependencies:**
-proposal-reviewer → unit-test-writer → implementation-specialist → code-reviewer
+For large changes, use `/opsx:verify` before `/opsx:archive` to check implementation matches artifacts:
+- **Completeness** — All tasks done, all requirements implemented
+- **Correctness** — Implementation matches spec intent, edge cases handled
+- **Coherence** — Design decisions reflected in code
 
-**Feature with new package:**
-proposal-reviewer → unit-test-writer → implementation-specialist (plan) → security-reviewer → implementation-specialist (implement) → code-reviewer
+Verify won't block archive, but it surfaces issues worth addressing first.
 
-**Bug fix (existing code only):**
-proposal-reviewer → unit-test-writer → implementation-specialist → code-reviewer
+## When Requirements Change
 
-## Stop Rules
+- **Same intent, refined scope** → update the existing change (revise specs/tasks, continue)
+- **Fundamentally different direction** → start a new change (old artifacts become context, not waste)
 
-Pause and use the security reviewer if:
-- About to run a package install command
-- About to fetch or run a remote script
-- Found a package through web search
-- Considering copying code from a third-party source
+## Context Sources
 
-Pause and use the code reviewer if:
-- The change is done but not reviewed
-- The fix touches auth, data flow, or API boundaries
+When starting a change, check relevant context from:
+1. **Main specs** (`openspec/specs/`) — authoritative feature definitions
+2. **Archived changes** (`openspec/changes/archive/`) — prior decisions and patterns
+3. **Active changes** (`openspec/changes/`) — in-progress work that may overlap
 ```
 
 ---
@@ -738,50 +725,67 @@ Your `CLAUDE.md` file needs a **Workflow** section that tells Claude Code to fol
 ```markdown
 ## Workflow
 
-### Auto-Trigger Rules
+### Principles
 
-**MANDATORY**: When the user prompts with ANY action that implies a code change — including but not limited to "implement", "fix", "handle", "build", "add", "create", "update", "refactor", "resolve", "change", "remove", "delete", "move", "rename", "optimize", "improve" — you MUST follow this workflow automatically:
+The workflow follows four OpenSpec principles:
 
-1. **Context first** — Before anything else, review existing specs (`openspec/specs/`) and archived changes (`openspec/changes/archive/`) relevant to the area being changed. Summarize findings to inform the proposal. Also check active changes (`openspec/changes/`) for overlap.
-2. **Propose** — Invoke the `opsx:propose` skill with the user's description plus context findings to generate proposal, design, specs, and tasks before writing any code.
-3. **Review proposal** — Launch the `proposal-reviewer` subagent to validate artifacts, exhaustively question the user on every ambiguity and unstated assumption, and refine the proposal before implementation. The reviewer uses multi-round Q&A to prevent hallucinated requirements.
-4. **STOP and wait for user** — After the proposal review completes, present a summary and **stop**. Do NOT proceed to implementation automatically. Tell the user: "Run `/opsx:apply` when you're ready to implement."
-5. **Apply with agent pipeline** — Only when the user invokes `/opsx:apply`, implement tasks using the specialized subagents (see **Mandatory Subagent Usage**). Never implement tasks inline.
-6. **Archive when done** — Suggest `opsx:archive` once all tasks are complete. **When archiving, always update the "Existing specs" list in this file.**
+- **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense for the change at hand.
+- **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point — a proposal written before reading the code may need to change after.
+- **Easy not complex** — Scale process to the change. A one-line fix doesn't need the same ceremony as a new feature. Start working immediately; add structure only when it earns its keep.
+- **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify *deltas* — not green-field descriptions.
 
-**No exceptions for small changes.** Even trivial fixes go through the full propose → apply → archive cycle.
+### Right-Sizing the Process
 
-**Only skip the workflow for non-code actions:**
-- Pure questions or explanations
-- Non-code tasks (git operations, running dev server, reading files)
-- When the user explicitly invokes a specific `/opsx:` command directly
+Match the process to the change. Use judgment, not a checklist.
 
-### Mandatory Subagent Usage
+**Small changes** (typos, renames, one-line fixes, simple styling tweaks):
+- Read the relevant code, make the change, verify it works.
+- Use `<implementation-specialist>` for implementation if it involves logic. Use `code-reviewer` if the change is subtle or risky.
+- OpenSpec proposal is optional — skip it if the change is obvious and self-contained.
 
-During the **apply** phase, you MUST use the Agent tool with these specialized `subagent_type` values:
+**Medium changes** (new component, bug fix spanning multiple files, refactor):
+- Review existing specs and code first to understand context.
+- Use `opsx:propose` to plan the change. Review with `proposal-reviewer` if there are ambiguities to clarify with the user.
+- Implement with `<implementation-specialist>`. Write tests with `unit-test-writer` when the change produces testable units.
+- Run `code-reviewer` on the result.
 
-1. **`proposal-reviewer`** (Proposal quality gate) — Launch AFTER `opsx:propose` completes. Exhaustively questions the user to clarify every ambiguity and prevent hallucinated requirements.
-2. **`unit-test-writer`** (TDD gate) — Launch FIRST during apply, before implementation. Writes tests from specs.
-3. **`<implementation-specialist>`** (Implementation) — Launch AFTER unit-test-writer. Implements code to make tests pass.
-4. **`security-reviewer`** (Security gate) — Launch BEFORE any external trust action.
-5. **`code-reviewer`** (Final quality gate) — Launch LAST after implementation is complete.
+**Large changes** (new page, new feature, cross-cutting refactor):
+- Full workflow: context review → `opsx:propose` → `proposal-reviewer` (clarify ambiguities with user) → present artifacts and wait for user approval → `unit-test-writer` → `<implementation-specialist>` → `code-reviewer` → `opsx:verify` → `opsx:archive`.
+- Use `opsx:verify` before archiving to check implementation matches specs.
+- Update the "Existing specs" list below when archiving.
 
-**Sequencing rules:**
-- Simple feature/fix: `proposal-reviewer` → `unit-test-writer` → `<implementation-specialist>` → `code-reviewer`
-- Feature needing new dependency: `proposal-reviewer` → `unit-test-writer` → `<implementation-specialist>` (plan) → `security-reviewer` → `<implementation-specialist>` (implement) → `code-reviewer`
-- Dependency-only change: `proposal-reviewer` → `security-reviewer` → `code-reviewer`
+### When to Use OpenSpec
 
-**Never skip subagents.** Even for one-line changes, at minimum use unit-test-writer for tests, the implementation specialist for code, and code-reviewer for review.
-
-All code changes follow the spec-driven workflow defined in `.claude/workflow.md`.
+Use `opsx:propose` when a change benefits from upfront planning — when there are design decisions to make, multiple files to coordinate, or behavior that should be specified before coding. Skip it when the change is obvious from context.
 
 **OpenSpec commands:**
-- `/opsx:propose "description"` — Plan a change
-- `/opsx:apply [change-name]` — Implement tasks
+- `/opsx:propose "description"` — Plan a change (proposal, design, specs, tasks)
+- `/opsx:apply [change-name]` — Implement tasks from a change
 - `/opsx:archive [change-name]` — Archive a completed change
 - `/opsx:explore [topic]` — Think through ideas (read-only)
 
 [OpenSpec](https://github.com/Fission-AI/OpenSpec) specs live in `openspec/`.
+
+### Available Subagents
+
+Use subagents when they add value. Not every change needs every agent.
+
+- **`proposal-reviewer`** — Validates proposal artifacts, asks clarifying questions. Use when the proposal has ambiguities or unstated assumptions.
+- **`unit-test-writer`** — Writes tests from specs before implementation (TDD). Use when the change produces testable units. Skip for config, routing, or pure styling.
+- **`<implementation-specialist>`** — Implements code. The primary implementation agent.
+- **`security-reviewer`** — Reviews packages, URLs, and external code before trust. Always use before installing packages or fetching external code.
+- **`code-reviewer`** — Reviews the diff for quality. Use after implementation, especially for non-trivial changes.
+
+**Typical sequences** (adapt as needed):
+- Small fix: `<implementation-specialist>` → done (or add `code-reviewer` if subtle)
+- Feature: `proposal-reviewer` → `unit-test-writer` → `<implementation-specialist>` → `code-reviewer`
+- New dependency: `security-reviewer` before installing → then proceed with implementation
+
+### Non-Code Actions (No Workflow Needed)
+
+- Pure questions or explanations ("what does X do?", "explain this code")
+- Git operations, running dev server, config lookups, reading files
+- When the user explicitly invokes a specific `/opsx:` command directly (follow that command instead)
 
 **Agent mapping for this project:**
 - **Proposal reviewer** → `proposal-reviewer`
@@ -792,12 +796,6 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 
 **Existing specs** (archived in `openspec/changes/archive/`):
 <!-- Add entries as you archive changes -->
-
-**Project notes:**
-- After proposal review, `unit-test-writer` runs first to create tests from specs (TDD)
-- `<implementation-specialist>` implements code to make tests pass; may fix minor test issues inline
-- Package recommendations from web search go through `security-reviewer` first
-- Final sign-off goes through `code-reviewer`
 ```
 
 ---
@@ -887,7 +885,7 @@ ls .claude/commands/opsx/
 cat .claude/workflow.md | head -5
 
 # 7. CLAUDE.md has workflow section
-grep -c "Auto-Trigger Rules" CLAUDE.md
+grep -c "Principles" CLAUDE.md
 
 # 8. Try creating a test change
 npx openspec new change "test-setup"
@@ -1072,7 +1070,7 @@ npm install -g openspec-cli
 
 ### Claude doesn't follow the workflow
 - Check that `CLAUDE.md` exists in your project root
-- Verify the "Auto-Trigger Rules" section is present
+- Verify the "Workflow" section with "Principles" and "Right-Sizing" is present
 - Make sure `.claude/workflow.md` exists
 - Try `/opsx:onboard` to test the setup
 

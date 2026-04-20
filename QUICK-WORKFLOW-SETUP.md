@@ -4,11 +4,15 @@ Set up the OpenSpec + Agent Pipeline workflow in any project in ~10 minutes.
 
 ## What You Get
 
-Every code change follows: **propose** -> **review** -> **apply** -> **archive**
+A principles-based workflow that scales to the change:
 
-5 agents work in sequence:
+- **Small changes** — read code, fix it, verify. No proposal needed.
+- **Medium changes** — propose, implement with agents, review.
+- **Large changes** — full cycle: propose, reviewer Q&A, approval gate, TDD, implement, review, archive.
 
-1. `proposal-reviewer` — validates plan before coding
+5 agents available (use when they add value):
+
+1. `proposal-reviewer` — validates plan, asks clarifying questions
 2. `unit-test-writer` — writes tests from specs before implementation (TDD)
 3. `<your-specialist>` — writes code to make tests pass (name varies by stack)
 4. `security-reviewer` — gates package installs
@@ -169,20 +173,38 @@ Replace `<your-specialist>` below:
 ```markdown
 # Workflow
 
-All code changes: Context -> Propose -> Review -> Apply -> Archive
+## Principles
 
-## Agent Pipeline (during apply)
+- **Fluid not rigid** — Create artifacts in any order that makes sense.
+- **Iterative not waterfall** — Revisit and revise at any point.
+- **Easy not complex** — Scale process to the change size.
+- **Brownfield-first** — Read existing code first, specify deltas.
 
-1. proposal-reviewer (validates artifacts)
-2. unit-test-writer (writes tests from specs — TDD)
-3. <your-specialist> (implements code to make tests pass)
-4. security-reviewer (before package installs)
-5. code-reviewer (final gate)
+## Right-Sizing
 
-## Sequences
+- **Small** (one-line fix, typo): Read code, fix, verify. Skip proposal.
+- **Medium** (multi-file bug fix, new component): Propose, implement with agents, review.
+- **Large** (new page, cross-cutting feature): Full cycle with proposal review, TDD, verify, and archiving.
 
-- Standard: proposal-reviewer -> unit-test-writer -> <your-specialist> -> code-reviewer
-- With new package: proposal-reviewer -> unit-test-writer -> <your-specialist> -> security-reviewer -> <your-specialist> -> code-reviewer
+## Available Agents
+
+- `proposal-reviewer` — validates artifacts, asks clarifying questions
+- `unit-test-writer` — writes tests from specs before implementation (TDD)
+- `<your-specialist>` — implements code to make tests pass
+- `security-reviewer` — always use before package installs
+- `code-reviewer` — final quality check
+
+## Typical Sequences (adapt as needed)
+
+- Small fix: `<your-specialist>` → done
+- Feature: `proposal-reviewer` → `unit-test-writer` → `<your-specialist>` → `code-reviewer`
+- Large feature: ... → `code-reviewer` → `opsx:verify` → `opsx:archive`
+- New dependency: `security-reviewer` before installing → then proceed
+
+## When Requirements Change
+
+- **Same intent, refined scope** → update the existing change (revise specs/tasks, continue)
+- **Fundamentally different direction** → start a new change (old artifacts become context)
 ```
 
 ## Step 6: Add to CLAUDE.md
@@ -192,28 +214,43 @@ Append this to your `CLAUDE.md` (replace `<your-specialist>`):
 ```markdown
 ## Workflow
 
-### Auto-Trigger Rules
+### Principles
 
-**MANDATORY**: For ANY code change action (implement, fix, add, create, update, refactor, etc.):
+- **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense.
+- **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
+- **Easy not complex** — Scale process to the change. A one-line fix doesn't need the same ceremony as a new feature.
+- **Brownfield-first** — Read the code, understand what's there, then specify deltas.
 
-1. **Context** — Review openspec/specs/ and openspec/changes/archive/.
-2. **Propose** — Invoke opsx:propose to generate artifacts.
-3. **Review** — Launch proposal-reviewer to validate.
-4. **STOP** — Tell user: "Run /opsx:apply when ready."
-5. **Apply** — Implement via subagents (never inline).
-6. **Archive** — Suggest opsx:archive when done.
+### Right-Sizing the Process
 
-Skip only for non-code actions (questions, git ops, reading files).
+**Small changes** (typos, renames, one-line fixes):
+- Read the code, make the change, verify it works.
+- Use `<your-specialist>` for implementation if it involves logic. Use `code-reviewer` if subtle.
+- OpenSpec proposal is optional — skip it if the change is obvious.
 
-### Mandatory Subagent Usage
+**Medium changes** (new component, multi-file bug fix, refactor):
+- Review existing specs and code first.
+- Use `opsx:propose` to plan. Review with `proposal-reviewer` if ambiguities exist.
+- Implement with `<your-specialist>`. Write tests with `unit-test-writer` when testable.
+- Run `code-reviewer` on the result.
 
-- `proposal-reviewer` — after propose
+**Large changes** (new page, new feature, cross-cutting refactor):
+- Full workflow: context review → `opsx:propose` → `proposal-reviewer` → wait for user approval → `unit-test-writer` → `<your-specialist>` → `code-reviewer` → `opsx:verify` → `opsx:archive`.
+- Use `opsx:verify` before archiving to check implementation matches specs.
+
+### Available Subagents
+
+Use subagents when they add value. Not every change needs every agent.
+
+- `proposal-reviewer` — validates artifacts, asks clarifying questions
 - `unit-test-writer` — writes tests from specs before implementation (TDD)
-- `<your-specialist>` — implements code to make tests pass
-- `security-reviewer` — before package installs
-- `code-reviewer` — after implementation
+- `<your-specialist>` — implements code
+- `security-reviewer` — always use before package installs or external code
+- `code-reviewer` — reviews the diff after implementation
 
 **Commands:** /opsx:propose, /opsx:apply, /opsx:archive, /opsx:explore
+
+[OpenSpec](https://github.com/Fission-AI/OpenSpec) specs live in `openspec/`.
 
 **Existing specs** (update as you archive):
 
@@ -240,7 +277,7 @@ openspec --version                   # CLI works
 ls .claude/agents/                   # 5 files
 ls .claude/skills/                   # 10 dirs with SKILL.md each
 ls .claude/commands/opsx/            # 11 files
-grep "Auto-Trigger" CLAUDE.md       # workflow section exists
+grep "Principles" CLAUDE.md          # workflow section exists
 ```
 
 Open Claude Code and run `/opsx:onboard` for a guided test.
