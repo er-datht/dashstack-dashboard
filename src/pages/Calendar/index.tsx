@@ -279,6 +279,8 @@ export default function Calendar(): React.JSX.Element {
             onNext={handleNext}
             onToday={handleToday}
             label={getHeaderLabel()}
+            currentDate={currentDate}
+            onDateSelect={setCurrentDate}
           />
 
           {/* Active view */}

@@ -58,16 +58,8 @@
   box-shadow: 0px 4px 42px 17px rgba(0, 0, 0, 0.08);
 }
 
-.calendarHeader {
-  display: flex;
-  align-items: center;
-  padding: 24px 32px;
-  border-bottom: 0.5px solid var(--color-border);
-}
-
 .calendarBody {
-  padding: 24px 32px;
-  border-bottom: 0.5px solid var(--color-border);
+  padding: 0;
 }
 
 .calendarFooter {
@@ -75,56 +67,119 @@
   flex-direction: column;
   align-items: center;
   padding: 24px 32px;
-  gap: 12px;
+  gap: 32px;
 }
 
-.calendarGrid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  row-gap: 8px;
-  text-align: center;
-}
-
-.dayHeader {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  opacity: 0.6;
-  padding: 8px 0;
-}
-
-.dayCell {
-  @include button-reset;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  opacity: 0.5;
-  @include flex-center;
-  margin: 0 auto;
-  @include transition(background-color);
-
-  @include hover {
-    background-color: var(--color-primary-50);
-    opacity: 1;
+// Figma-specific layout overrides (base theme in src/index.css)
+.calendarBody :global {
+  .react-calendar {
+    width: 100%;
+    border: none;
+    border-radius: 0;
+    padding: 0;
   }
 
-  &.selected {
-    background-color: var(--color-primary-500);
-    color: #fff;
-    opacity: 1;
+  // Navigation header — Figma layout: label left, arrows right, bordered
+  .react-calendar__navigation {
+    padding: 24px 32px;
+    margin-bottom: 0;
+    height: auto;
+    border-bottom: 0.5px solid var(--color-border);
   }
 
-  &.otherMonth {
+  .react-calendar__navigation__label {
+    flex: 1;
+    text-align: left;
+    order: -1;
+  }
+
+  .react-calendar__navigation__prev2-button,
+  .react-calendar__navigation__next2-button {
+    display: none;
+  }
+
+  .react-calendar__navigation__prev-button,
+  .react-calendar__navigation__next-button {
+    color: var(--color-text-secondary);
+    opacity: 0.8;
+    min-width: 24px;
+    font-size: 18px;
+  }
+
+  // Body section — padded with border
+  .react-calendar__viewContainer {
+    padding: 24px 32px;
+    border-bottom: 0.5px solid var(--color-border);
+  }
+
+  // Figma weekday headers — 14px, 60% opacity
+  .react-calendar__month-view__weekdays {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    opacity: 0.6;
+    padding-bottom: 4px;
+  }
+
+  .react-calendar__month-view__weekdays__weekday {
+    padding: 8px 0;
+  }
+
+  // Figma date tiles — 14px semi-bold, 50% opacity, square aspect
+  .react-calendar__tile {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px;
+    opacity: 0.5;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:enabled:hover,
+    &:enabled:focus {
+      background-color: var(--color-primary-50);
+      opacity: 1;
+    }
+  }
+
+  .react-calendar__month-view__days__day--neighboringMonth {
     opacity: 0.25;
   }
 
-  &.today {
-    font-weight: 700;
+  .react-calendar__tile--now {
+    background: none;
     opacity: 0.8;
   }
+
+  .react-calendar__tile--now:enabled:hover,
+  .react-calendar__tile--now:enabled:focus {
+    background-color: var(--color-primary-50);
+  }
+
+  // Disable default active styling (multi-select uses custom class)
+  .react-calendar__tile--active {
+    background: none;
+    color: var(--color-text-primary);
+  }
+
+  .react-calendar__tile--active:enabled:hover,
+  .react-calendar__tile--active:enabled:focus {
+    background-color: var(--color-primary-50);
+  }
+
+  .react-calendar__year-view .react-calendar__tile,
+  .react-calendar__decade-view .react-calendar__tile,
+  .react-calendar__century-view .react-calendar__tile {
+    aspect-ratio: auto;
+  }
+}
+
+// Custom selected state for multi-date toggle — matches Figma #4880ff
+.reactCalendarSelected {
+  background-color: var(--color-primary-500) !important;
+  color: #fff !important;
+  opacity: 1 !important;
 }
 
 .noteText {

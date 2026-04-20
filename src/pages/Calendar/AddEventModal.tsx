@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Upload, X } from "lucide-react";
 import { cn } from "../../utils/cn";
+import DatePickerInput from "../../components/DatePickerInput";
 import ConfirmModal from "./ConfirmModal";
 import type { CalendarEvent, Participant } from "../../types/calendar";
 import styles from "./Calendar.module.scss";
@@ -480,12 +481,11 @@ export default function AddEventModal({
             <label htmlFor="event-start-date" className={styles.modalLabel}>
               {t("modal.startDate")}
             </label>
-            <input
+            <DatePickerInput
               id="event-start-date"
-              type="date"
               className={styles.modalInput}
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={setStartDate}
             />
           </div>
 
@@ -524,13 +524,12 @@ export default function AddEventModal({
             <label htmlFor="event-end-date" className={styles.modalLabel}>
               {t("modal.endDate")}
             </label>
-            <input
+            <DatePickerInput
               id="event-end-date"
-              type="date"
               className={styles.modalInput}
               value={endDate}
+              onChange={setEndDate}
               min={startDate || undefined}
-              onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
 

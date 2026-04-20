@@ -11,28 +11,24 @@ The FilterBar SHALL display as a horizontal segmented control with sections: fil
 - **WHEN** the theme changes between light, dark, and forest
 - **THEN** the filter bar segments update their background, border, and text colors via CSS custom properties
 
-### Requirement: Date filter with calendar popup
-The DateFilterPopup SHALL display a calendar popup with month navigation (prev/next), a 7-column day grid (S-M-T-W-T-F-S), multi-date toggle selection, today highlighting, adjacent month days with reduced opacity, and an "Apply Now" button. The popup SHALL maintain local state that syncs from parent on open.
+### Requirement: Date filter popup calendar grid
+The DateFilterPopup SHALL use `react-calendar` instead of a custom 42-cell grid for displaying the month view. The component SHALL preserve its existing external API: `isOpen`, `onClose`, `selectedDates`, and `onApply` props. Multi-date toggle selection, "Apply Now" button, and click-outside dismiss SHALL continue to work as before.
 
-#### Scenario: Calendar month navigation
-- **WHEN** a user clicks the next-month arrow
-- **THEN** the calendar advances to the next month, wrapping from December to January of the next year
+#### Scenario: Multi-date selection with react-calendar
+- **WHEN** user clicks a day tile in the DateFilterPopup
+- **THEN** the date toggles in the local selection (selected ↔ deselected), matching previous behavior
 
-#### Scenario: Multi-date selection
-- **WHEN** a user clicks multiple dates in the calendar
-- **THEN** each clicked date toggles its selected state (blue highlight) independently
+#### Scenario: Month navigation
+- **WHEN** user clicks react-calendar's built-in prev/next navigation arrows
+- **THEN** the calendar navigates to the adjacent month, replacing the custom prev/next buttons
 
-#### Scenario: Apply date filter
-- **WHEN** a user selects dates and clicks "Apply Now"
-- **THEN** the selected dates are committed to the parent filter state and the popup closes
+#### Scenario: Apply selected dates
+- **WHEN** user clicks "Apply Now"
+- **THEN** the selected dates are passed to `onApply` and the popup closes, same as before
 
-#### Scenario: Today highlighting
-- **WHEN** the calendar displays the current month
-- **THEN** today's date is visually distinguished with bold font weight and higher opacity
-
-#### Scenario: Adjacent month days
-- **WHEN** the calendar renders
-- **THEN** trailing days from the previous month and leading days from the next month display with reduced opacity (0.25)
+#### Scenario: Today highlight
+- **WHEN** today's date is visible in the grid
+- **THEN** it is visually highlighted by react-calendar's built-in today styling
 
 #### Scenario: Popup dismissal on outside click
 - **WHEN** a user clicks outside the calendar popup

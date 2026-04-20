@@ -748,3 +748,48 @@
     transform: translateX(20px);
   }
 }
+
+// ── Date Picker Popup ───────────────────────────────────────────────
+
+.datePickerWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.datePickerLabel {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.datePickerPopup {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  box-shadow: 0px 4px 42px 17px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+// ── react-calendar layout overrides (base theme in src/index.css) ───
+
+.datePickerPopup :global {
+  .react-calendar {
+    width: 320px;
+    padding: 12px;
+  }
+
+  .react-calendar__month-view__weekdays__weekday {
+    padding: 6px 0;
+  }
+}
