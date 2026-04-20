@@ -252,6 +252,8 @@ Use subagents when they add value. Not every change needs every agent.
 
 [OpenSpec](https://github.com/Fission-AI/OpenSpec) specs live in `openspec/`.
 
+**Archive maintenance:** When archive exceeds ~50 changes, sync all to main specs (`opsx:sync`), keep the 20 most recent, delete the rest. Git preserves the full history.
+
 **Existing specs** (update as you archive):
 
 <!-- 1. change-name — description -->

@@ -168,6 +168,10 @@ Use subagents when they add value. Not every change needs every agent.
 - Feature: `proposal-reviewer` → `unit-test-writer` → `react-frontend-specialist` → `code-reviewer`
 - New dependency: `security-reviewer` before installing → then proceed with implementation
 
+### Archive Maintenance
+
+When archive exceeds ~50 changes, sync all to main specs (`opsx:sync`), keep the 20 most recent archives, delete the rest. Git preserves the full history — use `git log -- openspec/changes/archive/` to recover old proposals if needed.
+
 ### Non-Code Actions (No Workflow Needed)
 
 - Pure questions or explanations ("what does X do?", "explain this code")

@@ -64,6 +64,10 @@ Claude dispatches work to specialized agents as needed:
 
 After a large change is done, Claude runs `/opsx:verify` to check implementation matches specs (completeness, correctness, coherence), then suggests `/opsx:archive` to preserve the specs for future reference. Verify won't block archive but surfaces issues worth addressing first.
 
+### Archive maintenance
+
+When archive exceeds ~50 changes, sync all to main specs, keep the 20 most recent archives, delete the rest. Git preserves the full history — use `git log -- openspec/changes/archive/` to recover old proposals if needed.
+
 ---
 
 ## Fixing a Bug

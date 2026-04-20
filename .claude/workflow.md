@@ -235,6 +235,10 @@ For large changes, use `/opsx:verify` before `/opsx:archive` to check implementa
 
 Verify won't block archive, but it surfaces issues worth addressing first.
 
+## Archive Maintenance
+
+When archive exceeds ~50 changes, sync all to main specs (`opsx:sync`), keep the 20 most recent archives, delete the rest. Git preserves the full history — use `git log -- openspec/changes/archive/` to recover old proposals if needed.
+
 ## When Requirements Change: Update vs. Start Fresh
 
 **Update the existing change when:**
