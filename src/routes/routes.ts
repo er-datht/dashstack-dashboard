@@ -15,6 +15,7 @@ export const ROUTES = {
   INVOICE: "/invoice",
   UI_ELEMENT: "/ui-element",
   TEAM: "/team",
+  ADD_TEAM: "/team/add",
   TABLE: "/table",
   SETTINGS: "/settings",
 } as const;

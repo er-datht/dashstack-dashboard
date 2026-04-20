@@ -20,6 +20,7 @@ const AddNewContact = lazy(() => import("../pages/Contact/AddNewContact"));
 const Invoice = lazy(() => import("../pages/Invoice"));
 const UiElement = lazy(() => import("../pages/UiElement"));
 const Team = lazy(() => import("../pages/Team"));
+const AddNewMember = lazy(() => import("../pages/Team/AddNewMember"));
 const Table = lazy(() => import("../pages/Table"));
 const Settings = lazy(() => import("../pages/Settings"));
 const Login = lazy(() => import("../pages/Login"));
@@ -64,6 +65,7 @@ export default function AppRoutes() {
             <Route path="invoice" element={<Invoice />} />
             <Route path="ui-element" element={<UiElement />} />
             <Route path="team" element={<Team />} />
+            <Route path="team/add" element={<AddNewMember />} />
             <Route path="table" element={<Table />} />
             <Route path="settings" element={<Settings />} />
           </Route>
