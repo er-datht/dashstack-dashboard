@@ -20,6 +20,7 @@
   "genderMale": "Male",
   "genderFemale": "Female",
   "genderOther": "Other",
+  "genderPlaceholder": "Select gender",
   "addNow": "Add Now",
   "fieldRequired": "This field is required",
   "invalidEmail": "Please enter a valid email address",

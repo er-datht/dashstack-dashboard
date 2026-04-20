@@ -63,3 +63,13 @@ export const SUCCESS_MESSAGES = {
 
 // Pagination
 export const PAGINATION_DEFAULT = 50;
+
+// Date Picker Constraints
+export const DOB_MIN_DATE = "1900-01-01";
+export const TODAY_DATE = (() => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+})();

@@ -1,5 +1,8 @@
+import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import ReactCalendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 import { cn } from "../../utils/cn";
 import type { ViewMode } from "./calendarUtils";
 import styles from "./Calendar.module.scss";
@@ -11,6 +14,8 @@ type CalendarHeaderProps = {
   onNext: () => void;
   onToday: () => void;
   label: string;
+  currentDate: Date;
+  onDateSelect: (date: Date) => void;
 };
 
 function getAriaLabel(viewMode: ViewMode, direction: "previous" | "next", t: (key: string) => string): string {
@@ -30,8 +35,43 @@ export default function CalendarHeader({
   onNext,
   onToday,
   label,
+  currentDate,
+  onDateSelect,
 }: CalendarHeaderProps): React.JSX.Element {
   const { t } = useTranslation("calendar");
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  // Click-outside dismiss
+  useEffect(() => {
+    if (!isPickerOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setIsPickerOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [isPickerOpen]);
+
+  // Escape key dismiss
+  useEffect(() => {
+    if (!isPickerOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsPickerOpen(false);
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [isPickerOpen]);
+
+  const handleDateChange = (value: unknown) => {
+    if (value instanceof Date) {
+      onDateSelect(value);
+      setIsPickerOpen(false);
+    }
+  };
 
   return (
     <div className="flex justify-between items-center pt-[18px] px-[18px]">
@@ -64,9 +104,28 @@ export default function CalendarHeader({
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <span className="font-bold text-2xl text-primary min-w-[200px] text-center">
-          {label}
-        </span>
+
+        {/* Clickable date label with picker */}
+        <div className={styles.datePickerWrapper} ref={pickerRef}>
+          <button
+            type="button"
+            className={cn(styles.datePickerLabel, "font-bold text-2xl text-primary min-w-[200px] text-center")}
+            onClick={() => setIsPickerOpen((prev) => !prev)}
+          >
+            {label}
+          </button>
+
+          {isPickerOpen && (
+            <div className={styles.datePickerPopup}>
+              <ReactCalendar
+                value={currentDate}
+                onChange={handleDateChange}
+                locale={undefined}
+              />
+            </div>
+          )}
+        </div>
+
         <button
           type="button"
           onClick={onNext}

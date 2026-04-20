@@ -93,6 +93,13 @@ The mock event data SHALL include events with time-of-day information (hours and
 - **WHEN** the calendar loads with mock data
 - **THEN** both all-day events (in the all-day row) and timed events (in the time grid) are visible in Day and Week views
 
+### Requirement: CalendarHeader receives date and selection callback
+CalendarHeader SHALL accept `currentDate: Date` and `onDateSelect: (date: Date) => void` props in addition to existing props. The parent Calendar page SHALL pass `currentDate` and a handler that calls `setCurrentDate` to CalendarHeader.
+
+#### Scenario: Parent passes date props to header
+- **WHEN** the Calendar page renders CalendarHeader
+- **THEN** it passes the current `currentDate` state and an `onDateSelect` callback that updates `currentDate`
+
 ### Requirement: i18n translations for new UI elements
 Translation files (en/jp) SHALL include new keys for: navigation ARIA labels per view (previousDay, nextDay, previousWeek, nextWeek), all-day row label, and time format patterns.
 

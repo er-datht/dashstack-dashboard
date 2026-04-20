@@ -17,6 +17,8 @@ describe('CalendarHeader', () => {
     onNext: vi.fn(),
     onToday: vi.fn(),
     label: 'April 2026',
+    currentDate: new Date(2026, 3, 20),
+    onDateSelect: vi.fn(),
   }
 
   describe('rendering', () => {

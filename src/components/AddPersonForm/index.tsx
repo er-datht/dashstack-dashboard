@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Camera, X, Loader2, ChevronDown, Check } from "lucide-react";
 import { cn } from "../../utils/cn";
+import DatePickerInput from "../DatePickerInput";
+import { DOB_MIN_DATE, TODAY_DATE } from "../../constants/common";
 
 const MAX_PHOTO_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_IMAGE_TYPES = [
@@ -41,7 +43,7 @@ export default function AddPersonForm({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
-  const [gender, setGender] = useState("male");
+  const [gender, setGender] = useState("");
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -87,7 +89,9 @@ export default function AddPersonForm({
   };
 
   const isValidImageFile = (file: File): boolean => {
-    return ALLOWED_IMAGE_TYPES.includes(file.type) && file.size <= MAX_PHOTO_SIZE;
+    return (
+      ALLOWED_IMAGE_TYPES.includes(file.type) && file.size <= MAX_PHOTO_SIZE
+    );
   };
 
   const showToast = (message: string) => {
@@ -170,9 +174,10 @@ export default function AddPersonForm({
     { value: "other", labelKey: "genderOther" },
   ];
 
-  const selectedGenderLabel = t(
-    genderOptions.find((g) => g.value === gender)?.labelKey ?? "genderMale"
-  );
+  const selectedGenderOption = genderOptions.find((g) => g.value === gender);
+  const selectedGenderLabel = selectedGenderOption
+    ? t(selectedGenderOption.labelKey)
+    : null;
 
   const inputBaseClasses =
     "bg-surface-muted border border-default rounded text-primary p-2.5 w-full outline-none";
@@ -188,9 +193,7 @@ export default function AddPersonForm({
       )}
 
       {/* Page heading */}
-      <h1 className="text-primary font-bold text-[32px] mb-6">
-        {t(titleKey)}
-      </h1>
+      <h1 className="text-primary font-bold text-[32px] mb-6">{t(titleKey)}</h1>
 
       {/* Card */}
       <div className="card p-8">
@@ -201,7 +204,7 @@ export default function AddPersonForm({
               "w-24 h-24 rounded-full flex items-center justify-center overflow-hidden cursor-pointer transition-colors",
               isDragging
                 ? "bg-surface-muted border-2 border-solid border-primary"
-                : "bg-surface-muted border-2 border-dashed border-default"
+                : "bg-surface-muted border-2 border-dashed border-default",
             )}
             onClick={handleUploadClick}
             onDragOver={handleDragOver}
@@ -283,7 +286,9 @@ export default function AddPersonForm({
                 [inputErrorClasses]: errors.firstName,
               })}
               aria-invalid={errors.firstName ? "true" : undefined}
-              aria-describedby={errors.firstName ? "firstName-error" : undefined}
+              aria-describedby={
+                errors.firstName ? "firstName-error" : undefined
+              }
             />
             {errors.firstName && (
               <p id="firstName-error" className="text-error text-sm mt-1">
@@ -395,19 +400,14 @@ export default function AddPersonForm({
             >
               {t("dateOfBirth")}
             </label>
-            <input
+            <DatePickerInput
               id="dateOfBirth"
-              type="text"
               value={dateOfBirth}
+              onChange={setDateOfBirth}
               placeholder={t("dateOfBirthPlaceholder")}
-              onFocus={(e) => {
-                e.target.type = "date";
-              }}
-              onBlur={(e) => {
-                if (!e.target.value) e.target.type = "text";
-              }}
-              onChange={(e) => setDateOfBirth(e.target.value)}
               className={inputBaseClasses}
+              min={DOB_MIN_DATE}
+              max={TODAY_DATE}
             />
           </div>
 
@@ -428,10 +428,16 @@ export default function AddPersonForm({
                 aria-expanded={isGenderOpen}
                 className={cn(
                   inputBaseClasses,
-                  "flex items-center justify-between cursor-pointer text-left"
+                  "flex items-center justify-between cursor-pointer text-left",
                 )}
               >
-                <span>{selectedGenderLabel}</span>
+                <span
+                  className={cn({
+                    "text-tertiary opacity-60": !selectedGenderLabel,
+                  })}
+                >
+                  {selectedGenderLabel ?? t("genderPlaceholder")}
+                </span>
                 <ChevronDown
                   className="w-5 h-5 text-secondary transition-transform duration-200"
                   style={{
@@ -447,7 +453,7 @@ export default function AddPersonForm({
                   className={cn(
                     "absolute left-0 right-0 top-full mt-1 rounded-xl shadow-lg z-50",
                     "bg-usermenu-bg border border-usermenu-border",
-                    "animate-usermenu-enter overflow-hidden"
+                    "animate-usermenu-enter overflow-hidden",
                   )}
                 >
                   {genderOptions.map((option, index) => (
@@ -467,7 +473,7 @@ export default function AddPersonForm({
                         {
                           "rounded-t-xl": index === 0,
                           "rounded-b-xl": index === genderOptions.length - 1,
-                        }
+                        },
                       )}
                     >
                       {gender === option.value && (
@@ -492,7 +498,7 @@ export default function AddPersonForm({
             disabled={isSaving}
             className={cn(
               "bg-primary text-on-primary hover-bg-primary-dark rounded-lg font-bold text-xl px-16 py-3 transition-colors",
-              "disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+              "disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2",
             )}
           >
             {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}

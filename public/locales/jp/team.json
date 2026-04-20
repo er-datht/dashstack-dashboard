@@ -20,6 +20,7 @@
   "genderMale": "男性",
   "genderFemale": "女性",
   "genderOther": "その他",
+  "genderPlaceholder": "性別を選択",
   "addNow": "追加する",
   "fieldRequired": "この項目は必須です",
   "invalidEmail": "有効なメールアドレスを入力してください",
