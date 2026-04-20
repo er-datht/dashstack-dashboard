@@ -61,11 +61,11 @@ The page SHALL use a static array of at least 18 mock contacts conforming to the
 - **THEN** each entry conforms to the `Contact` type from `src/types/contact.ts`
 
 ### Requirement: Add New Contact button behavior
-The "Add New Contact" button SHALL display as a primary/blue styled button. When clicked, it SHALL show a "Coming soon" toast notification.
+The "Add New Contact" button SHALL display as a primary/blue styled button. When clicked, it SHALL navigate to the `/contact/add` route using React Router's `useNavigate`.
 
 #### Scenario: Add New Contact click
 - **WHEN** user clicks the "Add New Contact" button
-- **THEN** a "Coming soon" toast notification appears
+- **THEN** the app navigates to the `/contact/add` route
 
 ### Requirement: Message button behavior
 The "Message" button on each contact card SHALL display with a `Mail` icon. When clicked, it SHALL navigate to the `/inbox` route using React Router.

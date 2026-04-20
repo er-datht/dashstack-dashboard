@@ -12,11 +12,11 @@ describe('Settings', () => {
 
     it('renders all 5 form field labels', () => {
       render(<Settings />)
-      expect(screen.getByText('siteName')).toBeInTheDocument()
-      expect(screen.getByText('copyright')).toBeInTheDocument()
-      expect(screen.getByText('seoTitle')).toBeInTheDocument()
-      expect(screen.getByText('seoKeywords')).toBeInTheDocument()
-      expect(screen.getByText('seoDescription')).toBeInTheDocument()
+      expect(screen.getByText(/siteName/)).toBeInTheDocument()
+      expect(screen.getByText(/copyright/)).toBeInTheDocument()
+      expect(screen.getByText(/seoTitle/)).toBeInTheDocument()
+      expect(screen.getByText(/seoKeywords/)).toBeInTheDocument()
+      expect(screen.getByText(/seoDescription/)).toBeInTheDocument()
     })
 
     it('renders uploadLogo text', () => {
@@ -35,14 +35,14 @@ describe('Settings', () => {
   describe('form interaction', () => {
     it('allows typing in text inputs', () => {
       render(<Settings />)
-      const siteNameInput = screen.getByLabelText('siteName')
+      const siteNameInput = screen.getByLabelText(/siteName/)
       fireEvent.change(siteNameInput, { target: { value: 'My Site' } })
       expect(siteNameInput).toHaveValue('My Site')
     })
 
     it('allows typing in the seoDescription textarea', () => {
       render(<Settings />)
-      const textarea = screen.getByLabelText('seoDescription')
+      const textarea = screen.getByLabelText(/seoDescription/)
       fireEvent.change(textarea, {
         target: { value: 'A description of the site' },
       })
@@ -120,10 +120,10 @@ describe('Settings', () => {
       fireEvent.click(saveButton)
 
       await waitFor(() => {
-        const siteNameInput = screen.getByLabelText('siteName')
-        const copyrightInput = screen.getByLabelText('copyright')
-        const seoTitleInput = screen.getByLabelText('seoTitle')
-        const seoKeywordsInput = screen.getByLabelText('seoKeywords')
+        const siteNameInput = screen.getByLabelText(/siteName/)
+        const copyrightInput = screen.getByLabelText(/copyright/)
+        const seoTitleInput = screen.getByLabelText(/seoTitle/)
+        const seoKeywordsInput = screen.getByLabelText(/seoKeywords/)
 
         // SPEC: assumed required fields show aria-invalid="true" on validation failure
         expect(siteNameInput).toHaveAttribute('aria-invalid', 'true')
@@ -140,7 +140,7 @@ describe('Settings', () => {
       fireEvent.click(saveButton)
 
       await waitFor(() => {
-        const seoDescInput = screen.getByLabelText('seoDescription')
+        const seoDescInput = screen.getByLabelText(/seoDescription/)
         expect(seoDescInput).not.toHaveAttribute('aria-invalid', 'true')
       })
     })
@@ -151,16 +151,16 @@ describe('Settings', () => {
       render(<Settings />)
 
       // Fill required fields
-      fireEvent.change(screen.getByLabelText('siteName'), {
+      fireEvent.change(screen.getByLabelText(/siteName/), {
         target: { value: 'My Site' },
       })
-      fireEvent.change(screen.getByLabelText('copyright'), {
+      fireEvent.change(screen.getByLabelText(/copyright/), {
         target: { value: '2026 My Company' },
       })
-      fireEvent.change(screen.getByLabelText('seoTitle'), {
+      fireEvent.change(screen.getByLabelText(/seoTitle/), {
         target: { value: 'My SEO Title' },
       })
-      fireEvent.change(screen.getByLabelText('seoKeywords'), {
+      fireEvent.change(screen.getByLabelText(/seoKeywords/), {
         target: { value: 'dashboard, admin' },
       })
 
@@ -177,16 +177,16 @@ describe('Settings', () => {
       render(<Settings />)
 
       // Fill required fields
-      fireEvent.change(screen.getByLabelText('siteName'), {
+      fireEvent.change(screen.getByLabelText(/siteName/), {
         target: { value: 'My Site' },
       })
-      fireEvent.change(screen.getByLabelText('copyright'), {
+      fireEvent.change(screen.getByLabelText(/copyright/), {
         target: { value: '2026 My Company' },
       })
-      fireEvent.change(screen.getByLabelText('seoTitle'), {
+      fireEvent.change(screen.getByLabelText(/seoTitle/), {
         target: { value: 'My SEO Title' },
       })
-      fireEvent.change(screen.getByLabelText('seoKeywords'), {
+      fireEvent.change(screen.getByLabelText(/seoKeywords/), {
         target: { value: 'dashboard, admin' },
       })
 

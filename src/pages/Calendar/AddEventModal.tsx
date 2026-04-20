@@ -430,7 +430,7 @@ export default function AddEventModal({
           {/* Event Title */}
           <div>
             <label htmlFor="event-title" className={styles.modalLabel}>
-              {t("modal.eventTitle")}
+              {t("modal.eventTitle")} <span className="text-error">*</span>
             </label>
             <input
               id="event-title"

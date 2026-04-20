@@ -19,9 +19,10 @@ vi.mock('../contactData', () => ({
   mockContacts: createMockContacts(18),
 }))
 
-// Mock react-router-dom so ContactCard's useNavigate resolves
+// Mock react-router-dom so ContactCard's and Contact's useNavigate resolves
+const mockNavigate = vi.fn()
 vi.mock('react-router-dom', () => ({
-  useNavigate: () => vi.fn(),
+  useNavigate: () => mockNavigate,
 }))
 
 describe('Contact', () => {
@@ -114,7 +115,7 @@ describe('Contact', () => {
   })
 
   describe('interactions', () => {
-    it('shows "Coming soon" toast when "Add New Contact" is clicked', () => {
+    it('navigates to Add New Contact page when button is clicked', () => {
       render(<Contact />)
 
       const addButton = screen.getByRole('button', {
@@ -122,14 +123,7 @@ describe('Contact', () => {
       })
       fireEvent.click(addButton)
 
-      // SPEC: toast shows "Coming soon" — using the same toast key pattern as NotificationDropdown
-      expect(screen.getByText(/comingSoon/i)).toBeInTheDocument()
-    })
-
-    it('does not show toast before any button is clicked', () => {
-      render(<Contact />)
-
-      expect(screen.queryByText(/comingSoon/i)).not.toBeInTheDocument()
+      expect(mockNavigate).toHaveBeenCalledWith('/contact/add')
     })
   })
 })
