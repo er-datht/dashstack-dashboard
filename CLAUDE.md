@@ -112,46 +112,38 @@ i18next + react-i18next. Config at **project root** `i18n.ts` (not in `src/`). T
 
 ## Workflow
 
-### Auto-Trigger Rules
+### Principles
 
-**MANDATORY**: When the user prompts with ANY action that implies a code change — including but not limited to "implement", "fix", "handle", "build", "add", "create", "update", "refactor", "resolve", "change", "remove", "delete", "move", "rename", "optimize", "improve" — you MUST follow this workflow automatically:
+The workflow follows four OpenSpec principles:
 
-1. **Context first** — Before anything else, review existing specs (`openspec/specs/`) and archived changes (`openspec/changes/archive/`) relevant to the area being changed. Summarize findings (data models, component contracts, patterns, edge cases, prior decisions) to inform the proposal. Also check active changes (`openspec/changes/`) for overlap.
-2. **Propose** — Invoke the `opsx:propose` skill with the user's description plus context findings to generate proposal, design, specs, and tasks before writing any code.
-3. **Review proposal** — Launch the `proposal-reviewer` subagent to validate artifacts, exhaustively question the user on every ambiguity and unstated assumption, and refine the proposal before implementation. The reviewer will ask as many questions as needed (multi-round Q&A) to prevent hallucinated requirements.
-4. **STOP and wait for user** — After the proposal review completes, present a summary of the artifacts (proposal, design, specs, tasks) and **stop**. Do NOT proceed to implementation automatically. Tell the user: "Run `/opsx:apply` when you're ready to implement." The user must explicitly type `/opsx:apply` to start the apply phase. This gives the user a chance to review, adjust, or reject the proposal before any code is written.
-5. **Apply with agent pipeline** — Only when the user invokes `/opsx:apply`, implement tasks. During apply, you MUST use the specialized subagents defined below (see **Mandatory Subagent Usage**). Never implement tasks inline — always dispatch to the appropriate Agent.
-6. **Archive when done** — Suggest `opsx:archive` once all tasks are complete. **When archiving, always update the "Existing specs" list in this file** — append a new numbered entry with the change name and a brief description.
+- **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense for the change at hand.
+- **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point — a proposal written before reading the code may need to change after.
+- **Easy not complex** — Scale process to the change. A one-line fix doesn't need the same ceremony as a new feature. Start working immediately; add structure only when it earns its keep.
+- **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify *deltas* — not green-field descriptions.
 
-**No exceptions for small changes.** Even trivial fixes (typos, renames, one-line changes) go through the full propose → apply → archive cycle.
+### Right-Sizing the Process
 
-**Only skip the workflow for non-code actions:**
-- Pure questions or explanations ("what does X do?", "explain this code")
-- Non-code tasks (git operations, running dev server, config lookups, reading files)
-- When the user explicitly invokes a specific `/opsx:` command directly (follow that command instead)
+Match the process to the change. Use judgment, not a checklist.
 
-### Mandatory Subagent Usage
+**Small changes** (typos, renames, one-line fixes, simple styling tweaks):
+- Read the relevant code, make the change, verify it works (`yarn build`, `yarn test`).
+- Use `react-frontend-specialist` for implementation if it involves UI logic. Use `code-reviewer` if the change is subtle or risky.
+- OpenSpec proposal is optional — skip it if the change is obvious and self-contained.
 
-During the **apply** phase, you MUST use the Agent tool with these specialized `subagent_type` values — do NOT implement code changes yourself:
+**Medium changes** (new component, bug fix spanning multiple files, refactor):
+- Review existing specs and code first to understand context.
+- Use `opsx:propose` to plan the change. Review the proposal yourself or with `proposal-reviewer` if there are ambiguities to clarify with the user.
+- Implement with `react-frontend-specialist`. Write tests with `unit-test-writer` when the change produces testable units.
+- Run `code-reviewer` on the result.
 
-1. **`proposal-reviewer`** (Proposal quality gate) — Launch AFTER `opsx:propose` completes. Exhaustively questions the user to clarify every ambiguity, surfaces all implicit assumptions in generated artifacts, and asks for explicit confirmation before proceeding. Uses multi-round Q&A — never assumes or fills in gaps on its own. Do not proceed to implementation until the reviewer confirms the proposal is ready.
+**Large changes** (new page, new feature, cross-cutting refactor):
+- Full workflow: context review → `opsx:propose` → `proposal-reviewer` (clarify ambiguities with user) → present artifacts and wait for user approval → `unit-test-writer` → `react-frontend-specialist` → `code-reviewer` → `opsx:verify` → `opsx:archive`.
+- Use `opsx:verify` before archiving to validate implementation matches specs (completeness, correctness, coherence). It won't block archive but surfaces issues worth addressing first.
+- Update the "Existing specs" list below when archiving.
 
-2. **`unit-test-writer`** (TDD gate) — Launch FIRST during apply, before implementation. Reads specs, design, and tasks to write unit tests that define the behavioral contract. Only tests tasks that produce testable units (components, utilities, hooks) — skips config/routing/styling tasks. Uses a lean approach: happy path + key edge cases.
+### When to Use OpenSpec
 
-3. **`react-frontend-specialist`** (Implementation) — Launch AFTER unit-test-writer during apply. Implements code to make the tests pass. Handles all code implementation tasks: UI components, layouts, state management, API integration, bug fixes, refactoring, accessibility. Must run `yarn test` after each task and ensure tests pass. May fix minor test issues (import paths, slight type mismatches) inline; must flag major behavioral mismatches back to the spec.
-
-4. **`security-reviewer`** (Security gate) — Launch BEFORE any external trust action: installing packages (`yarn add`), fetching URLs, using web-searched code, or upgrading dependencies. Block implementation until verdict is `✅ allow` or user accepts `⚠️ ask`.
-
-5. **`code-reviewer`** (Final quality gate) — Launch LAST after implementation is complete. Provide the agent with the diff or list of changed files for review. Do not consider the task done until code review passes.
-
-**Sequencing rules:**
-- Simple feature/fix: `proposal-reviewer` → `unit-test-writer` → `react-frontend-specialist` → `code-reviewer`
-- Feature/fix needing new dependency: `proposal-reviewer` → `unit-test-writer` → `react-frontend-specialist` (plan) → `security-reviewer` → `react-frontend-specialist` (implement) → `code-reviewer`
-- Dependency-only change: `proposal-reviewer` → `security-reviewer` → `code-reviewer`
-
-**Never skip subagents.** Even for one-line changes, at minimum use `unit-test-writer` for tests, `react-frontend-specialist` for implementation, and `code-reviewer` for review.
-
-All code changes follow the spec-driven workflow defined in `.claude/workflow.md`, which combines OpenSpec planning with agent-based execution.
+Use `opsx:propose` when a change benefits from upfront planning — when there are design decisions to make, multiple files to coordinate, or behavior that should be specified before coding. Skip it when the change is obvious from context.
 
 **OpenSpec commands:**
 - `/opsx:propose "description"` — Plan a change (proposal, design, specs, tasks)
@@ -161,12 +153,26 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 
 [OpenSpec](https://github.com/Fission-AI/OpenSpec) specs live in `openspec/`.
 
-**Agent mapping for this project:**
-- **Proposal reviewer** → `proposal-reviewer`
-- **Unit test writer** → `unit-test-writer`
-- **Implementation specialist** → `react-frontend-specialist`
-- **Security reviewer** → `security-reviewer`
-- **Code reviewer** → `code-reviewer`
+### Available Subagents
+
+Use subagents when they add value. Not every change needs every agent.
+
+- **`proposal-reviewer`** — Validates proposal artifacts, asks clarifying questions. Use when the proposal has ambiguities or unstated assumptions worth surfacing before implementation.
+- **`unit-test-writer`** — Writes tests from specs before implementation (TDD). Use when the change produces testable units (components, hooks, utilities). Skip for config, routing, or pure styling changes.
+- **`react-frontend-specialist`** — Implements UI components, layouts, state, API integration, bug fixes, refactoring, accessibility. The primary implementation agent for this project.
+- **`security-reviewer`** — Reviews packages, URLs, and external code before trust. Always use before `yarn add`, fetching external URLs, or using web-searched code.
+- **`code-reviewer`** — Reviews the diff for quality, correctness, and best practices. Use after implementation, especially for non-trivial changes.
+
+**Typical sequences** (adapt as needed):
+- Small fix: `react-frontend-specialist` → done (or add `code-reviewer` if subtle)
+- Feature: `proposal-reviewer` → `unit-test-writer` → `react-frontend-specialist` → `code-reviewer`
+- New dependency: `security-reviewer` before installing → then proceed with implementation
+
+### Non-Code Actions (No Workflow Needed)
+
+- Pure questions or explanations ("what does X do?", "explain this code")
+- Git operations, running dev server, config lookups, reading files
+- When the user explicitly invokes a specific `/opsx:` command directly (follow that command instead)
 
 **Existing specs** (archived in `openspec/changes/archive/`):
 1. `core-architecture-build-system` — Vite 7 pipeline, React Compiler, TypeScript config, app bootstrap
@@ -203,12 +209,6 @@ All code changes follow the spec-driven workflow defined in `.claude/workflow.md
 32. `simplify-completed-todo-styling` — Partial revert of the three prior Todo changes: completed rows drop the blue background and instead inherit the card color keyed only on `starred` (white or yellow); completed checkbox reverts to filled-primary with white checkmark; text unified to `font-semibold .text-primary` + conditional `line-through`; star + `XCircle` delete restored on every row (no more always-visible trash); added forest-theme `.bg-warning-light` override in `src/index.css` using `color-mix(var(--color-warning-500) 15%, transparent)` for AA contrast.
 33. `contact-page` — Contact page: responsive 3-col card grid with avatar photos (User icon fallback), truncated name/email with tooltips, outlined Message button, Load More pagination (6 per batch), mock data (18 contacts), i18n (en/jp), toast on Add New Contact
 34. `contact-message-navigate-inbox` — Changed Contact card Message button from "Coming soon" toast to `useNavigate(ROUTES.INBOX)` navigation
-
-**Project notes:**
-- After proposal review, `unit-test-writer` runs first to create tests from specs (TDD)
-- `react-frontend-specialist` implements code to make tests pass; may fix minor test issues inline, must flag major mismatches
-- Package recommendations from web search go through `security-reviewer` first
-- Final sign-off goes through `code-reviewer`
 
 ## Common Gotchas
 

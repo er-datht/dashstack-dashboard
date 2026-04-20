@@ -1,46 +1,55 @@
 # Workflow
 
+## Principles
+
+- **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense for the change at hand.
+- **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point — a proposal written before reading the code may need to change after.
+- **Easy not complex** — Scale process to the change. A one-line fix doesn't need the same ceremony as a new feature. Start working immediately; add structure only when it earns its keep.
+- **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify *deltas* — not green-field descriptions.
+
 ## Overview
 
 This workflow combines two concerns:
 
-- **OpenSpec** governs the planning lifecycle: proposing, designing, specifying, and tasking changes before any code is written.
+- **OpenSpec** governs the planning lifecycle: proposing, designing, specifying, and tasking changes.
 - **Agent pipeline** governs execution: which agent handles what, in what order, during implementation.
 
 OpenSpec answers *what* to build. The agent pipeline answers *how* to build it.
 
-## OpenSpec: Spec-Driven Development
+## Right-Sizing the Process
 
-### Lifecycle
+Match the process to the change. Use judgment, not a checklist.
 
-All code changes follow five phases:
+**Small changes** (typos, renames, one-line fixes, simple styling tweaks):
+- Read the relevant code, make the change, verify it works.
+- Use the implementation specialist for logic changes. Use code reviewer if subtle or risky.
+- OpenSpec proposal is optional — skip it if the change is obvious and self-contained.
 
-1. **Context** — review existing specs (`openspec/specs/`) and archived changes (`openspec/changes/archive/`) to understand established patterns, decisions, and logic before planning anything.
-2. **Propose** — describe the change; generate proposal, design, specs, and tasks.
-3. **Review** — validate artifacts, identify gaps, ask clarifying questions, refine before implementation.
-4. **Apply** — implement the tasks (execution follows the agent pipeline below).
-5. **Archive** — finalize and archive the completed change.
+**Medium changes** (new component, bug fix spanning multiple files, refactor):
+- Review existing specs and code first to understand context.
+- Use `opsx:propose` to plan. Review with proposal reviewer if there are ambiguities.
+- Implement with the specialist. Write tests with unit test writer when testable.
+- Run code reviewer on the result.
 
-### Context Gathering (Phase 0)
+**Large changes** (new page, new feature, cross-cutting refactor):
+- Full workflow: context review → propose → proposal reviewer Q&A → wait for user approval → unit test writer → implementation specialist → code reviewer.
+- Archive with `opsx:archive` when done.
 
-Before proposing or implementing any change, you MUST review the existing knowledge base:
+## OpenSpec
 
-1. **Check main specs** (`openspec/specs/`) — Read specs relevant to the area being changed. These contain the authoritative definitions of how features work, their data models, component contracts, and integration points. Any new work must be consistent with these specs.
+### When to Use
 
-2. **Check archived changes** (`openspec/changes/archive/`) — Scan archived changes for prior decisions, edge cases handled, patterns established, and lessons learned in the same area. Archived changes contain the full history of *why* things were built a certain way.
+Use `opsx:propose` when a change benefits from upfront planning — when there are design decisions to make, multiple files to coordinate, or behavior that should be specified before coding. Skip it when the change is obvious from context.
 
-3. **Check active changes** (`openspec/changes/` excluding `archive/`) — Look for in-progress changes that may overlap or conflict with the new work.
+### Context Gathering
 
-**What to look for:**
-- Data models and type definitions that the new change must conform to
-- Component contracts and props interfaces that must be respected
-- Integration patterns (API calls, state management, routing) already established
-- Edge cases, error states, and loading states already handled
-- i18n keys and translation patterns already in use
-- Theme support patterns already implemented
-- Design decisions and trade-offs documented in proposals
+Before proposing or implementing non-trivial changes, review the existing knowledge base:
 
-**Output:** Summarize relevant findings before proceeding to the propose phase. If specs reveal constraints or patterns the change must follow, include them in the proposal context.
+1. **Main specs** (`openspec/specs/`) — authoritative feature definitions, data models, component contracts.
+2. **Archived changes** (`openspec/changes/archive/`) — prior decisions, edge cases, patterns, and lessons learned.
+3. **Active changes** (`openspec/changes/` excluding `archive/`) — in-progress work that may overlap.
+
+Look for: data models, component contracts, integration patterns, edge cases, i18n/theme patterns, and prior design decisions relevant to the change.
 
 ### Commands
 
@@ -49,15 +58,9 @@ Before proposing or implementing any change, you MUST review the existing knowle
 - `/opsx:archive [change-name]` — Archive a completed change
 - `/opsx:explore [topic]` — Think through ideas without implementing (read-only exploration mode)
 
-## Agent Pipeline: Execution During Apply
+## Available Agents
 
-### Agent Priority Order
-
-1. **Proposal reviewer after propose** — validates artifacts, identifies gaps, asks clarifying questions, and refines the proposal before any code is written.
-2. **Unit test writer first during apply** — writes tests from specs before implementation (TDD). Only for tasks that produce testable units.
-3. **Implementation specialist after tests** — implements code to make tests pass. Handles all UI, component, layout, state, and accessibility work. Runs `yarn test` after each task.
-4. **Security reviewer before external trust** — gates package installs, dependency changes, external URLs, and web-searched code.
-5. **Code reviewer last** — final quality gate before considering work done.
+Use agents when they add value. Not every change needs every agent.
 
 ### Agent Roles
 
@@ -191,125 +194,67 @@ Start here:
    Yes -> use code reviewer.
    No -> continue with the implementation path.
 
-## Integrated Workflows
+## Typical Sequences
 
-### Implementing a Task
+Adapt these to the change at hand — they're patterns, not mandates.
 
-1. **Review existing specs and archive first** — read relevant specs in `openspec/specs/` and archived changes in `openspec/changes/archive/` to understand established patterns, data models, and prior decisions that the new work must respect.
-2. After `opsx:propose` completes, launch the proposal reviewer to validate and refine artifacts.
-3. Once the proposal reviewer confirms readiness, proceed with `opsx:apply`.
-4. Launch the unit test writer to create tests from specs before any implementation begins.
-5. Understand the task and inspect local code first.
-6. If the task is frontend/UI work, use the implementation specialist to implement the change and make the tests pass.
-7. If implementation requires a new dependency, stop before installation and use the security reviewer.
-8. Only proceed with dependency installation if the security reviewer returns `allow`, or if the user explicitly accepts an `ask` result.
-9. Finish implementation. Ensure `yarn test` passes.
-10. Run code reviewer as the final review pass.
+**Small fix:**
+implementation specialist → done (add code reviewer if subtle)
 
-### Fixing a Bug
+**Feature (no new deps):**
+proposal reviewer → unit test writer → implementation specialist → code reviewer
 
-1. **Review existing specs and archive first** — read relevant specs in `openspec/specs/` and archived changes in `openspec/changes/archive/` to understand the original design intent and constraints before diagnosing the bug.
-2. After `opsx:propose` generates the fix proposal, launch the proposal reviewer to validate the diagnosis and planned fix.
-3. Once confirmed, proceed with `opsx:apply`.
-4. Launch the unit test writer to create regression tests from the bug spec (tests that reproduce the bug and verify the fix).
-5. Reproduce and understand the bug using local code and existing tools.
-6. If the bug is in UI, layout, state, rendering, or accessibility, use the implementation specialist to fix and make the tests pass.
-7. If the proposed fix involves upgrading, downgrading, or adding a dependency, use the security reviewer before making that change. (For bugs fixed entirely with existing local code, the security reviewer is not needed.)
-8. After the fix is implemented, ensure `yarn test` passes, then use code reviewer to look for regressions, missed edge cases, and production risks.
+**Feature with new package:**
+proposal reviewer → unit test writer → implementation specialist (plan) → security reviewer → implementation specialist (implement) → code reviewer
 
-### Common Sequences
+**Bug fix:**
+Size it — small bugs skip the proposal. For larger bugs: proposal reviewer → unit test writer (regression tests) → implementation specialist → code reviewer.
 
-**New feature without new dependencies:**
-1. Proposal reviewer
-2. Unit test writer
-3. Implementation specialist
-4. Code reviewer
-
-**New feature with a new package:**
-1. Proposal reviewer
-2. Unit test writer
-3. Implementation specialist for design and implementation planning
-4. Security reviewer before installing or trusting the package
-5. Implementation specialist to finish implementation
-6. Code reviewer for final review
-
-**Bug fix using existing code only:**
-1. Proposal reviewer
-2. Unit test writer
-3. Implementation specialist
-4. Code reviewer
-
-**Bug fix that likely needs a dependency upgrade:**
-1. Proposal reviewer
-2. Unit test writer
-3. Investigate locally first
-4. Security reviewer before any upgrade or replacement
-5. Implement the chosen fix
-6. Code reviewer
-
-**Web search for a library:**
-1. Proposal reviewer
-2. Security reviewer reviews candidate packages and URLs first
-3. Choose package only after review
-4. Unit test writer
-5. Implement with implementation specialist if the change is frontend
-6. Finish with code reviewer
+**New dependency:**
+security reviewer before installing → then proceed with implementation
 
 ## Stop Rules
 
-Pause and use the security reviewer immediately if:
+Always pause and use the **security reviewer** if:
+- about to run a package install command
+- about to fetch or run a remote script
+- found a package through web search
+- considering copying code from a third-party source
 
-- you are about to run a package install command (`yarn add`, `npm install`, `pnpm add`, `pip install`, `cargo add`, `brew install`, `go get`, `composer require`)
-- you are about to fetch or run a remote script
-- you found a package through web search and may use it
-- you are considering copying code from a third-party source
-
-Pause and use the code reviewer if:
-
+Consider using the **code reviewer** if:
 - the change is done but not reviewed
 - the fix touches auth, data flow, API boundaries, or production behavior
-- the change feels correct but risky
 
-## Checklist
+## Verify Before Archiving
 
-Before proposing:
+For large changes, use `/opsx:verify` before `/opsx:archive` to check implementation matches artifacts:
 
-- Did you review relevant specs in `openspec/specs/`?
-- Did you scan archived changes in `openspec/changes/archive/` for the same area?
-- Did you check for active changes in `openspec/changes/` that may overlap?
-- Did you summarize relevant findings to inform the proposal?
+- **Completeness** — All tasks done, all requirements implemented, scenarios covered.
+- **Correctness** — Implementation matches spec intent, edge cases handled.
+- **Coherence** — Design decisions reflected in code, patterns consistent.
 
-After proposing:
+Verify won't block archive, but it surfaces issues worth addressing first.
 
-- Did the proposal reviewer validate the artifacts?
-- Were all clarifying questions answered?
-- Did the proposal reviewer confirm readiness for apply?
+## When Requirements Change: Update vs. Start Fresh
 
-Before starting implementation:
+**Update the existing change when:**
+- Same intent, refined execution (e.g., "system preference detection is harder than expected")
+- Scope narrows to an MVP (ship what's done, rest becomes a new change)
+- Learning-driven corrections (codebase isn't what you expected)
+- Design tweaks based on implementation discoveries
 
-- Did the unit test writer create tests from the specs?
-- Is this a frontend task?
-- Does it require a new external dependency or URL?
-- Which agent should go first?
+**Start a new change when:**
+- Intent fundamentally changed (e.g., "add dark mode" → "add custom themes")
+- Scope exploded into different work entirely
+- Original change can be marked "done" standalone
+- Patching the artifacts would confuse more than clarify
 
-Before installing anything:
+When updating: revise the specs and remaining tasks to reflect the new requirement, then continue implementation from where it makes sense. Completed work that's still valid stays.
 
-- Did the security reviewer review the package or URL?
-- Was the verdict `allow` or user-approved after `ask`?
+When starting fresh: archive or discard the current change, then create a new one. The old artifacts become context — prior decisions, edge cases discovered, code already read. The new change doesn't restart from zero.
 
-Before finishing:
+## Guidelines
 
-- Do all tests pass (`yarn test`)?
-- Did the code reviewer review the final change?
-
-## Working Agreement
-
-- Do not skip the proposal reviewer after propose — it catches gaps before they become rework.
-- Do not skip the unit test writer before implementation — tests define the behavioral contract.
-- Do not use the unit test writer for non-testable tasks (config, routing, styling, i18n).
-- Do not use the security reviewer for ordinary local coding.
-- Do not skip the security reviewer when external trust is involved.
-- Do not treat the code reviewer as a replacement for implementation.
-- Do not treat the implementation specialist as a package trust reviewer.
-- Do not treat the proposal reviewer as a code reviewer — it reviews specs, not code.
+- Each agent has a specific role — don't use one as a substitute for another (e.g., proposal reviewer reviews specs, not code; security reviewer handles external trust, not local bugs).
 - The implementation specialist may fix minor test issues inline but must flag major behavioral mismatches back to the spec.
+- For non-testable tasks (config, routing, styling, i18n), skip the unit test writer.
