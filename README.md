@@ -248,7 +248,7 @@ export type Theme = "light" | "dark" | "forest" | "ocean";
 
 ### Complete Documentation
 
-For comprehensive theme system documentation including all design tokens, implementation patterns, and best practices, see **[themeSystem.md](./themeSystem.md)**.
+For comprehensive theme system documentation including all design tokens, implementation patterns, and best practices, see **[theme-system.md](./docs/theme-system.md)**.
 
 **Topics covered:**
 
@@ -365,8 +365,8 @@ Note: Use `configs/` (plural) as per actual directory for configuration modules.
 
 This project uses a spec-driven development workflow powered by [OpenSpec](https://github.com/Fission-AI/OpenSpec) and Claude Code subagents. Every code change follows: **propose** → **review** → **apply** → **archive**.
 
-- **[WORKFLOW-SETUP-GUIDE.md](./WORKFLOW-SETUP-GUIDE.md)** — Full step-by-step setup guide for any project
-- **[QUICK-WORKFLOW-SETUP.md](./QUICK-WORKFLOW-SETUP.md)** — 10-minute quick setup version
+- **[workflow-setup-guide.md](./docs/workflow-setup-guide.md)** — Full step-by-step setup guide for any project
+- **[quick-workflow-setup.md](./docs/quick-workflow-setup.md)** — 10-minute quick setup version
 
 OpenSpec specs and change history live in the `openspec/` directory.
 
