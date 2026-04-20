@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Users, Plus } from "lucide-react";
+import { Users } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { mockContacts } from "./contactData";
 import ContactCard from "./ContactCard";
@@ -49,13 +49,12 @@ export default function Contact(): React.JSX.Element {
         <button
           onClick={handleShowComingSoon}
           className={cn(
-            "flex items-center gap-2 px-4 py-2 rounded-lg",
-            "bg-primary-600 text-white text-sm font-medium",
-            "hover:bg-primary-700 transition-colors duration-150",
+            "flex items-center gap-2 px-6 py-2.5 rounded-lg",
+            "bg-primary text-on-primary font-medium",
+            "hover:opacity-90 transition-opacity duration-150",
             "cursor-pointer"
           )}
         >
-          <Plus className="w-4 h-4" />
           {t("contact:addNewContact")}
         </button>
       </div>
