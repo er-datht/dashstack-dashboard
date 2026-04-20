@@ -6,7 +6,7 @@ Set up the OpenSpec + Agent Pipeline workflow in any project in ~10 minutes.
 
 A principles-based workflow that scales to the change:
 
-- **Small changes** — read code, fix it, verify. No proposal needed.
+- **Small changes** — brief proposal, read code, fix it, verify.
 - **Medium changes** — propose, implement with agents, review.
 - **Large changes** — full cycle: propose, reviewer Q&A, approval gate, TDD, implement, review, archive.
 
@@ -182,7 +182,7 @@ Replace `<your-specialist>` below:
 
 ## Right-Sizing
 
-- **Small** (one-line fix, typo): Read code, fix, verify. Skip proposal.
+- **Small** (one-line fix, typo): Brief proposal, read code, fix, verify.
 - **Medium** (multi-file bug fix, new component): Propose, implement with agents, review.
 - **Large** (new page, cross-cutting feature): Full cycle with proposal review, TDD, verify, and archiving.
 
@@ -196,7 +196,7 @@ Replace `<your-specialist>` below:
 
 ## Typical Sequences (adapt as needed)
 
-- Small fix: `<your-specialist>` → done
+- Small fix: propose (brief) → `<your-specialist>` → done
 - Feature: `proposal-reviewer` → `unit-test-writer` → `<your-specialist>` → `code-reviewer`
 - Large feature: ... → `code-reviewer` → `opsx:verify` → `opsx:archive`
 - New dependency: `security-reviewer` before installing → then proceed
@@ -218,15 +218,15 @@ Append this to your `CLAUDE.md` (replace `<your-specialist>`):
 
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
-- **Easy not complex** — Scale process to the change. A one-line fix doesn't need the same ceremony as a new feature.
+- **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal — not the same ceremony as a new feature.
 - **Brownfield-first** — Read the code, understand what's there, then specify deltas.
 
 ### Right-Sizing the Process
 
 **Small changes** (typos, renames, one-line fixes):
+- Use `opsx:propose` to create a brief proposal (can be minimal for obvious changes).
 - Read the code, make the change, verify it works.
 - Use `<your-specialist>` for implementation if it involves logic. Use `code-reviewer` if subtle.
-- OpenSpec proposal is optional — skip it if the change is obvious.
 
 **Medium changes** (new component, multi-file bug fix, refactor):
 - Review existing specs and code first.
@@ -251,6 +251,8 @@ Use subagents when they add value. Not every change needs every agent.
 **Commands:** /opsx:propose, /opsx:apply, /opsx:archive, /opsx:explore
 
 [OpenSpec](https://github.com/Fission-AI/OpenSpec) specs live in `openspec/`.
+
+**Archive maintenance:** When archive exceeds ~50 changes, sync all to main specs (`opsx:sync`), keep the 20 most recent, delete the rest. Git preserves the full history.
 
 **Existing specs** (update as you archive):
 

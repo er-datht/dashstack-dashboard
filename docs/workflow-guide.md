@@ -31,16 +31,15 @@ Just say it naturally. Claude will read the relevant code and existing specs, th
 
 Based on scope, Claude picks one of three paths:
 
-**Small** (obvious, self-contained) — Reads the code, makes the change, verifies.
-No proposal needed. You see the result directly.
+**Small** (obvious, self-contained) — Creates a brief proposal, reads the code, makes the change, verifies.
 
 **Medium** (multiple files, some design decisions) — Creates a proposal with `/opsx:propose`, reviews it, then implements.
 
 **Large** (new page, new feature, cross-cutting) — Full cycle: proposal, reviewer Q&A with you, waits for your approval, then implements with tests and code review.
 
-### 3. Review the proposal (medium/large changes)
+### 3. Review the proposal
 
-For medium and large changes, Claude generates artifacts:
+Claude generates artifacts (scaled to the change — brief for small, thorough for large):
 
 - **Proposal** — What's being built and why
 - **Design** — How it fits into the existing architecture
@@ -65,6 +64,10 @@ Claude dispatches work to specialized agents as needed:
 
 After a large change is done, Claude runs `/opsx:verify` to check implementation matches specs (completeness, correctness, coherence), then suggests `/opsx:archive` to preserve the specs for future reference. Verify won't block archive but surfaces issues worth addressing first.
 
+### Archive maintenance
+
+When archive exceeds ~50 changes, sync all to main specs, keep the 20 most recent archives, delete the rest. Git preserves the full history — use `git log -- openspec/changes/archive/` to recover old proposals if needed.
+
 ---
 
 ## Fixing a Bug
@@ -79,7 +82,7 @@ Claude will:
 
 1. Read the relevant code to understand the current behavior
 2. Check if existing specs cover this area (prior decisions, edge cases)
-3. Size the fix — most bug fixes are small/medium and skip the full proposal
+3. Create a proposal (brief for small fixes, more thorough for complex bugs)
 4. Fix it, run tests, verify
 
 For hard-to-reproduce or subtle bugs, use `/opsx:explore` first to think through causes without changing code:
@@ -179,6 +182,6 @@ Every pivot builds on what was learned. The specs from the abandoned approach be
 - **Start simple.** Describe what you want in plain language. Add process only if Claude asks or if you want more control.
 - **Use `/opsx:explore` to think.** It's read-only — no code changes, no artifacts. Good for weighing options before committing to a direction.
 - **You control the pace.** Claude won't start implementing a large change until you say `/opsx:apply`. Review the proposal, ask questions, take your time.
-- **Small changes are fast.** Don't worry about "following the process" for a typo or a one-line fix. The workflow scales down automatically.
+- **Small changes are fast.** Every change gets a proposal, but a typo gets a one-line proposal. The workflow scales down automatically.
 - **Specs are living documents.** They capture decisions, not just requirements. When you change direction, the spec gets updated — it's a record of the current truth, not the original plan.
 - **Check existing specs.** Before asking for a feature, it helps to know what's already been built. Ask Claude "what specs exist for the calendar?" to see prior work.

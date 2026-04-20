@@ -37,14 +37,14 @@ This workflow combines two systems:
 
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
-- **Easy not complex** — Scale process to the change. A one-line fix doesn't need the same ceremony as a new feature.
+- **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal — not the same ceremony as a new feature.
 - **Brownfield-first** — Most work modifies existing systems. Read the code, understand what's there, specify deltas.
 
 **Process scales to the change:**
 
 ```
 Small change (typo, one-line fix):
-  Read code → fix → verify. No proposal needed.
+  Propose (brief) → read code → fix → verify.
 
 Medium change (new component, multi-file bug fix):
   Context review → propose → implement with agents → code review.
@@ -58,7 +58,7 @@ Large change (new page, cross-cutting feature):
 
 ```
 Small fix:
-  implementation-specialist → done (add code-reviewer if subtle)
+  propose (brief) → implementation-specialist → done (add code-reviewer if subtle)
 
 Feature:
   proposal-reviewer → unit-test-writer → implementation-specialist → code-reviewer
@@ -648,15 +648,15 @@ This file defines the integrated workflow — when to use which agent and in wha
 
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
-- **Easy not complex** — Scale process to the change. A one-line fix doesn't need the same ceremony as a new feature.
+- **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal — not the same ceremony as a new feature.
 - **Brownfield-first** — Read existing code first, then specify deltas — not green-field descriptions.
 
 ## Right-Sizing the Process
 
 **Small changes** (typos, renames, one-line fixes):
+- Use `opsx:propose` to create a brief proposal (can be minimal for obvious changes).
 - Read the code, make the change, verify it works.
 - Use implementation-specialist if it involves logic. Use code-reviewer if subtle or risky.
-- OpenSpec proposal is optional — skip it if the change is obvious.
 
 **Medium changes** (new component, multi-file bug fix, refactor):
 - Review existing specs and code first to understand context.
@@ -687,7 +687,7 @@ Use agents when they add value. Not every change needs every agent.
 
 ## Typical Sequences (adapt as needed)
 
-- Small fix: implementation-specialist → done (add code-reviewer if subtle)
+- Small fix: propose (brief) → implementation-specialist → done (add code-reviewer if subtle)
 - Feature: proposal-reviewer → unit-test-writer → implementation-specialist → code-reviewer
 - Large feature: ... → code-reviewer → `opsx:verify` → `opsx:archive`
 - New dependency: security-reviewer before installing → then proceed with implementation
@@ -700,6 +700,10 @@ For large changes, use `/opsx:verify` before `/opsx:archive` to check implementa
 - **Coherence** — Design decisions reflected in code
 
 Verify won't block archive, but it surfaces issues worth addressing first.
+
+## Archive Maintenance
+
+When archive exceeds ~50 changes, sync all to main specs (`opsx:sync`), keep the 20 most recent archives, delete the rest. Git preserves the full history — use `git log -- openspec/changes/archive/` to recover old proposals if needed.
 
 ## When Requirements Change
 
@@ -731,7 +735,7 @@ The workflow follows four OpenSpec principles:
 
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense for the change at hand.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point — a proposal written before reading the code may need to change after.
-- **Easy not complex** — Scale process to the change. A one-line fix doesn't need the same ceremony as a new feature. Start working immediately; add structure only when it earns its keep.
+- **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal — not the same ceremony as a new feature.
 - **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify *deltas* — not green-field descriptions.
 
 ### Right-Sizing the Process
@@ -739,9 +743,9 @@ The workflow follows four OpenSpec principles:
 Match the process to the change. Use judgment, not a checklist.
 
 **Small changes** (typos, renames, one-line fixes, simple styling tweaks):
+- Use `opsx:propose` to create a brief proposal (can be minimal for obvious changes).
 - Read the relevant code, make the change, verify it works.
 - Use `<implementation-specialist>` for implementation if it involves logic. Use `code-reviewer` if the change is subtle or risky.
-- OpenSpec proposal is optional — skip it if the change is obvious and self-contained.
 
 **Medium changes** (new component, bug fix spanning multiple files, refactor):
 - Review existing specs and code first to understand context.
@@ -756,7 +760,7 @@ Match the process to the change. Use judgment, not a checklist.
 
 ### When to Use OpenSpec
 
-Use `opsx:propose` when a change benefits from upfront planning — when there are design decisions to make, multiple files to coordinate, or behavior that should be specified before coding. Skip it when the change is obvious from context.
+Always use `opsx:propose` before implementing any change. The proposal scales to the change — a simple fix gets a brief proposal, a new feature gets a thorough one.
 
 **OpenSpec commands:**
 - `/opsx:propose "description"` — Plan a change (proposal, design, specs, tasks)
@@ -777,7 +781,7 @@ Use subagents when they add value. Not every change needs every agent.
 - **`code-reviewer`** — Reviews the diff for quality. Use after implementation, especially for non-trivial changes.
 
 **Typical sequences** (adapt as needed):
-- Small fix: `<implementation-specialist>` → done (or add `code-reviewer` if subtle)
+- Small fix: propose (brief) → `<implementation-specialist>` → done (or add `code-reviewer` if subtle)
 - Feature: `proposal-reviewer` → `unit-test-writer` → `<implementation-specialist>` → `code-reviewer`
 - New dependency: `security-reviewer` before installing → then proceed with implementation
 
