@@ -11,6 +11,7 @@ export const ROUTES = {
   CALENDAR: "/calendar",
   TODO: "/todo",
   CONTACT: "/contact",
+  ADD_CONTACT: "/contact/add",
   INVOICE: "/invoice",
   UI_ELEMENT: "/ui-element",
   TEAM: "/team",
