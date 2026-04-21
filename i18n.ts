@@ -36,6 +36,7 @@ i18n
       "calendar",
       "contact",
       "team",
+      "invoice",
     ],
     defaultNS: "common",
 
