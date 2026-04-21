@@ -1,0 +1,15 @@
+{
+  "title": "Invoice",
+  "invoiceFrom": "Invoice From :",
+  "invoiceTo": "Invoice To :",
+  "invoiceDate": "Invoice Date :",
+  "dueDate": "Due Date",
+  "serialNo": "Serial No.",
+  "description": "Description",
+  "quantity": "Quantity",
+  "baseCost": "Base Cost",
+  "totalCost": "Total Cost",
+  "total": "Total",
+  "send": "Send",
+  "comingSoon": "Coming soon"
+}

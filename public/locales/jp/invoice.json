@@ -1,0 +1,15 @@
+{
+  "title": "請求書",
+  "invoiceFrom": "請求元 :",
+  "invoiceTo": "請求先 :",
+  "invoiceDate": "請求日 :",
+  "dueDate": "支払期限",
+  "serialNo": "番号",
+  "description": "説明",
+  "quantity": "数量",
+  "baseCost": "単価",
+  "totalCost": "合計金額",
+  "total": "合計",
+  "send": "送信",
+  "comingSoon": "近日公開"
+}
