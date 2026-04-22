@@ -21,10 +21,10 @@ OpenSpec answers *what* to build. The agent pipeline answers *how* to build it.
 Match the process to the change. Use judgment, not a checklist.
 
 **Small changes** (typos, renames, one-line fixes, simple styling tweaks):
-- Quick requirements-analyst pass (may need zero questions for trivial changes).
+- `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions for trivial changes).
 - Use `opsx:propose` to create a brief proposal (can be minimal for obvious changes).
 - Read the relevant code, make the change, verify it works.
-- Use the implementation specialist for logic changes. Use code reviewer if subtle or risky.
+- Use the implementation specialist for logic changes.
 
 **Medium changes** (new component, bug fix spanning multiple files, refactor):
 - Review existing specs and code first to understand context.
@@ -204,7 +204,7 @@ Start here:
 Adapt these to the change at hand — they're patterns, not mandates.
 
 **Small fix:**
-requirements analyst (quick) → propose (brief) → implementation specialist → done (add code reviewer if subtle)
+requirements analyst (quick) → propose (brief) → implementation specialist → code reviewer → done
 
 **Feature (no new deps):**
 requirements analyst → propose → unit test writer → ⏸ wait for user → implementation specialist → code reviewer

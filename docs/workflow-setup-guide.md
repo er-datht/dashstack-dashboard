@@ -653,7 +653,7 @@ Right-size by shortening each stage, not by removing stages.
 ## Right-Sizing the Process
 
 **Small changes** (typos, renames, one-line fixes):
-- Full pipeline, minimal depth. Quick requirements-analyst pass (may need zero questions). Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
+- Full pipeline, minimal depth. `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions). Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
 
 **Medium changes** (new component, multi-file bug fix, refactor):
 - Full pipeline, normal depth. Do not skip `requirements-analyst` — it catches gaps before artifacts are generated.
@@ -741,7 +741,7 @@ Every change runs the same OpenSpec pipeline. Subagents are **mandatory at their
 9. `opsx:archive` — finalize; update the "Existing specs" list below
 
 **Small changes** (typos, renames, one-line fixes, simple styling tweaks):
-- Full pipeline, minimal depth. Quick requirements-analyst pass (may need zero questions). Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
+- Full pipeline, minimal depth. `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions). Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
 
 **Medium changes** (new component, bug fix spanning multiple files, refactor):
 - Full pipeline, normal depth. `requirements-analyst` and `code-reviewer` are never skipped.

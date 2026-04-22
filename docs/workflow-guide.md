@@ -45,7 +45,7 @@ requirements-analyst              (clarify requirements with the user FIRST)
 
 Depth per size:
 
-- **Small** (typo, one-line fix, styling tweak) — quick requirements-analyst pass (may need zero questions), brief proposal, quick code-reviewer pass. Skip `unit-test-writer` if no testable unit exists; skip `security-reviewer` if no deps/external code.
+- **Small** (typo, one-line fix, styling tweak) — `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions), brief proposal. Skip `unit-test-writer` if no testable unit exists; skip `security-reviewer` if no deps/external code.
 - **Medium** (new component, multi-file fix, refactor) — full pipeline, normal depth. `requirements-analyst` and `code-reviewer` are never skipped.
 - **Large** (new page, cross-cutting feature) — full pipeline, deep depth. `requirements-analyst` does thorough requirements gathering — **waits for your answers** before running `opsx:propose`. After pre-implementation stages complete, **always waits for you to trigger `opsx:apply`**.
 

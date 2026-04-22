@@ -141,7 +141,7 @@ Every change runs the same OpenSpec pipeline. Subagents are **mandatory at their
 
 **Small changes** (typos, renames, one-line fixes, simple styling tweaks):
 
-- Still run all applicable agents, but each pass is minimal: a quick requirements-analyst Q&A (may need zero questions for trivial changes), a one-line proposal, a short code-reviewer pass.
+- `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions for trivial changes), a one-line proposal, a short code-reviewer pass.
 - Skip `unit-test-writer` only if no testable unit is produced (pure styling, routing constants, config tweaks).
 - Skip `security-reviewer` only if the change touches no dependencies or external code.
 

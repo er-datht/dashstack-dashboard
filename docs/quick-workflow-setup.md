@@ -206,7 +206,7 @@ Right-size within this pipeline by shortening each stage, not by removing stages
 
 ## Right-Sizing
 
-- **Small** (one-line fix, typo, styling tweak): full pipeline, minimal depth. Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
+- **Small** (one-line fix, typo, styling tweak): full pipeline, minimal depth. `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions). Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
 - **Medium** (multi-file bug fix, new component): full pipeline, normal depth. `requirements-analyst` and `code-reviewer` are never skipped.
 - **Large** (new page, cross-cutting feature): full pipeline, deep depth. `requirements-analyst` does thorough requirements gathering — **wait for user answers** before running `opsx:propose`. **Always wait for user to trigger `opsx:apply`.**
 
