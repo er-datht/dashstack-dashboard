@@ -37,6 +37,7 @@ i18n
       "contact",
       "team",
       "invoice",
+      "inbox",
     ],
     defaultNS: "common",
 

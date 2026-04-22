@@ -1,0 +1,41 @@
+{
+  "title": "受信トレイ",
+  "compose": "+ 作成",
+  "myEmail": "マイメール",
+  "folders": {
+    "inbox": "受信トレイ",
+    "starred": "スター付き",
+    "sent": "送信済み",
+    "draft": "下書き",
+    "spam": "スパム",
+    "important": "重要",
+    "bin": "ゴミ箱"
+  },
+  "labels": {
+    "title": "ラベル",
+    "primary": "プライマリ",
+    "social": "ソーシャル",
+    "work": "仕事",
+    "friends": "友達",
+    "createNew": "+ 新しいラベルを作成"
+  },
+  "list": {
+    "search": "検索",
+    "showing": "{{start}}-{{end}} / {{total}}件表示中",
+    "selectMessage": "メッセージを選択",
+    "star": "スター"
+  },
+  "chat": {
+    "send": "送信",
+    "placeholder": "メッセージを入力...",
+    "comingSoon": "近日公開",
+    "back": "戻る",
+    "download": "ダウンロード",
+    "info": "情報",
+    "delete": "削除",
+    "moreOptions": "その他のオプション",
+    "voiceChat": "音声",
+    "attachment": "添付",
+    "image": "画像"
+  }
+}
