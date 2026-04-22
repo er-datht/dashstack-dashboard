@@ -4,19 +4,29 @@ Set up the OpenSpec + Agent Pipeline workflow in any project in ~10 minutes.
 
 ## What You Get
 
-A principles-based workflow that scales to the change:
+A principles-based workflow where every change runs the same pipeline — size only controls how deep each stage goes, never whether the stage runs.
 
-- **Small changes** — brief proposal, read code, fix it, verify.
-- **Medium changes** — propose, implement with agents, review.
-- **Large changes** — full cycle: propose, reviewer Q&A, approval gate, TDD, implement, review, archive.
+```
+requirements-analyst (clarify requirements FIRST) → opsx:propose →
+security-reviewer (if deps — ⛔ BLOCKS) →
+unit-test-writer (if testable) → ⏸ WAIT for user →
+opsx:apply (user-triggered) → code-reviewer →
+opsx:verify → opsx:archive
+```
 
-5 agents available (use when they add value):
+- **Small changes** — fast pass through every stage (quick reviewer pass, brief proposal, quick code review).
+- **Medium changes** — normal depth at every stage. `requirements-analyst` and `code-reviewer` are never skipped.
+- **Large changes** — deep pass, with thorough requirements gathering by `requirements-analyst` before `opsx:propose` runs.
 
-1. `proposal-reviewer` — validates plan, asks clarifying questions
-2. `unit-test-writer` — writes tests from specs before implementation (TDD)
-3. `<your-specialist>` — writes code to make tests pass (name varies by stack)
-4. `security-reviewer` — gates package installs
-5. `code-reviewer` — final quality check
+5 agents mapped to OpenSpec workflow stages:
+
+| Agent | OpenSpec Stage | Role | Skip when |
+|-------|---------------|------|-----------|
+| `requirements-analyst` | **Before** `opsx:propose` | Checks requirements, asks clarifying questions | Never |
+| `security-reviewer` | Before package install / external URL | **⛔ BLOCKING** — gates dependency additions and external code. All work pauses until safe. | No deps / no external code |
+| `unit-test-writer` | Before `opsx:apply` | Writes tests from specs (TDD) | No testable units (pure config/styling/docs) |
+| `<your-specialist>` | During `opsx:apply` | Writes code to make tests pass | No code surface |
+| `code-reviewer` | After `opsx:apply` | Final quality check — security, correctness, conventions | Never |
 
 ---
 
@@ -115,24 +125,24 @@ Lean coverage: happy path + key edge cases (3-5 tests per unit).
 Follow project test conventions. Never write implementation code.
 ```
 
-### Create `.claude/agents/proposal-reviewer.md`
+### Create `.claude/agents/requirements-analyst.md`
 
 ```markdown
 ---
-name: proposal-reviewer
-description: "Review OpenSpec artifacts for completeness, gaps, and clarity. Exhaustively questions the user to prevent hallucinated requirements. Use AFTER propose, BEFORE apply."
+name: requirements-analyst
+description: "Requirements analyst that runs BEFORE opsx:propose. Checks the user's description, explores the codebase for context, asks clarifying questions, and resolves all ambiguities so that opsx:propose generates correct artifacts the first time."
 tools: Read, Edit, Write, Glob, Grep, Bash, Skill, TaskCreate, TaskGet, TaskUpdate, TaskList
 model: opus
 color: green
 ---
 
-Review OpenSpec change artifacts (proposal, design, specs, tasks).
+Requirements analyst that runs BEFORE opsx:propose.
 Core principle: Ask, don't assume. Every gap is a question, not a decision.
-Exhaustively mine assumptions, ask multi-round clarifying questions,
-surface all implicit decisions in artifacts for user confirmation.
-Never invent requirements or fill in "reasonable defaults" silently.
-Validate completeness, consistency, feasibility. Report issues by severity.
-Confirm readiness for apply only after user explicitly confirms.
+Explore the codebase for context, exhaustively mine assumptions from
+the user's description, ask multi-round clarifying questions.
+Never let vague requirements pass through to opsx:propose.
+Produce a requirements summary that feeds directly into opsx:propose.
+Confirm readiness for propose only after user explicitly confirms.
 ```
 
 ### Create `.claude/agents/code-reviewer.md`
@@ -177,29 +187,38 @@ Replace `<your-specialist>` below:
 
 - **Fluid not rigid** — Create artifacts in any order that makes sense.
 - **Iterative not waterfall** — Revisit and revise at any point.
-- **Easy not complex** — Scale process to the change size.
+- **Easy not complex** — Scale *depth* to the change size, not which stages run.
 - **Brownfield-first** — Read existing code first, specify deltas.
+
+## The Pipeline (every change)
+
+1. `requirements-analyst` — check requirements, ask clarifying questions, resolve ambiguities BEFORE generating artifacts
+2. `opsx:propose` — create proposal + design + specs + tasks (from clarified requirements)
+3. `security-reviewer` — before any `yarn add` / external URL / web-sourced code (skip only if the change adds none). **⛔ BLOCKING: all work pauses until verdict is ✅ allow.**
+4. `unit-test-writer` — before `opsx:apply` when the change produces testable units
+5. **⏸ WAIT for user** — present findings, wait for user to trigger apply. Never auto-chain.
+6. `opsx:apply` via `<your-specialist>` — implementation (user-triggered)
+7. `code-reviewer` — review the diff
+8. `opsx:verify` — check implementation matches specs
+9. `opsx:archive` — finalize
+
+Right-size within this pipeline by shortening each stage, not by removing stages.
 
 ## Right-Sizing
 
-- **Small** (one-line fix, typo): Brief proposal, read code, fix, verify.
-- **Medium** (multi-file bug fix, new component): Propose, implement with agents, review.
-- **Large** (new page, cross-cutting feature): Full cycle with proposal review, TDD, verify, and archiving.
+- **Small** (one-line fix, typo, styling tweak): full pipeline, minimal depth. `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions). Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
+- **Medium** (multi-file bug fix, new component): full pipeline, normal depth. `requirements-analyst` and `code-reviewer` are never skipped.
+- **Large** (new page, cross-cutting feature): full pipeline, deep depth. `requirements-analyst` does thorough requirements gathering — **wait for user answers** before running `opsx:propose`. **Always wait for user to trigger `opsx:apply`.**
 
 ## Available Agents
 
-- `proposal-reviewer` — validates artifacts, asks clarifying questions
-- `unit-test-writer` — writes tests from specs before implementation (TDD)
-- `<your-specialist>` — implements code to make tests pass
-- `security-reviewer` — always use before package installs
-- `code-reviewer` — final quality check
-
-## Typical Sequences (adapt as needed)
-
-- Small fix: propose (brief) → `<your-specialist>` → done
-- Feature: `proposal-reviewer` → `unit-test-writer` → `<your-specialist>` → `code-reviewer`
-- Large feature: ... → `code-reviewer` → `opsx:verify` → `opsx:archive`
-- New dependency: `security-reviewer` before installing → then proceed
+| Agent | OpenSpec Stage | Skip when |
+|-------|---------------|-----------|
+| `requirements-analyst` | **Before** `opsx:propose` | Never |
+| `security-reviewer` | Before package install / external URL (**⛔ BLOCKS**) | No deps / no external code |
+| `unit-test-writer` | Before `opsx:apply` (TDD) | No testable units produced |
+| `<your-specialist>` | During `opsx:apply` | No code surface |
+| `code-reviewer` | After `opsx:apply` | Never |
 
 ## When Requirements Change
 
@@ -218,35 +237,43 @@ Append this to your `CLAUDE.md` (replace `<your-specialist>`):
 
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
-- **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal — not the same ceremony as a new feature.
+- **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal. Size scales depth, not which stages run.
 - **Brownfield-first** — Read the code, understand what's there, then specify deltas.
 
 ### Right-Sizing the Process
 
+Every change runs the same OpenSpec pipeline. Subagents are **mandatory at their stage** — size only affects how deep each agent goes, never whether the agent runs.
+
+**The pipeline (every change):**
+
+1. `opsx:propose` — create proposal + design + specs + tasks
+2. `requirements-analyst` — validate artifacts, surface ambiguities, ask clarifying questions
+3. `security-reviewer` — before any `yarn add` / external URL / web-sourced code (skip only if the change adds none). **⛔ BLOCKING: all work pauses until verdict is ✅ allow.**
+4. `unit-test-writer` — before `opsx:apply` when the change produces testable units (skip only for pure config/styling/docs)
+5. **⏸ WAIT for user** — present findings from steps 2–4 and wait for the user to explicitly trigger `opsx:apply`. Never auto-chain implementation.
+6. `opsx:apply` via `<your-specialist>` — implementation (user-triggered)
+7. `code-reviewer` — review the diff
+8. `opsx:verify` — validate implementation matches specs
+9. `opsx:archive` — finalize
+
 **Small changes** (typos, renames, one-line fixes):
-- Use `opsx:propose` to create a brief proposal (can be minimal for obvious changes).
-- Read the code, make the change, verify it works.
-- Use `<your-specialist>` for implementation if it involves logic. Use `code-reviewer` if subtle.
+- Still run every applicable agent, minimal depth. Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
 
 **Medium changes** (new component, multi-file bug fix, refactor):
-- Review existing specs and code first.
-- Use `opsx:propose` to plan. Review with `proposal-reviewer` if ambiguities exist.
-- Implement with `<your-specialist>`. Write tests with `unit-test-writer` when testable.
-- Run `code-reviewer` on the result.
+- Full pipeline, normal depth. Do not skip `requirements-analyst` — it catches gaps the author can't see.
 
 **Large changes** (new page, new feature, cross-cutting refactor):
-- Full workflow: context review → `opsx:propose` → `proposal-reviewer` → wait for user approval → `unit-test-writer` → `<your-specialist>` → `code-reviewer` → `opsx:verify` → `opsx:archive`.
-- Use `opsx:verify` before archiving to check implementation matches specs.
+- Full pipeline, deep depth. After `requirements-analyst` returns questions, present artifacts and **wait for user approval** before calling `unit-test-writer`. After pre-implementation stages complete, **always wait for user to trigger `opsx:apply`**.
 
 ### Available Subagents
 
-Use subagents when they add value. Not every change needs every agent.
-
-- `proposal-reviewer` — validates artifacts, asks clarifying questions
-- `unit-test-writer` — writes tests from specs before implementation (TDD)
-- `<your-specialist>` — implements code
-- `security-reviewer` — always use before package installs or external code
-- `code-reviewer` — reviews the diff after implementation
+| Agent | OpenSpec Stage | Skip when |
+|-------|---------------|-----------|
+| `requirements-analyst` | After `opsx:propose` | Never — even "obvious" proposals have gaps the author can't see |
+| `security-reviewer` | Before package install / external URL | Change adds no deps and no external code |
+| `unit-test-writer` | Before `opsx:apply` (TDD) | No testable units — pure config, routing, styling-only, docs |
+| `<your-specialist>` | During `opsx:apply` | No UI/code surface |
+| `code-reviewer` | After `opsx:apply` | Never |
 
 **Commands:** /opsx:propose, /opsx:apply, /opsx:archive, /opsx:explore
 
@@ -292,7 +319,7 @@ Open Claude Code and run `/opsx:onboard` for a guided test.
 | --------------------------------- | ----------------------- |
 | Implementation specialist agent   | 10 skill files          |
 | unit-test-writer (test conventions)| 11 command files       |
-| CLAUDE.md (agent names)           | proposal-reviewer agent |
+| CLAUDE.md (agent names)           | requirements-analyst agent |
 | workflow.md (agent names)         | code-reviewer agent     |
 | settings.local.json (build cmds)  |                         |
 | security-reviewer (approved pkgs) |                         |

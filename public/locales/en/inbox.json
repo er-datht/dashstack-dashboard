@@ -1,0 +1,41 @@
+{
+  "title": "Inbox",
+  "compose": "+ Compose",
+  "myEmail": "My Email",
+  "folders": {
+    "inbox": "Inbox",
+    "starred": "Starred",
+    "sent": "Sent",
+    "draft": "Draft",
+    "spam": "Spam",
+    "important": "Important",
+    "bin": "Bin"
+  },
+  "labels": {
+    "title": "Label",
+    "primary": "Primary",
+    "social": "Social",
+    "work": "Work",
+    "friends": "Friends",
+    "createNew": "+ Create New label"
+  },
+  "list": {
+    "search": "Search",
+    "showing": "Showing {{start}}-{{end}} of {{total}}",
+    "selectMessage": "Select message",
+    "star": "Star"
+  },
+  "chat": {
+    "send": "Send",
+    "placeholder": "Type a message...",
+    "comingSoon": "Coming soon",
+    "back": "Back",
+    "download": "Download",
+    "info": "Info",
+    "delete": "Delete",
+    "moreOptions": "More options",
+    "voiceChat": "Voice",
+    "attachment": "Attach",
+    "image": "Image"
+  }
+}

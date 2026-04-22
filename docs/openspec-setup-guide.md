@@ -520,27 +520,33 @@ The workflow follows four OpenSpec principles:
 
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense for the change at hand.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
-- **Easy not complex** — Scale process to the change. A one-line fix gets a one-line proposal — not the same ceremony as a new feature.
+- **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal. Size scales *depth*, not which stages run.
 - **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify *deltas* — not green-field descriptions.
 
 ### Right-Sizing the Process
 
-Match the process to the change. Use judgment, not a checklist.
+Every change runs the same OpenSpec pipeline. Subagents are **mandatory at their stage** — size only affects how deep each agent goes, never whether the agent runs.
+
+**The pipeline (every change):**
+
+1. `requirements-analyst` — check requirements, ask clarifying questions, resolve ambiguities BEFORE generating artifacts
+2. `opsx:propose` — create proposal + design + specs + tasks (from clarified requirements)
+3. `security-reviewer` — before any dependency add / external URL / web-sourced snippet (skip only if the change adds none). **⛔ BLOCKING: all work pauses until verdict is ✅ allow.**
+4. `unit-test-writer` — before `opsx:apply` when the change produces testable units (skip only for pure config, routing, docs, cosmetic styling)
+5. **⏸ WAIT for user** — present findings from steps 3–4 and wait for the user to explicitly trigger `opsx:apply`. Never auto-chain implementation.
+6. `opsx:apply` via the implementation specialist — writes code (user-triggered); verify with {BUILD_COMMAND} / {TEST_COMMAND}
+7. `code-reviewer` — review the diff
+8. `opsx:verify` — validate implementation matches specs (completeness, correctness, coherence)
+9. `opsx:archive` — finalize; update the "Existing specs" list below
 
 **Small changes** (typos, renames, one-line fixes, config tweaks):
-- Use `opsx:propose` to create a brief proposal (can be minimal for obvious changes).
-- Read the relevant code, make the change, verify it works ({BUILD_COMMAND}, {TEST_COMMAND}).
-- {SMALL_CHANGE_AGENTS}
+- Full pipeline, minimal depth. `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions). Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
 
 **Medium changes** (new component/module, bug fix spanning multiple files, refactor):
-- Review existing specs and code first to understand context.
-- Use `opsx:propose` to plan the change.
-- {MEDIUM_CHANGE_AGENTS}
+- Full pipeline, normal depth. `requirements-analyst` and `code-reviewer` are never skipped.
 
 **Large changes** (new page/feature, cross-cutting refactor):
-- Full workflow: context review → `opsx:propose` → {LARGE_CHANGE_AGENTS} → `opsx:verify` → `opsx:archive`.
-- Use `opsx:verify` before archiving to validate implementation matches specs.
-- Update the "Existing specs" list below when archiving.
+- Full pipeline, deep depth. `requirements-analyst` does thorough requirements gathering — **wait for user answers** before running `opsx:propose`. After pre-implementation stages complete, **always wait for user to trigger `opsx:apply`**.
 
 **Multi-app changes** (mono repo only — change spans multiple apps):
 - Prefix the change name with `shared/` (e.g., `shared/update-auth-flow`).
@@ -597,8 +603,21 @@ monorepo-root/
 
 {SUBAGENT_TABLE}
 
-**Typical sequences** (adapt as needed):
-{TYPICAL_SEQUENCES}
+**Canonical sequence (every change):**
+
+```
+requirements-analyst              (clarify requirements with the user FIRST)
+  → opsx:propose               (generate artifacts from clarified requirements)
+  → security-reviewer          (if yarn add / external code — ⛔ BLOCKS until safe)
+  → unit-test-writer           (if testable units; tests land first)
+  ⏸ WAIT — present findings, wait for user to trigger apply
+  → opsx:apply via {IMPLEMENTATION_SPECIALIST}   (user-triggered only)
+  → code-reviewer              (address findings before continuing)
+  → opsx:verify
+  → opsx:archive
+```
+
+Right-size by shortening each stage, not by removing stages. Skipping an agent requires its "Skip when" condition in the table above to be true.
 
 ### When Requirements Change Mid-Implementation
 
@@ -652,25 +671,31 @@ The workflow follows four OpenSpec principles:
 
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense for the change at hand.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
-- **Easy not complex** — Scale process to the change. A one-line fix gets a one-line proposal — not the same ceremony as a new feature.
+- **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal. Size scales *depth*, not which stages run.
 - **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify *deltas* — not green-field descriptions.
 
 ### Right-Sizing the Process
 
-Match the process to the change. Use judgment, not a checklist.
+Every change runs the same OpenSpec pipeline — size only affects how deep each stage goes, never whether the stage runs.
+
+**The pipeline (every change):**
+
+1. `opsx:propose` — create proposal + design + specs + tasks
+2. Self-review the artifacts — read for ambiguities, gaps, unstated assumptions; revise before implementing
+3. Implement the tasks, running {BUILD_COMMAND} / {TEST_COMMAND} along the way
+4. Write tests where the change produces testable units (components, utilities, endpoints)
+5. Self-review the diff — quality, security, correctness, convention adherence
+6. `opsx:verify` — validate implementation matches specs (completeness, correctness, coherence)
+7. `opsx:archive` — finalize; update the "Existing specs" list below
 
 **Small changes** (typos, renames, one-line fixes, config tweaks):
-- Use `opsx:propose` to create a brief proposal (can be minimal for obvious changes).
-- Read the relevant code, make the change, verify it works ({BUILD_COMMAND}, {TEST_COMMAND}).
+- Full pipeline, minimal depth. Skip tests only if no testable unit is produced.
 
 **Medium changes** (new component/module, bug fix spanning multiple files, refactor):
-- Review existing specs and code first to understand context.
-- Use `opsx:propose` to plan the change.
-- Implement, write tests where appropriate, verify.
+- Full pipeline, normal depth. Always self-review before and after implementation.
 
 **Large changes** (new page/feature, cross-cutting refactor):
-- Full workflow: context review → `opsx:propose` → review proposal → implement → `opsx:verify` → `opsx:archive`.
-- Use `opsx:verify` before archiving to validate implementation matches specs.
+- Full pipeline, deep depth. Present artifacts for approval before implementing.
 - Update the "Existing specs" list below when archiving.
 
 **Multi-app changes** (mono repo only — change spans multiple apps):
@@ -773,29 +798,37 @@ When writing the CLAUDE.md workflow section, replace these placeholders with pro
 |-------------|-------------|---------|
 | `{BUILD_COMMAND}` | Project's build command | `yarn build`, `cargo build`, `go build ./...` |
 | `{TEST_COMMAND}` | Project's test command | `yarn test`, `pytest`, `go test ./...` |
-| `{SMALL_CHANGE_AGENTS}` | Subagent(s) for small changes | `Use code-reviewer if the change is subtle or risky.` |
-| `{MEDIUM_CHANGE_AGENTS}` | Subagent sequence for medium changes | `Implement with react-frontend-specialist. Write tests with unit-test-writer. Run code-reviewer on the result.` |
-| `{LARGE_CHANGE_AGENTS}` | Full subagent pipeline for large changes | `proposal-reviewer → unit-test-writer → react-frontend-specialist → code-reviewer` |
-| `{SUBAGENT_TABLE}` | Table of available subagents | See examples below |
-| `{TYPICAL_SEQUENCES}` | Example workflow sequences | See examples below |
+| `{IMPLEMENTATION_SPECIALIST}` | Name of the implementation agent | `react-frontend-specialist`, `python-backend-specialist` |
+| `{SUBAGENT_TABLE}` | Table of available subagents with a `Skip when` column | See examples below |
 
 ### Example: Filled-In Subagent Section (React project)
 
 ```markdown
 ### Available Subagents
 
-Use subagents when they add value. Not every change needs every agent.
+Each agent maps to a specific stage of the OpenSpec workflow. The agent is required at its stage unless its explicit "Skip when" condition is met.
 
-- **`proposal-reviewer`** — Validates proposal artifacts, asks clarifying questions. Use when the proposal has ambiguities.
-- **`unit-test-writer`** — Writes tests from specs before implementation (TDD). Use when the change produces testable units.
-- **`react-frontend-specialist`** — Implements UI components, layouts, state, API integration, bug fixes. Primary implementation agent.
-- **`security-reviewer`** — Reviews packages and external code before trust. Always use before installing dependencies.
-- **`code-reviewer`** — Reviews the diff for quality, correctness, and best practices. Use after implementation.
+| Agent | OpenSpec Stage | Purpose | Skip when |
+|-------|---------------|---------|-----------|
+| `requirements-analyst` | **Before** `opsx:propose` | Checks requirements, asks clarifying questions, resolves ambiguities | Never — even "obvious" requests have hidden assumptions |
+| `security-reviewer` | Before `yarn add` / fetching external URLs / using web-searched code | **⛔ BLOCKING** — reviews packages, URLs, and external snippets for typosquatting, CVEs, malicious code. All work pauses until safe. | The change adds no dependencies and pulls in no external code |
+| `unit-test-writer` | Before `opsx:apply` (TDD) | Writes tests from specs before implementation so tests drive the diff | No testable units — pure config, routing, styling-only, docs |
+| `react-frontend-specialist` | During `opsx:apply` | Implements UI components, layouts, state, API integration | Change has no UI surface |
+| `code-reviewer` | After `opsx:apply`, before `opsx:verify` | Reviews the diff for quality, correctness, security | Never |
 
-**Typical sequences** (adapt as needed):
-- Small fix: `react-frontend-specialist` → done (or add `code-reviewer` if subtle)
-- Feature: `proposal-reviewer` → `unit-test-writer` → `react-frontend-specialist` → `code-reviewer`
-- New dependency: `security-reviewer` before installing → then proceed
+**Canonical sequence (every change):**
+
+```
+requirements-analyst              (clarify requirements FIRST)
+  → opsx:propose               (generate artifacts from clarified requirements)
+  → security-reviewer          (if yarn add / external code — ⛔ BLOCKS until safe)
+  → unit-test-writer           (if testable units)
+  ⏸ WAIT — present findings, wait for user to trigger apply
+  → opsx:apply via react-frontend-specialist   (user-triggered only)
+  → code-reviewer
+  → opsx:verify
+  → opsx:archive
+```
 ```
 
 ### Example: Filled-In Subagent Section (Go API)
@@ -803,13 +836,23 @@ Use subagents when they add value. Not every change needs every agent.
 ```markdown
 ### Available Subagents
 
-- **`code-reviewer`** — Reviews diffs for quality and correctness. Use after non-trivial changes.
-- **`security-reviewer`** — Reviews dependencies before `go get`. Always use before adding new modules.
+| Agent | OpenSpec Stage | Purpose | Skip when |
+|-------|---------------|---------|-----------|
+| `requirements-analyst` | **Before** `opsx:propose` | Checks requirements, asks clarifying questions | Never |
+| `security-reviewer` | Before `go get` / external URL | **⛔ BLOCKING** — reviews new modules for supply-chain risks. All work pauses until safe. | No deps / no external code |
+| `unit-test-writer` | Before `opsx:apply` (TDD) | Writes `_test.go` tests from specs | No testable units |
+| `go-backend-specialist` | During `opsx:apply` | Implements Go code | No code surface |
+| `code-reviewer` | After `opsx:apply` | Reviews diffs for quality and correctness | Never |
 
-**Typical sequences** (adapt as needed):
-- Small fix: implement directly → `code-reviewer` if subtle
-- Feature: implement → write tests → `code-reviewer`
-- New dependency: `security-reviewer` → then `go get`
+**Canonical sequence (every change):**
+
+```
+requirements-analyst (clarify requirements FIRST) → opsx:propose →
+security-reviewer (if go get — ⛔ BLOCKS) →
+unit-test-writer (if testable) → ⏸ WAIT for user →
+opsx:apply via go-backend-specialist (user-triggered) →
+code-reviewer → opsx:verify → opsx:archive
+```
 ```
 
 ---

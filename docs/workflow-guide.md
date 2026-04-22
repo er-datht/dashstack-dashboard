@@ -27,42 +27,58 @@ Just say it naturally. Claude will read the relevant code and existing specs, th
 "add a search bar to the contacts page that filters by name and email"
 ```
 
-### 2. Claude sizes the change
+### 2. Claude runs the pipeline (always the same)
 
-Based on scope, Claude picks one of three paths:
+Every change goes through the same pipeline. Change size controls **how deep** each stage goes, never **whether** the stage runs.
 
-**Small** (obvious, self-contained) — Creates a brief proposal, reads the code, makes the change, verifies.
+```
+requirements-analyst              (clarify requirements with the user FIRST)
+  → opsx:propose               (generate artifacts from clarified requirements)
+  → security-reviewer          (if yarn add / external code — ⛔ BLOCKS until safe)
+  → unit-test-writer           (if testable units — skip for pure config/styling/docs)
+  ⏸ WAIT — present findings, wait for user to trigger apply
+  → opsx:apply via react-frontend-specialist   (user-triggered only)
+  → code-reviewer              (address findings before continuing)
+  → opsx:verify
+  → opsx:archive
+```
 
-**Medium** (multiple files, some design decisions) — Creates a proposal with `/opsx:propose`, reviews it, then implements.
+Depth per size:
 
-**Large** (new page, new feature, cross-cutting) — Full cycle: proposal, reviewer Q&A with you, waits for your approval, then implements with tests and code review.
+- **Small** (typo, one-line fix, styling tweak) — `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions), brief proposal. Skip `unit-test-writer` if no testable unit exists; skip `security-reviewer` if no deps/external code.
+- **Medium** (new component, multi-file fix, refactor) — full pipeline, normal depth. `requirements-analyst` and `code-reviewer` are never skipped.
+- **Large** (new page, cross-cutting feature) — full pipeline, deep depth. `requirements-analyst` does thorough requirements gathering — **waits for your answers** before running `opsx:propose`. After pre-implementation stages complete, **always waits for you to trigger `opsx:apply`**.
 
-### 3. Review the proposal
+### 3. Answer clarifying questions
 
-Claude generates artifacts (scaled to the change — brief for small, thorough for large):
+Before generating any artifacts, `requirements-analyst` checks your description, explores the codebase for context, and asks clarifying questions to resolve ambiguities. You can:
+
+- **Answer the questions** — Claude uses your answers to generate accurate artifacts
+- **Adjust scope** — "actually, let's also include filtering by phone number"
+- **Reject** — "let's take a different approach" and describe what you want instead
+
+Once requirements are clear, Claude generates artifacts (scaled to the change — brief for small, thorough for large):
 
 - **Proposal** — What's being built and why
 - **Design** — How it fits into the existing architecture
 - **Specs** — Behavioral contracts for the new/changed code
 - **Tasks** — Ordered implementation steps
 
-You can:
-
-- **Approve** — `/opsx:apply` to start implementation
-- **Adjust** — Ask Claude to change specific parts ("make the search debounced, not instant")
-- **Reject** — Say "let's take a different approach" and describe what you want instead
-
 ### 4. Implementation
 
-Claude dispatches work to specialized agents as needed:
+Claude dispatches work to specialized agents mapped to workflow stages:
 
-- `unit-test-writer` writes tests first (when there are testable units)
-- `react-frontend-specialist` implements the code
-- `code-reviewer` reviews the final diff
+| Agent                       | OpenSpec Stage                   | Role                                                                                                                    | Skip when                  |
+| --------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `requirements-analyst`         | **Before** `opsx:propose`        | Checks requirements, asks clarifying questions, resolves ambiguities                                                    | Never                      |
+| `security-reviewer`         | Before `yarn add` / external URL | **⛔ BLOCKING** — reviews packages and external code for supply-chain risks. All work pauses until verdict is ✅ allow. | No deps or external code   |
+| `unit-test-writer`          | Before `opsx:apply`              | Writes tests from specs first (TDD)                                                                                     | No testable units produced |
+| `react-frontend-specialist` | During `opsx:apply`              | Implements the code                                                                                                     | No UI surface              |
+| `code-reviewer`             | After `opsx:apply`               | Reviews the diff for quality, security, and correctness                                                                 | Never                      |
 
-### 5. Verify and archive (large changes)
+### 5. Verify and archive
 
-After a large change is done, Claude runs `/opsx:verify` to check implementation matches specs (completeness, correctness, coherence), then suggests `/opsx:archive` to preserve the specs for future reference. Verify won't block archive but surfaces issues worth addressing first.
+After implementation and `code-reviewer` findings are addressed, Claude runs `/opsx:verify` to check implementation matches specs (completeness, correctness, coherence), then `/opsx:archive` to preserve the specs for future reference. Verify won't block archive but surfaces issues worth addressing first.
 
 ### Archive maintenance
 
@@ -162,11 +178,13 @@ Claude will:
 For scenarios A-C, Claude updates the existing change. For scenario D, it starts a new one. The decision criteria:
 
 **Update the existing change when:**
+
 - Same intent, refined execution (e.g., "search should also filter by phone")
 - Scope narrows to an MVP (ship what's done, rest later)
 - Design tweaks based on implementation discoveries
 
 **Start a new change when:**
+
 - Intent fundamentally changed (e.g., client-side → server-side)
 - Scope exploded into different work entirely
 - Original change can be marked "done" standalone
@@ -179,9 +197,9 @@ Every pivot builds on what was learned. The specs from the abandoned approach be
 
 ## Tips
 
-- **Start simple.** Describe what you want in plain language. Add process only if Claude asks or if you want more control.
+- **Start simple.** Describe what you want in plain language. Claude will run the pipeline; you don't need to name the agents.
+- **Every change runs the same pipeline — size scales depth, not stages.** A typo still gets a quick `requirements-analyst` pass and a quick `code-reviewer` pass; a new page gets deep passes at every stage.
 - **Use `/opsx:explore` to think.** It's read-only — no code changes, no artifacts. Good for weighing options before committing to a direction.
-- **You control the pace.** Claude won't start implementing a large change until you say `/opsx:apply`. Review the proposal, ask questions, take your time.
-- **Small changes are fast.** Every change gets a proposal, but a typo gets a one-line proposal. The workflow scales down automatically.
+- **You control when implementation starts.** Claude never auto-triggers `opsx:apply`. After pre-implementation stages (requirements-analyst, unit-test-writer), Claude presents findings and waits for you to explicitly start implementation.
 - **Specs are living documents.** They capture decisions, not just requirements. When you change direction, the spec gets updated — it's a record of the current truth, not the original plan.
 - **Check existing specs.** Before asking for a feature, it helps to know what's already been built. Ask Claude "what specs exist for the calendar?" to see prior work.

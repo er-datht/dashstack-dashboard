@@ -90,7 +90,7 @@ Domain services follow pattern: `src/services/{domain}.ts` → maps API DTOs to 
 
 ### Internationalization
 
-i18next + react-i18next. Config at **project root** `i18n.ts` (not in `src/`). Translation files at `public/locales/{en|jp}/{namespace}.json`. Registered namespaces in `i18n.ts`: common, navigation, auth, dashboard, products, orders, settings, todo, theme, errors, messages. Additional locale files exist for: pricing, favorites (loaded on-demand by components). All UI text should use the `t()` function.
+i18next + react-i18next. Config at **project root** `i18n.ts` (not in `src/`). Translation files at `public/locales/{en|jp}/{namespace}.json`. Registered namespaces in `i18n.ts`: common, navigation, auth, dashboard, products, orders, settings, todo, theme, errors, messages, calendar, contact, team, invoice, inbox. Additional locale files exist for: pricing, favorites (loaded on-demand by components). All UI text should use the `t()` function.
 
 ### Notable Libraries
 
@@ -125,26 +125,36 @@ The workflow follows four OpenSpec principles:
 
 ### Right-Sizing the Process
 
-Match the process to the change. Use judgment, not a checklist.
+Every change runs the same OpenSpec pipeline. Subagents are **mandatory at their stage** — size only affects how deep each agent goes, never whether the agent runs.
+
+**The pipeline (every change):**
+
+1. `requirements-analyst` — check the user's requirements, ask clarifying questions, and resolve all ambiguities **before** generating artifacts. Only proceed to step 2 when requirements are clear.
+2. `opsx:propose` — create proposal + design + specs + tasks (from clarified requirements)
+3. `security-reviewer` — run **before** any `yarn add` / external URL / web-sourced snippet in the change (skip only if the change adds no dependencies or external code). **⛔ BLOCKING: pause ALL other work until the security-reviewer reports safe. Do not proceed with unit-test-writer, opsx:apply, or any install/fetch commands until the verdict is ✅ allow.**
+4. `unit-test-writer` — write tests from specs **before** `opsx:apply` when the change produces testable units (components, hooks, utilities); skip only for pure config, routing, docs, or cosmetic styling changes
+5. **⏸ WAIT for user** — present findings from steps 3–4 and wait for the user to explicitly trigger `opsx:apply`. Never auto-chain implementation.
+6. `opsx:apply` via `react-frontend-specialist` — implementation (user-triggered)
+7. `code-reviewer` — review the diff after implementation
+8. `opsx:verify` — validate implementation matches specs (completeness, correctness, coherence)
+9. `opsx:archive` — finalize; update the "Existing specs" list below
 
 **Small changes** (typos, renames, one-line fixes, simple styling tweaks):
 
-- Use `opsx:propose` to create a brief proposal (can be minimal for obvious changes).
-- Read the relevant code, make the change, verify it works (`yarn build`, `yarn test`).
-- Use `react-frontend-specialist` for implementation if it involves UI logic. Use `code-reviewer` if the change is subtle or risky.
+- `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions for trivial changes), a one-line proposal, a short code-reviewer pass.
+- Skip `unit-test-writer` only if no testable unit is produced (pure styling, routing constants, config tweaks).
+- Skip `security-reviewer` only if the change touches no dependencies or external code.
 
 **Medium changes** (new component, bug fix spanning multiple files, refactor):
 
-- Review existing specs and code first to understand context.
-- Use `opsx:propose` to plan the change. Review the proposal yourself or with `proposal-reviewer` if there are ambiguities to clarify with the user.
-- Implement with `react-frontend-specialist`. Write tests with `unit-test-writer` when the change produces testable units.
-- Run `code-reviewer` on the result.
+- Full pipeline, normal depth. Do not skip `requirements-analyst` even if the request feels unambiguous — it catches gaps before artifacts are generated.
+- `unit-test-writer` is required whenever the diff includes components, hooks, or utilities.
 
 **Large changes** (new page, new feature, cross-cutting refactor):
 
-- Full workflow: context review → `opsx:propose` → `proposal-reviewer` (clarify ambiguities with user) → present artifacts and wait for user approval → `unit-test-writer` → `react-frontend-specialist` → `code-reviewer` → `opsx:verify` → `opsx:archive`.
-- Use `opsx:verify` before archiving to validate implementation matches specs (completeness, correctness, coherence). It won't block archive but surfaces issues worth addressing first.
-- Update the "Existing specs" list below when archiving.
+- Full pipeline, deep depth. `requirements-analyst` does thorough requirements gathering — **present questions and wait for user answers** before running `opsx:propose`.
+- After pre-implementation stages complete, **always wait for user to trigger `opsx:apply`**.
+- `opsx:verify` is mandatory before `opsx:archive`.
 
 ### When to Use OpenSpec
 
@@ -161,19 +171,31 @@ Always use `opsx:propose` before implementing any change. The proposal scales to
 
 ### Available Subagents
 
-Use subagents when they add value. Not every change needs every agent.
+Each agent maps to a specific stage of the OpenSpec workflow. The agent is required at its stage unless its explicit "Skip when" condition is met.
 
-- **`proposal-reviewer`** — Validates proposal artifacts, asks clarifying questions. Use when the proposal has ambiguities or unstated assumptions worth surfacing before implementation.
-- **`unit-test-writer`** — Writes tests from specs before implementation (TDD). Use when the change produces testable units (components, hooks, utilities). Skip for config, routing, or pure styling changes.
-- **`react-frontend-specialist`** — Implements UI components, layouts, state, API integration, bug fixes, refactoring, accessibility. The primary implementation agent for this project.
-- **`security-reviewer`** — Reviews packages, URLs, and external code before trust. Always use before `yarn add`, fetching external URLs, or using web-searched code.
-- **`code-reviewer`** — Reviews the diff for quality, correctness, and best practices. Use after implementation, especially for non-trivial changes.
+| Agent | OpenSpec Stage | Purpose | Skip when |
+|-------|---------------|---------|-----------|
+| `requirements-analyst` | **Before** `opsx:propose` | Checks requirements, asks clarifying questions, resolves ambiguities so `opsx:propose` generates correct artifacts the first time | Never skip — even "obvious" requests have hidden assumptions |
+| `security-reviewer` | Before `yarn add` / fetching external URLs / using web-searched code | **⛔ BLOCKING** — reviews packages, URLs, and external snippets for typosquatting, CVEs, malicious code. Pause all work until verdict is ✅ allow. | The change adds no dependencies and pulls in no external code |
+| `unit-test-writer` | Before `opsx:apply` (TDD) | Writes tests from specs before implementation so tests drive the diff | The change produces no testable units — pure config, routing constants, styling-only tweaks, docs |
+| `react-frontend-specialist` | During `opsx:apply` | Implements UI components, layouts, state, API integration, bug fixes, refactoring, accessibility | The change has no UI surface (e.g., pure config) |
+| `code-reviewer` | After `opsx:apply`, before `opsx:verify` | Reviews the diff for quality, correctness, security, and best practices | Never skip |
 
-**Typical sequences** (adapt as needed):
+**Canonical sequence (every change):**
 
-- Small fix: `react-frontend-specialist` → done (or add `code-reviewer` if subtle)
-- Feature: `proposal-reviewer` → `unit-test-writer` → `react-frontend-specialist` → `code-reviewer`
-- New dependency: `security-reviewer` before installing → then proceed with implementation
+```
+requirements-analyst              (clarify requirements with the user FIRST)
+  → opsx:propose               (generate artifacts from clarified requirements)
+  → security-reviewer          (if yarn add / external code — ⛔ BLOCKS until safe)
+  → unit-test-writer           (if testable units; tests land first)
+  ⏸ WAIT — present findings, wait for user to trigger apply
+  → opsx:apply via react-frontend-specialist   (user-triggered only)
+  → code-reviewer              (address findings before continuing)
+  → opsx:verify
+  → opsx:archive
+```
+
+Right-size within this sequence by shortening each stage — not by removing stages. A trivial request still gets a fast `requirements-analyst` pass (may need zero questions); a styling tweak still gets `code-reviewer`. Skipping an agent requires its "Skip when" condition to be true.
 
 ### Archive Maintenance
 
@@ -226,6 +248,8 @@ When archive exceeds ~50 changes, sync all to main specs (`opsx:sync`), keep the
 37. `team-page` — Team page: responsive 3-col card grid with avatar photos (User icon fallback), truncated name/email, Message button, Load More pagination (6 per batch), mock data (12 members), Add New Member form page at /team/add, i18n (en/jp), sidebar navigation wired
 38. `refactor-add-person-form` — Extracted shared AddPersonForm component from AddNewContact and AddNewMember; parameterized by namespace, titleKey, successKey, backRoute; both pages reduced to thin wrappers
 39. `invoice-page` — Invoice page with sender/recipient header, items table, total, Print/Send buttons, i18n
+40. `inbox-page` — Inbox page: two-panel layout, folder sidebar, message list with search/pagination, chat view with label dropdown, i18n, accessibility
+41. `inbox-starred-messages` — Functional star-toggle on message rows, Starred folder filtering, live sidebar count, pagination reset on folder switch
 
 ## Common Gotchas
 
