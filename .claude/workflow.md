@@ -21,18 +21,21 @@ OpenSpec answers *what* to build. The agent pipeline answers *how* to build it.
 Match the process to the change. Use judgment, not a checklist.
 
 **Small changes** (typos, renames, one-line fixes, simple styling tweaks):
+- Quick requirements-analyst pass (may need zero questions for trivial changes).
 - Use `opsx:propose` to create a brief proposal (can be minimal for obvious changes).
 - Read the relevant code, make the change, verify it works.
 - Use the implementation specialist for logic changes. Use code reviewer if subtle or risky.
 
 **Medium changes** (new component, bug fix spanning multiple files, refactor):
 - Review existing specs and code first to understand context.
-- Use `opsx:propose` to plan. Review with proposal reviewer if there are ambiguities.
+- Run requirements analyst to check requirements and ask clarifying questions.
+- Use `opsx:propose` to plan from clarified requirements.
 - Implement with the specialist. Write tests with unit test writer when testable.
 - Run code reviewer on the result.
 
 **Large changes** (new page, new feature, cross-cutting refactor):
-- Full workflow: context review → propose → proposal reviewer Q&A → wait for user approval → unit test writer → implementation specialist → code reviewer.
+- Full workflow: context review → requirements analyst Q&A → **wait for user answers** → `opsx:propose` → unit test writer → **⏸ WAIT for user to trigger `opsx:apply`** → implementation specialist → code reviewer.
+- Never auto-chain `opsx:apply` after pre-implementation stages. Always present findings and wait for the user to explicitly trigger implementation.
 - Archive with `opsx:archive` when done.
 
 ## OpenSpec
@@ -64,33 +67,33 @@ Use agents when they add value. Not every change needs every agent.
 
 ### Agent Roles
 
-#### Proposal reviewer
+#### Requirements analyst
 
 Use when:
 
-- `opsx:propose` has just completed and artifacts are ready for review
-- the user wants to validate or refine a proposal before implementation
-- a proposal has been updated and needs re-validation
+- The user describes a change they want to make (BEFORE `opsx:propose`)
+- Requirements need clarification before generating artifacts
+- The user wants to think through requirements before committing to a proposal
 
 Do not use for:
 
 - code implementation (that's the implementation specialist)
 - code review after implementation (that's the code reviewer)
 - package security assessment (that's the security reviewer)
+- reviewing artifacts after `opsx:propose` (the reviewer runs before, not after)
 
-The proposal reviewer checks:
+The requirements analyst:
 
-- **Completeness**: Are all artifacts present and fully specified? Are edge cases, error states, empty states, loading states covered?
-- **Consistency**: Do tasks match specs? Does the design match the proposal scope?
-- **Feasibility**: Are there technical blockers or missing patterns given the existing codebase?
-- **Gaps**: Missing i18n coverage, theme support, routing, accessibility requirements?
-- **Scope**: Is the change appropriately sized — not too broad, not missing obvious related work?
+- Explores the codebase to understand what exists and what will be affected
+- Identifies every implicit assumption in the user's description
+- Asks exhaustive clarifying questions to resolve all ambiguities
+- Produces a requirements summary that feeds directly into `opsx:propose`
 
-After review, the proposal reviewer:
-1. Presents a structured report (strengths, issues by severity, questions, suggestions)
-2. Asks the user targeted clarifying questions
-3. Updates artifacts based on answers
-4. Confirms readiness for `opsx:apply`
+After review, the requirements analyst:
+1. Presents categorized questions for the user
+2. Engages in multi-round Q&A until requirements are clear
+3. Produces a final requirements summary
+4. Confirms readiness for `opsx:propose`
 
 #### Unit test writer
 
@@ -141,6 +144,8 @@ Do not use as the first choice for:
 
 #### Security reviewer
 
+**⛔ BLOCKING GATE:** When the security-reviewer is invoked, pause ALL other work — no installs, no fetches, no unit-test-writer, no opsx:apply — until the security-reviewer returns a verdict. Only proceed if the verdict is ✅ allow. If ⚠️ ask, present findings to the user and wait. If 🛑 stop, do not proceed.
+
 Use when:
 
 - a task needs a new package
@@ -177,8 +182,8 @@ Start here:
 0. Have you reviewed relevant specs and archived changes for context?
    No -> read `openspec/specs/` and `openspec/changes/archive/` for the relevant area first.
    Yes -> continue.
-1. Has the proposal just been generated and not yet reviewed?
-   Yes -> use proposal reviewer.
+1. Has the user described a change but requirements aren't yet clarified?
+   Yes -> use requirements analyst to ask questions BEFORE running `opsx:propose`.
    No -> continue.
 2. Is implementation about to begin and tests not yet written?
    Yes -> use unit test writer to create tests from specs first.
@@ -199,16 +204,16 @@ Start here:
 Adapt these to the change at hand — they're patterns, not mandates.
 
 **Small fix:**
-propose (brief) → implementation specialist → done (add code reviewer if subtle)
+requirements analyst (quick) → propose (brief) → implementation specialist → done (add code reviewer if subtle)
 
 **Feature (no new deps):**
-proposal reviewer → unit test writer → implementation specialist → code reviewer
+requirements analyst → propose → unit test writer → ⏸ wait for user → implementation specialist → code reviewer
 
 **Feature with new package:**
-proposal reviewer → unit test writer → implementation specialist (plan) → security reviewer → implementation specialist (implement) → code reviewer
+requirements analyst → propose → unit test writer → ⏸ wait for user → implementation specialist (plan) → security reviewer → implementation specialist (implement) → code reviewer
 
 **Bug fix:**
-propose (brief for small bugs, thorough for larger) → unit test writer (regression tests) → implementation specialist → code reviewer.
+requirements analyst → propose (brief for small bugs, thorough for larger) → unit test writer (regression tests) → implementation specialist → code reviewer
 
 **New dependency:**
 security reviewer before installing → then proceed with implementation
@@ -220,6 +225,8 @@ Always pause and use the **security reviewer** if:
 - about to fetch or run a remote script
 - found a package through web search
 - considering copying code from a third-party source
+
+**⛔ The security reviewer is a blocking gate.** When invoked, ALL other pipeline work pauses until the verdict comes back. Do not run install commands, proceed with implementation, or continue the pipeline until the security-reviewer reports ✅ allow.
 
 Consider using the **code reviewer** if:
 - the change is done but not reviewed
@@ -259,6 +266,6 @@ When starting fresh: archive or discard the current change, then create a new on
 
 ## Guidelines
 
-- Each agent has a specific role — don't use one as a substitute for another (e.g., proposal reviewer reviews specs, not code; security reviewer handles external trust, not local bugs).
+- Each agent has a specific role — don't use one as a substitute for another (e.g., requirements analyst reviews specs, not code; security reviewer handles external trust, not local bugs).
 - The implementation specialist may fix minor test issues inline but must flag major behavioral mismatches back to the spec.
 - For non-testable tasks (config, routing, styling, i18n), skip the unit test writer.
