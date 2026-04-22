@@ -20,15 +20,15 @@ Then check for existing instruction files:
 ls CLAUDE.md .cursorrules .cursor/rules AGENTS.md .github/copilot-instructions.md GEMINI.md 2>/dev/null || echo "NONE_FOUND"
 ```
 
-| AI Tool | Instruction File | Notes |
-|---------|-----------------|-------|
-| **Claude Code** | `CLAUDE.md` | Project root |
-| **Cursor** | `.cursorrules` or `.cursor/rules/*.md` | Project root or `.cursor/rules/` directory |
-| **GitHub Copilot** | `.github/copilot-instructions.md` | Inside `.github/` directory |
-| **Codex (OpenAI)** | `AGENTS.md` | Project root |
-| **Gemini CLI** | `GEMINI.md` | Project root |
-| **Windsurf** | `.windsurfrules` | Project root |
-| **Cline** | `.clinerules` | Project root |
+| AI Tool            | Instruction File                                        | Notes                                      |
+| ------------------ | ------------------------------------------------------- | ------------------------------------------ |
+| **Claude Code**    | `CLAUDE.md`                                             | Project root                               |
+| **Cursor**         | `.cursorrules` or `.cursor/rules/*.md`                  | Project root or `.cursor/rules/` directory |
+| **GitHub Copilot** | `.github/copilot-instructions.md`                       | Inside `.github/` directory                |
+| **Codex (OpenAI)** | `AGENTS.md`                                             | Project root                               |
+| **Gemini CLI**     | `GEMINI.md`                                             | Project root                               |
+| **Windsurf**       | `.windsurfrules`                                        | Project root                               |
+| **Cline**          | `.clinerules`                                           | Project root                               |
 | **Multiple tools** | Create one per tool, or share a common file and symlink |
 
 **If the instruction file already exists**: Read it, then skip to Step 2. You'll add the Workflow section later in Step 3.
@@ -58,12 +58,12 @@ grep -l '\[workspace\]' Cargo.toml 2>/dev/null && echo "RUST_WORKSPACE"
 
 **Classification:**
 
-| Result | Classification |
-|--------|---------------|
-| `workspaces` field found, OR `pnpm-workspace.yaml` / `nx.json` / `turbo.json` exists | **Mono repo** |
-| `apps/` or `packages/` dirs with nested `package.json` files | **Mono repo** (inferred) |
-| `go.work` or Cargo `[workspace]` found | **Mono repo** (non-JS) |
-| None of the above | **Single repo** |
+| Result                                                                               | Classification           |
+| ------------------------------------------------------------------------------------ | ------------------------ |
+| `workspaces` field found, OR `pnpm-workspace.yaml` / `nx.json` / `turbo.json` exists | **Mono repo**            |
+| `apps/` or `packages/` dirs with nested `package.json` files                         | **Mono repo** (inferred) |
+| `go.work` or Cargo `[workspace]` found                                               | **Mono repo** (non-JS)   |
+| None of the above                                                                    | **Single repo**          |
 
 **If mono repo detected**, enumerate each app/package:
 
@@ -146,6 +146,7 @@ ls tsconfig*.json .eslintrc* vite.config.* webpack.config.* vitest.config.* jest
 ```
 
 From the scan, extract:
+
 - **Project overview**: Infer from package.json description, README, or directory structure
 - **Tech stack**: Languages, frameworks, key libraries (from dependencies)
 - **Package manager**: Detect from lock file (yarn.lock → yarn, package-lock.json → npm, pnpm-lock.yaml → pnpm, go.sum → go, Cargo.lock → cargo)
@@ -190,6 +191,7 @@ done
 ```
 
 From the per-app scan, extract for each app:
+
 - **App name**: Directory name (e.g., `admin`, `web`)
 - **Framework**: Next.js, Vite + React, Vue, etc.
 - **Routing pattern**: Next.js Pages Router, Next.js App Router, React Router
@@ -198,6 +200,7 @@ From the per-app scan, extract for each app:
 - **Key dependencies**: App-specific libraries
 
 **Only ask the user** for things you genuinely cannot determine from the code:
+
 - What the project does (if no README or description exists)
 - Project-specific conventions that aren't documented anywhere
 - Which apps are actively developed vs legacy/deprecated
@@ -217,7 +220,7 @@ Create the appropriate file for the user's AI tool. The content structure is the
 
 Use this structure (example shown as CLAUDE.md — adapt the header for other tools):
 
-```markdown
+````markdown
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -234,6 +237,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 {TEST_COMMAND}     # Run tests
 {LINT_COMMAND}     # Run linter
 ```
+````
 
 **Package Manager**: Use **{PACKAGE_MANAGER}** exclusively.
 
@@ -246,6 +250,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Routing
 
 {ROUTING_PATTERN_AND_CONVENTIONS}
+
 <!-- Example for React Router: -->
 <!-- React Router v7 with lazy-loaded routes. Route constants in `src/routes/routes.ts`. -->
 <!-- Example for Next.js Pages Router: -->
@@ -264,7 +269,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Common Gotchas
 
 {LIST_OF_THINGS_THAT_ARE_EASY_TO_GET_WRONG}
-```
+
+````
 
 #### Mono repo: instruction files
 
@@ -305,11 +311,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 {LIST_OF_THINGS_THAT_ARE_EASY_TO_GET_WRONG}
 - **Run commands from root** — use workspace commands (e.g., `yarn workspace {APP_NAME} dev`) or `cd` into the app directory
 - **Per-app instruction files** — check `apps/{APP_NAME}/CLAUDE.md` for app-specific conventions
-```
+````
 
 **2. Per-app instruction files** (recommended for apps with distinct stacks) — placed inside each app directory:
 
-```markdown
+````markdown
 # CLAUDE.md
 
 This file provides guidance for the **{APP_NAME}** app within the mono repo.
@@ -322,6 +328,7 @@ This file provides guidance for the **{APP_NAME}** app within the mono repo.
 {TEST_COMMAND}     # Run this app's tests
 {LINT_COMMAND}     # Lint this app
 ```
+````
 
 ## Architecture
 
@@ -332,6 +339,7 @@ This file provides guidance for the **{APP_NAME}** app within the mono repo.
 ### Routing
 
 {ROUTING_PATTERN_AND_CONVENTIONS}
+
 <!-- Document the specific routing approach for this app -->
 
 ### Project Structure
@@ -345,7 +353,8 @@ This file provides guidance for the **{APP_NAME}** app within the mono repo.
 ## Common Gotchas
 
 {APP_SPECIFIC_GOTCHAS}
-```
+
+````
 
 Per-app instruction files are optional but recommended when:
 - Apps use **different frameworks** (e.g., Next.js vs Vite + React)
@@ -368,7 +377,7 @@ Per-app instruction files are optional but recommended when:
 
 ```bash
 openspec --version 2>&1 || echo "NOT_INSTALLED"
-```
+````
 
 ### 2.2 If not installed, install the package
 
@@ -376,13 +385,14 @@ openspec --version 2>&1 || echo "NOT_INSTALLED"
 
 Detect the project's package manager (check for `yarn.lock`, `pnpm-lock.yaml`, or `package-lock.json`) and run the corresponding command:
 
-| Package Manager | Install Command |
-|-----------------|----------------|
-| yarn | `yarn add -D @fission-ai/openspec@1.3.0` |
-| npm | `npm install -D @fission-ai/openspec@1.3.0` |
-| pnpm | `pnpm add -D @fission-ai/openspec@1.3.0` |
+| Package Manager | Install Command                             |
+| --------------- | ------------------------------------------- |
+| yarn            | `yarn add -D @fission-ai/openspec@1.3.0`    |
+| npm             | `npm install -D @fission-ai/openspec@1.3.0` |
+| pnpm            | `pnpm add -D @fission-ai/openspec@1.3.0`    |
 
 If no lock file exists or the project is not Node.js-based, install globally:
+
 ```bash
 npm install -g @fission-ai/openspec@1.3.0
 ```
@@ -390,6 +400,7 @@ npm install -g @fission-ai/openspec@1.3.0
 **Mono repo note**: Install at the **mono repo root only**, not in individual apps. Use the root-level package manager. The `openspec` CLI will be available to all apps via the root `node_modules/.bin/`.
 
 After running the install, verify it succeeded:
+
 ```bash
 openspec --version
 ```
@@ -398,17 +409,17 @@ openspec --version
 
 Run with the `--tools` flag matching the user's AI tool from Step 1:
 
-| AI Tool | Init Command |
-|---------|-------------|
-| Claude Code | `npx openspec init --tools claude` |
-| Cursor | `npx openspec init --tools cursor` |
-| GitHub Copilot | `npx openspec init --tools github-copilot` |
-| Codex | `npx openspec init --tools codex` |
-| Gemini | `npx openspec init --tools gemini` |
-| Windsurf | `npx openspec init --tools windsurf` |
-| Cline | `npx openspec init --tools cline` |
+| AI Tool        | Init Command                                                |
+| -------------- | ----------------------------------------------------------- |
+| Claude Code    | `npx openspec init --tools claude`                          |
+| Cursor         | `npx openspec init --tools cursor`                          |
+| GitHub Copilot | `npx openspec init --tools github-copilot`                  |
+| Codex          | `npx openspec init --tools codex`                           |
+| Gemini         | `npx openspec init --tools gemini`                          |
+| Windsurf       | `npx openspec init --tools windsurf`                        |
+| Cline          | `npx openspec init --tools cline`                           |
 | Multiple tools | `npx openspec init --tools claude,cursor` (comma-separated) |
-| All tools | `npx openspec init --tools all` |
+| All tools      | `npx openspec init --tools all`                             |
 
 **Mono repo note**: Run `openspec init` once from the **mono repo root**. This creates a single `openspec/` directory for all apps. Do NOT run `openspec init` inside individual app directories.
 
@@ -437,38 +448,38 @@ openspec/changes/{change-name}/
 
 Plus tool-specific command/prompt files. What gets created depends on the AI tool:
 
-| AI Tool | Files Created | Location |
-|---------|--------------|----------|
-| Claude Code | 11 slash commands + 11 skills | `.claude/commands/opsx/*.md` + `.claude/skills/openspec-*/SKILL.md` |
-| GitHub Copilot | 11 prompt files + 11 skills | `.github/prompts/opsx-*.prompt.md` + `.github/skills/openspec-*/SKILL.md` |
-| Cursor | 11 rules | `.cursor/rules/opsx-*.mdc` |
-| Other tools | Varies | Check the output of `openspec init` |
+| AI Tool        | Files Created                 | Location                                                                  |
+| -------------- | ----------------------------- | ------------------------------------------------------------------------- |
+| Claude Code    | 11 slash commands + 11 skills | `.claude/commands/opsx/*.md` + `.claude/skills/openspec-*/SKILL.md`       |
+| GitHub Copilot | 11 prompt files + 11 skills   | `.github/prompts/opsx-*.prompt.md` + `.github/skills/openspec-*/SKILL.md` |
+| Cursor         | 11 rules                      | `.cursor/rules/opsx-*.mdc`                                                |
+| Other tools    | Varies                        | Check the output of `openspec init`                                       |
 
 ### How to invoke OpenSpec commands per AI tool
 
 Each AI tool uses a different syntax to invoke the same OpenSpec commands:
 
-| AI Tool | How to invoke | Example |
-|---------|--------------|---------|
-| **Claude Code** | Type `/` then select the command | `/opsx:propose "add search bar"` |
-| **GitHub Copilot** | In Copilot Chat, type `#` then select the prompt file, or right-click a `.prompt.md` file → "Open Chat" | `#opsx-propose add search bar` |
-| **Cursor** | Rules are auto-loaded based on context | Reference the rule in chat |
+| AI Tool            | How to invoke                                                                                           | Example                          |
+| ------------------ | ------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| **Claude Code**    | Type `/` then select the command                                                                        | `/opsx:propose "add search bar"` |
+| **GitHub Copilot** | In Copilot Chat, type `#` then select the prompt file, or right-click a `.prompt.md` file → "Open Chat" | `#opsx-propose add search bar`   |
+| **Cursor**         | Rules are auto-loaded based on context                                                                  | Reference the rule in chat       |
 
 ### OpenSpec commands reference
 
-| Command | Purpose |
-|---------|---------|
-| `propose` | Create a change and generate all artifacts (proposal, design, specs, tasks) in one step |
-| `apply` | Implement tasks from a change |
-| `archive` | Archive a completed change |
-| `explore` | Think through ideas, investigate problems (read-only, no code changes) |
-| `verify` | Verify implementation matches change artifacts before archiving |
-| `sync` | Sync delta specs from a change to main specs |
-| `ff` | Fast-forward: create all artifacts at once (alias for propose) |
-| `new` | Start a new change, step through artifacts one at a time |
-| `continue` | Continue working on an existing change (create next artifact) |
-| `onboard` | Guided tutorial: walk through a complete workflow cycle with real codebase work |
-| `bulk-archive` | Archive multiple completed changes at once |
+| Command        | Purpose                                                                                 |
+| -------------- | --------------------------------------------------------------------------------------- |
+| `propose`      | Create a change and generate all artifacts (proposal, design, specs, tasks) in one step |
+| `apply`        | Implement tasks from a change                                                           |
+| `archive`      | Archive a completed change                                                              |
+| `explore`      | Think through ideas, investigate problems (read-only, no code changes)                  |
+| `verify`       | Verify implementation matches change artifacts before archiving                         |
+| `sync`         | Sync delta specs from a change to main specs                                            |
+| `ff`           | Fast-forward: create all artifacts at once (alias for propose)                          |
+| `new`          | Start a new change, step through artifacts one at a time                                |
+| `continue`     | Continue working on an existing change (create next artifact)                           |
+| `onboard`      | Guided tutorial: walk through a complete workflow cycle with real codebase work         |
+| `bulk-archive` | Archive multiple completed changes at once                                              |
 
 ### 2.4 Verify installation
 
@@ -479,6 +490,7 @@ ls openspec/                      # Should show: specs/ changes/
 ```
 
 Verify that the tool-specific directories were created. For example:
+
 - Claude Code: `ls .claude/commands/opsx/` and `ls .claude/skills/`
 - GitHub Copilot: `ls .github/prompts/` and `ls .github/skills/`
 - Cursor: `ls .cursor/rules/`
@@ -520,8 +532,8 @@ The workflow follows four OpenSpec principles:
 
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense for the change at hand.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
-- **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal. Size scales *depth*, not which stages run.
-- **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify *deltas* — not green-field descriptions.
+- **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal. Size scales _depth_, not which stages run.
+- **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify _deltas_ — not green-field descriptions.
 
 ### Right-Sizing the Process
 
@@ -529,8 +541,8 @@ Every change runs the same OpenSpec pipeline. Subagents are **mandatory at their
 
 **The pipeline (every change):**
 
-1. `requirements-analyst` — check requirements, ask clarifying questions, resolve ambiguities BEFORE generating artifacts
-2. `opsx:propose` — create proposal + design + specs + tasks (from clarified requirements)
+1. `requirements-analyst` — check requirements, ask clarifying questions, resolve ambiguities BEFORE generating artifacts. **⏸ WAIT for user** — present the analyst's findings (questions, assumptions, suggestions) and wait for the user to confirm before proceeding. Never auto-chain to `opsx:propose`.
+2. `opsx:propose` — create proposal + design + specs + tasks (from user-confirmed requirements)
 3. `security-reviewer` — before any dependency add / external URL / web-sourced snippet (skip only if the change adds none). **⛔ BLOCKING: all work pauses until verdict is ✅ allow.**
 4. `unit-test-writer` — before `opsx:apply` when the change produces testable units (skip only for pure config, routing, docs, cosmetic styling)
 5. **⏸ WAIT for user** — present findings from steps 3–4 and wait for the user to explicitly trigger `opsx:apply`. Never auto-chain implementation.
@@ -540,15 +552,19 @@ Every change runs the same OpenSpec pipeline. Subagents are **mandatory at their
 9. `opsx:archive` — finalize; update the "Existing specs" list below
 
 **Small changes** (typos, renames, one-line fixes, config tweaks):
-- Full pipeline, minimal depth. `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions). Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
+
+- Full pipeline, minimal depth. `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions but still present findings and wait for user confirmation). Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
 
 **Medium changes** (new component/module, bug fix spanning multiple files, refactor):
-- Full pipeline, normal depth. `requirements-analyst` and `code-reviewer` are never skipped.
+
+- Full pipeline, normal depth. `requirements-analyst` and `code-reviewer` are never skipped. Always wait for user confirmation after requirements-analyst before running `opsx:propose`.
 
 **Large changes** (new page/feature, cross-cutting refactor):
+
 - Full pipeline, deep depth. `requirements-analyst` does thorough requirements gathering — **wait for user answers** before running `opsx:propose`. After pre-implementation stages complete, **always wait for user to trigger `opsx:apply`**.
 
 **Multi-app changes** (mono repo only — change spans multiple apps):
+
 - Prefix the change name with `shared/` (e.g., `shared/update-auth-flow`).
 - List all affected apps in the proposal's Impact section.
 - Read per-app CLAUDE.md files for app-specific conventions before implementing.
@@ -558,6 +574,7 @@ Every change runs the same OpenSpec pipeline. Subagents are **mandatory at their
 Always use `opsx:propose` before implementing any change. The proposal scales to the change — a simple fix gets a brief proposal, a new feature gets a thorough one.
 
 **OpenSpec commands:**
+
 - `/opsx:propose "description"` — Plan a change (proposal, design, specs, tasks)
 - `/opsx:apply [change-name]` — Implement tasks from a change
 - `/opsx:archive [change-name]` — Archive a completed change
@@ -571,32 +588,33 @@ Always use `opsx:propose` before implementing any change. The proposal scales to
 
 All changes live in root `openspec/changes/`, scoped by naming convention:
 
-| Change Scope | Naming Convention | Example |
-|-------------|-------------------|---------|
-| Single app | `{app-name}/{change-desc}` | `admin/add-user-mgmt`, `web/redesign-checkout` |
-| Shared / cross-app | `shared/{change-desc}` | `shared/update-auth-flow` |
-| Infrastructure / CI | `infra/{change-desc}` | `infra/add-ci-pipeline` |
+| Change Scope        | Naming Convention          | Example                                        |
+| ------------------- | -------------------------- | ---------------------------------------------- |
+| Single app          | `{app-name}/{change-desc}` | `admin/add-user-mgmt`, `web/redesign-checkout` |
+| Shared / cross-app  | `shared/{change-desc}`     | `shared/update-auth-flow`                      |
+| Infrastructure / CI | `infra/{change-desc}`      | `infra/add-ci-pipeline`                        |
 
 **Recommended mono repo directory structure:**
-
 ```
+
 monorepo-root/
-├── CLAUDE.md                     # Root: shared conventions, app inventory, workflow
+├── CLAUDE.md # Root: shared conventions, app inventory, workflow
 ├── openspec/
-│   ├── specs/                    # Cross-cutting specs (shared libs, CI, infra)
-│   └── changes/
-│       └── archive/
+│ ├── specs/ # Cross-cutting specs (shared libs, CI, infra)
+│ └── changes/
+│ └── archive/
 ├── apps/
-│   ├── admin/
-│   │   └── CLAUDE.md             # Admin-specific: stack, routing, commands
-│   ├── web/
-│   │   └── CLAUDE.md             # Web-specific: stack, routing, commands
-│   ├── purchase/
-│   │   └── CLAUDE.md             # Purchase-specific: stack, routing, commands
-│   └── automation-playwright/
-│       └── CLAUDE.md             # E2E test conventions
-└── packages/                     # Shared packages (if any)
-    └── shared-lib/
+│ ├── admin/
+│ │ └── CLAUDE.md # Admin-specific: stack, routing, commands
+│ ├── web/
+│ │ └── CLAUDE.md # Web-specific: stack, routing, commands
+│ ├── purchase/
+│ │ └── CLAUDE.md # Purchase-specific: stack, routing, commands
+│ └── automation-playwright/
+│ └── CLAUDE.md # E2E test conventions
+└── packages/ # Shared packages (if any)
+└── shared-lib/
+
 ```
 
 ### Available Subagents
@@ -606,15 +624,18 @@ monorepo-root/
 **Canonical sequence (every change):**
 
 ```
-requirements-analyst              (clarify requirements with the user FIRST)
-  → opsx:propose               (generate artifacts from clarified requirements)
-  → security-reviewer          (if yarn add / external code — ⛔ BLOCKS until safe)
-  → unit-test-writer           (if testable units; tests land first)
-  ⏸ WAIT — present findings, wait for user to trigger apply
-  → opsx:apply via {IMPLEMENTATION_SPECIALIST}   (user-triggered only)
-  → code-reviewer              (address findings before continuing)
-  → opsx:verify
-  → opsx:archive
+
+requirements-analyst (clarify requirements with the user FIRST)
+⏸ WAIT — present findings to user, wait for confirmation
+→ opsx:propose (generate artifacts from confirmed requirements)
+→ security-reviewer (if yarn add / external code — ⛔ BLOCKS until safe)
+→ unit-test-writer (if testable units; tests land first)
+⏸ WAIT — present findings, wait for user to trigger apply
+→ opsx:apply via {IMPLEMENTATION_SPECIALIST} (user-triggered only)
+→ code-reviewer (address findings before continuing)
+→ opsx:verify
+→ opsx:archive
+
 ```
 
 Right-size by shortening each stage, not by removing stages. Skipping an agent requires its "Skip when" condition in the table above to be true.
@@ -671,8 +692,8 @@ The workflow follows four OpenSpec principles:
 
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense for the change at hand.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
-- **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal. Size scales *depth*, not which stages run.
-- **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify *deltas* — not green-field descriptions.
+- **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal. Size scales _depth_, not which stages run.
+- **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify _deltas_ — not green-field descriptions.
 
 ### Right-Sizing the Process
 
@@ -689,16 +710,20 @@ Every change runs the same OpenSpec pipeline — size only affects how deep each
 7. `opsx:archive` — finalize; update the "Existing specs" list below
 
 **Small changes** (typos, renames, one-line fixes, config tweaks):
+
 - Full pipeline, minimal depth. Skip tests only if no testable unit is produced.
 
 **Medium changes** (new component/module, bug fix spanning multiple files, refactor):
+
 - Full pipeline, normal depth. Always self-review before and after implementation.
 
 **Large changes** (new page/feature, cross-cutting refactor):
+
 - Full pipeline, deep depth. Present artifacts for approval before implementing.
 - Update the "Existing specs" list below when archiving.
 
 **Multi-app changes** (mono repo only — change spans multiple apps):
+
 - Prefix the change name with `shared/` (e.g., `shared/update-auth-flow`).
 - List all affected apps in the proposal's Impact section.
 - Read per-app CLAUDE.md files for app-specific conventions before implementing.
@@ -708,6 +733,7 @@ Every change runs the same OpenSpec pipeline — size only affects how deep each
 Always use `opsx:propose` before implementing any change. The proposal scales to the change — a simple fix gets a brief proposal, a new feature gets a thorough one.
 
 **OpenSpec commands:**
+
 - `/opsx:propose "description"` — Plan a change (proposal, design, specs, tasks)
 - `/opsx:apply [change-name]` — Implement tasks from a change
 - `/opsx:archive [change-name]` — Archive a completed change
@@ -721,32 +747,33 @@ Always use `opsx:propose` before implementing any change. The proposal scales to
 
 All changes live in root `openspec/changes/`, scoped by naming convention:
 
-| Change Scope | Naming Convention | Example |
-|-------------|-------------------|---------|
-| Single app | `{app-name}/{change-desc}` | `admin/add-user-mgmt`, `web/redesign-checkout` |
-| Shared / cross-app | `shared/{change-desc}` | `shared/update-auth-flow` |
-| Infrastructure / CI | `infra/{change-desc}` | `infra/add-ci-pipeline` |
+| Change Scope        | Naming Convention          | Example                                        |
+| ------------------- | -------------------------- | ---------------------------------------------- |
+| Single app          | `{app-name}/{change-desc}` | `admin/add-user-mgmt`, `web/redesign-checkout` |
+| Shared / cross-app  | `shared/{change-desc}`     | `shared/update-auth-flow`                      |
+| Infrastructure / CI | `infra/{change-desc}`      | `infra/add-ci-pipeline`                        |
 
 **Recommended mono repo directory structure:**
-
 ```
+
 monorepo-root/
-├── CLAUDE.md                     # Root: shared conventions, app inventory, workflow
+├── CLAUDE.md # Root: shared conventions, app inventory, workflow
 ├── openspec/
-│   ├── specs/                    # Cross-cutting specs (shared libs, CI, infra)
-│   └── changes/
-│       └── archive/
+│ ├── specs/ # Cross-cutting specs (shared libs, CI, infra)
+│ └── changes/
+│ └── archive/
 ├── apps/
-│   ├── admin/
-│   │   └── CLAUDE.md             # Admin-specific: stack, routing, commands
-│   ├── web/
-│   │   └── CLAUDE.md             # Web-specific: stack, routing, commands
-│   ├── purchase/
-│   │   └── CLAUDE.md             # Purchase-specific: stack, routing, commands
-│   └── automation-playwright/
-│       └── CLAUDE.md             # E2E test conventions
-└── packages/                     # Shared packages (if any)
-    └── shared-lib/
+│ ├── admin/
+│ │ └── CLAUDE.md # Admin-specific: stack, routing, commands
+│ ├── web/
+│ │ └── CLAUDE.md # Web-specific: stack, routing, commands
+│ ├── purchase/
+│ │ └── CLAUDE.md # Purchase-specific: stack, routing, commands
+│ └── automation-playwright/
+│ └── CLAUDE.md # E2E test conventions
+└── packages/ # Shared packages (if any)
+└── shared-lib/
+
 ```
 
 ### Archive Maintenance
@@ -794,12 +821,12 @@ Requirements change — this is normal. The change directory (`openspec/changes/
 
 When writing the CLAUDE.md workflow section, replace these placeholders with project-specific values:
 
-| Placeholder | Replace With | Example |
-|-------------|-------------|---------|
-| `{BUILD_COMMAND}` | Project's build command | `yarn build`, `cargo build`, `go build ./...` |
-| `{TEST_COMMAND}` | Project's test command | `yarn test`, `pytest`, `go test ./...` |
-| `{IMPLEMENTATION_SPECIALIST}` | Name of the implementation agent | `react-frontend-specialist`, `python-backend-specialist` |
-| `{SUBAGENT_TABLE}` | Table of available subagents with a `Skip when` column | See examples below |
+| Placeholder                   | Replace With                                           | Example                                                  |
+| ----------------------------- | ------------------------------------------------------ | -------------------------------------------------------- |
+| `{BUILD_COMMAND}`             | Project's build command                                | `yarn build`, `cargo build`, `go build ./...`            |
+| `{TEST_COMMAND}`              | Project's test command                                 | `yarn test`, `pytest`, `go test ./...`                   |
+| `{IMPLEMENTATION_SPECIALIST}` | Name of the implementation agent                       | `react-frontend-specialist`, `python-backend-specialist` |
+| `{SUBAGENT_TABLE}`            | Table of available subagents with a `Skip when` column | See examples below                                       |
 
 ### Example: Filled-In Subagent Section (React project)
 
@@ -808,27 +835,30 @@ When writing the CLAUDE.md workflow section, replace these placeholders with pro
 
 Each agent maps to a specific stage of the OpenSpec workflow. The agent is required at its stage unless its explicit "Skip when" condition is met.
 
-| Agent | OpenSpec Stage | Purpose | Skip when |
-|-------|---------------|---------|-----------|
-| `requirements-analyst` | **Before** `opsx:propose` | Checks requirements, asks clarifying questions, resolves ambiguities | Never — even "obvious" requests have hidden assumptions |
-| `security-reviewer` | Before `yarn add` / fetching external URLs / using web-searched code | **⛔ BLOCKING** — reviews packages, URLs, and external snippets for typosquatting, CVEs, malicious code. All work pauses until safe. | The change adds no dependencies and pulls in no external code |
-| `unit-test-writer` | Before `opsx:apply` (TDD) | Writes tests from specs before implementation so tests drive the diff | No testable units — pure config, routing, styling-only, docs |
-| `react-frontend-specialist` | During `opsx:apply` | Implements UI components, layouts, state, API integration | Change has no UI surface |
-| `code-reviewer` | After `opsx:apply`, before `opsx:verify` | Reviews the diff for quality, correctness, security | Never |
+| Agent                       | OpenSpec Stage                                                       | Purpose                                                                                                                              | Skip when                                                     |
+| --------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| `requirements-analyst`      | **Before** `opsx:propose`                                            | Checks requirements, asks clarifying questions, resolves ambiguities                                                                 | Never — even "obvious" requests have hidden assumptions       |
+| `security-reviewer`         | Before `yarn add` / fetching external URLs / using web-searched code | **⛔ BLOCKING** — reviews packages, URLs, and external snippets for typosquatting, CVEs, malicious code. All work pauses until safe. | The change adds no dependencies and pulls in no external code |
+| `unit-test-writer`          | Before `opsx:apply` (TDD)                                            | Writes tests from specs before implementation so tests drive the diff                                                                | No testable units — pure config, routing, styling-only, docs  |
+| `react-frontend-specialist` | During `opsx:apply`                                                  | Implements UI components, layouts, state, API integration                                                                            | Change has no UI surface                                      |
+| `code-reviewer`             | After `opsx:apply`, before `opsx:verify`                             | Reviews the diff for quality, correctness, security                                                                                  | Never                                                         |
 
 **Canonical sequence (every change):**
+```
+
+requirements-analyst (clarify requirements FIRST)
+⏸ WAIT — present findings to user, wait for confirmation
+→ opsx:propose (generate artifacts from confirmed requirements)
+→ security-reviewer (if yarn add / external code — ⛔ BLOCKS until safe)
+→ unit-test-writer (if testable units)
+⏸ WAIT — present findings, wait for user to trigger apply
+→ opsx:apply via react-frontend-specialist (user-triggered only)
+→ code-reviewer
+→ opsx:verify
+→ opsx:archive
 
 ```
-requirements-analyst              (clarify requirements FIRST)
-  → opsx:propose               (generate artifacts from clarified requirements)
-  → security-reviewer          (if yarn add / external code — ⛔ BLOCKS until safe)
-  → unit-test-writer           (if testable units)
-  ⏸ WAIT — present findings, wait for user to trigger apply
-  → opsx:apply via react-frontend-specialist   (user-triggered only)
-  → code-reviewer
-  → opsx:verify
-  → opsx:archive
-```
+
 ```
 
 ### Example: Filled-In Subagent Section (Go API)
@@ -836,23 +866,27 @@ requirements-analyst              (clarify requirements FIRST)
 ```markdown
 ### Available Subagents
 
-| Agent | OpenSpec Stage | Purpose | Skip when |
-|-------|---------------|---------|-----------|
-| `requirements-analyst` | **Before** `opsx:propose` | Checks requirements, asks clarifying questions | Never |
-| `security-reviewer` | Before `go get` / external URL | **⛔ BLOCKING** — reviews new modules for supply-chain risks. All work pauses until safe. | No deps / no external code |
-| `unit-test-writer` | Before `opsx:apply` (TDD) | Writes `_test.go` tests from specs | No testable units |
-| `go-backend-specialist` | During `opsx:apply` | Implements Go code | No code surface |
-| `code-reviewer` | After `opsx:apply` | Reviews diffs for quality and correctness | Never |
+| Agent                   | OpenSpec Stage                 | Purpose                                                                                   | Skip when                  |
+| ----------------------- | ------------------------------ | ----------------------------------------------------------------------------------------- | -------------------------- |
+| `requirements-analyst`  | **Before** `opsx:propose`      | Checks requirements, asks clarifying questions                                            | Never                      |
+| `security-reviewer`     | Before `go get` / external URL | **⛔ BLOCKING** — reviews new modules for supply-chain risks. All work pauses until safe. | No deps / no external code |
+| `unit-test-writer`      | Before `opsx:apply` (TDD)      | Writes `_test.go` tests from specs                                                        | No testable units          |
+| `go-backend-specialist` | During `opsx:apply`            | Implements Go code                                                                        | No code surface            |
+| `code-reviewer`         | After `opsx:apply`             | Reviews diffs for quality and correctness                                                 | Never                      |
 
 **Canonical sequence (every change):**
-
 ```
-requirements-analyst (clarify requirements FIRST) → opsx:propose →
+
+requirements-analyst (clarify requirements FIRST) →
+⏸ WAIT for user confirmation →
+opsx:propose (from confirmed requirements) →
 security-reviewer (if go get — ⛔ BLOCKS) →
 unit-test-writer (if testable) → ⏸ WAIT for user →
 opsx:apply via go-backend-specialist (user-triggered) →
 code-reviewer → opsx:verify → opsx:archive
+
 ```
+
 ```
 
 ---
@@ -874,35 +908,42 @@ If yes, use `/opsx:propose` with a description like "Document existing {area} ar
 Run through this checklist to confirm everything is working:
 
 ### Directory structure
+
 ```bash
 ls openspec/                      # Should show: specs/ changes/
 ls openspec/changes/              # Should show: archive/
 ```
 
 Check tool-specific directories (example for Claude Code):
+
 ```bash
 ls .claude/commands/opsx/         # Should show 11 .md files
 ls .claude/skills/                # Should show 11 openspec-* directories
 ```
 
 ### Subagents (if the user added any separately)
+
 ```bash
 ls .claude/agents/                # Should show agent .md files (if any)
 ```
 
 ### OpenSpec CLI
+
 ```bash
 npx openspec --version            # Should show version number
 npx openspec list                 # Should work (empty list is fine)
 ```
 
 ### Instruction file
+
 - Workflow section is present with project-specific values (no unfilled placeholders)
 - Build/test commands are correct
 - Subagent table matches the agents in `.claude/agents/` (if any were added separately)
 
 ### Quick smoke test
+
 Tell the user:
+
 > "Setup is complete! Try running `/opsx:onboard` for a guided walkthrough of the full workflow, or `/opsx:propose "your first change"` to start working."
 
 ---
@@ -938,9 +979,11 @@ openspec/changes/{change-name}/
 ## Capabilities
 
 ### New Capabilities
+
 - `capability-name`: Brief description
 
 ### Modified Capabilities
+
 - `capability-name`: What changes
 
 ## Impact
@@ -960,14 +1003,17 @@ openspec/changes/{change-name}/
 ## Goals / Non-Goals
 
 **Goals:**
+
 - [What this achieves]
 
 **Non-Goals:**
+
 - [What this deliberately does NOT do]
 
 ## Decisions
 
 ### Decision 1: [Title]
+
 **Choice**: [What was chosen]
 **Rationale**: [Why]
 **Alternatives considered**: [What else was evaluated]
@@ -994,16 +1040,20 @@ Delta specs use ADDED/MODIFIED/REMOVED sections:
 ## ADDED Requirements
 
 ### Requirement: [Name]
+
 [Description]
 
 #### Scenario: [Name]
+
 - **WHEN** [trigger]
 - **THEN** [expected outcome]
 
 ## MODIFIED Requirements
 
 ### Requirement: [Name]
+
 #### Scenario: [New scenario to add]
+
 - **WHEN** [trigger]
 - **THEN** [outcome]
 
@@ -1018,14 +1068,17 @@ Main specs (in `openspec/specs/`) use a flat format:
 # {capability} Specification
 
 ## Purpose
+
 [What this spec documents]
 
 ## Requirements
 
 ### Requirement: [Name]
+
 [Description]
 
 #### Scenario: [Name]
+
 - **WHEN** [trigger]
 - **THEN** [expected outcome]
 ```

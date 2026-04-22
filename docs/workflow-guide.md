@@ -33,7 +33,8 @@ Every change goes through the same pipeline. Change size controls **how deep** e
 
 ```
 requirements-analyst              (clarify requirements with the user FIRST)
-  → opsx:propose               (generate artifacts from clarified requirements)
+  ⏸ WAIT — present findings to user, wait for confirmation
+  → opsx:propose               (generate artifacts from confirmed requirements)
   → security-reviewer          (if yarn add / external code — ⛔ BLOCKS until safe)
   → unit-test-writer           (if testable units — skip for pure config/styling/docs)
   ⏸ WAIT — present findings, wait for user to trigger apply
@@ -45,8 +46,8 @@ requirements-analyst              (clarify requirements with the user FIRST)
 
 Depth per size:
 
-- **Small** (typo, one-line fix, styling tweak) — `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions), brief proposal. Skip `unit-test-writer` if no testable unit exists; skip `security-reviewer` if no deps/external code.
-- **Medium** (new component, multi-file fix, refactor) — full pipeline, normal depth. `requirements-analyst` and `code-reviewer` are never skipped.
+- **Small** (typo, one-line fix, styling tweak) — `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions but still presents findings and waits for your confirmation), brief proposal. Skip `unit-test-writer` if no testable unit exists; skip `security-reviewer` if no deps/external code.
+- **Medium** (new component, multi-file fix, refactor) — full pipeline, normal depth. `requirements-analyst` and `code-reviewer` are never skipped. Always waits for your confirmation after requirements-analyst before running `opsx:propose`.
 - **Large** (new page, cross-cutting feature) — full pipeline, deep depth. `requirements-analyst` does thorough requirements gathering — **waits for your answers** before running `opsx:propose`. After pre-implementation stages complete, **always waits for you to trigger `opsx:apply`**.
 
 ### 3. Answer clarifying questions
