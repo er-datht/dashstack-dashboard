@@ -1,6 +1,20 @@
 {
   "title": "受信トレイ",
-  "compose": "+ 作成",
+  "composeBtn": "+ 作成",
+  "compose": {
+    "newMessage": "新規メッセージ",
+    "to": "宛先",
+    "toPlaceholder": "受信者のメールアドレスを入力",
+    "subject": "件名",
+    "subjectPlaceholder": "件名を入力",
+    "body": "メッセージ",
+    "bodyPlaceholder": "メッセージを入力...",
+    "send": "送信",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "messageSent": "メッセージを送信しました",
+    "me": "自分"
+  },
   "myEmail": "マイメール",
   "folders": {
     "inbox": "受信トレイ",

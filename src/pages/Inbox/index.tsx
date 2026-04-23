@@ -6,9 +6,12 @@ import {
   inboxLabels,
 } from "./mockData";
 import type { EmailRecord } from "./mockData";
+import type { SentMessage } from "../../types/inbox";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 import InboxSidebar from "./InboxSidebar";
 import ChatView from "./ChatView";
 import MessageList from "./MessageList";
+import ComposeView from "./ComposeView";
 
 export default function Inbox(): React.JSX.Element {
   const { t } = useTranslation("inbox");
@@ -18,6 +21,11 @@ export default function Inbox(): React.JSX.Element {
     null
   );
   const [toast, setToast] = useState<string | null>(null);
+  const [showCompose, setShowCompose] = useState(false);
+  const [sentMessages, setSentMessages] = useLocalStorage<SentMessage[]>(
+    "inbox-sent-messages",
+    []
+  );
 
   // Starred state: keyed by record id, initialized from mock data
   const [starredIds, setStarredIds] = useState<Record<string, boolean>>(() =>
@@ -52,6 +60,105 @@ export default function Inbox(): React.JSX.Element {
     setActiveLabel(record.labelId);
   };
 
+  const handleCompose = () => {
+    setShowCompose(true);
+    setSelectedRecord(null);
+  };
+
+  const handleComposeClose = () => {
+    setShowCompose(false);
+  };
+
+  const handleComposeSend = (message: {
+    recipientEmail: string;
+    subject: string;
+    body: string;
+  }) => {
+    const sentMessage: SentMessage = {
+      id: crypto.randomUUID(),
+      recipientEmail: message.recipientEmail,
+      subject: message.subject,
+      body: message.body,
+      sentAt: new Date().toISOString(),
+    };
+    setSentMessages((prev) => [...prev, sentMessage]);
+    setToast(t("compose.messageSent"));
+    setShowCompose(false);
+    setActiveFolder("sent");
+  };
+
+  // Convert sent messages to EmailRecord format for the MessageList
+  const sentEmailRecords: EmailRecord[] = sentMessages.map((msg) => ({
+    id: msg.id,
+    senderName: t("compose.me"),
+    labelId: "",
+    subject: msg.subject,
+    time: new Date(msg.sentAt).toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+    }),
+  }));
+
+  // Determine which records to show based on active folder
+  const displayRecords =
+    activeFolder === "sent" ? sentEmailRecords : mockEmailRecords;
+
+  // Right panel content
+  const renderRightPanel = () => {
+    if (showCompose) {
+      return (
+        <ComposeView onClose={handleComposeClose} onSend={handleComposeSend} />
+      );
+    }
+
+    if (selectedRecord) {
+      const sentMsg = sentMessages.find((m) => m.id === selectedRecord.id);
+      const chatMessages = sentMsg
+        ? [
+            {
+              id: sentMsg.id,
+              senderId: "user-1" as const,
+              senderName: "You",
+              recipientId: "recipient" as const,
+              subject: sentMsg.subject,
+              body: sentMsg.body,
+              isRead: true,
+              isStarred: false,
+              hasAttachments: false,
+              createdAt: sentMsg.sentAt,
+              folder: "sent" as const,
+            },
+          ]
+        : mockMessages;
+
+      return (
+        <ChatView
+          messages={chatMessages}
+          contactName={
+            sentMsg ? sentMsg.recipientEmail : selectedRecord.senderName
+          }
+          activeLabel={activeLabel}
+          labels={inboxLabels}
+          onLabelChange={setActiveLabel}
+          onShowToast={setToast}
+          onBack={() => setSelectedRecord(null)}
+        />
+      );
+    }
+
+    return (
+      <MessageList
+        records={displayRecords}
+        labels={inboxLabels}
+        onSelect={handleSelectRecord}
+        onShowToast={setToast}
+        starredIds={starredIds}
+        onToggleStar={toggleStar}
+        activeFolder={activeFolder}
+      />
+    );
+  };
+
   return (
     <div className="p-6">
       {/* Page Title */}
@@ -66,30 +173,14 @@ export default function Inbox(): React.JSX.Element {
           activeFolder={activeFolder}
           onFolderChange={setActiveFolder}
           onShowToast={setToast}
-          folderCountOverrides={{ starred: starredCount }}
+          onCompose={handleCompose}
+          folderCountOverrides={{
+            starred: starredCount,
+            sent: sentMessages.length,
+          }}
         />
 
-        {selectedRecord ? (
-          <ChatView
-            messages={mockMessages}
-            contactName={selectedRecord.senderName}
-            activeLabel={activeLabel}
-            labels={inboxLabels}
-            onLabelChange={setActiveLabel}
-            onShowToast={setToast}
-            onBack={() => setSelectedRecord(null)}
-          />
-        ) : (
-          <MessageList
-            records={mockEmailRecords}
-            labels={inboxLabels}
-            onSelect={handleSelectRecord}
-            onShowToast={setToast}
-            starredIds={starredIds}
-            onToggleStar={toggleStar}
-            activeFolder={activeFolder}
-          />
-        )}
+        {renderRightPanel()}
       </div>
 
       {/* Toast Notification */}

@@ -8,6 +8,7 @@ type InboxSidebarProps = {
   activeFolder: string;
   onFolderChange: (folderId: string) => void;
   onShowToast: (message: string) => void;
+  onCompose: () => void;
   folderCountOverrides?: Partial<Record<string, number>>;
 };
 
@@ -15,6 +16,7 @@ export default function InboxSidebar({
   activeFolder,
   onFolderChange,
   onShowToast,
+  onCompose,
   folderCountOverrides,
 }: InboxSidebarProps): React.JSX.Element {
   const { t } = useTranslation("inbox");
@@ -24,7 +26,7 @@ export default function InboxSidebar({
       {/* Compose Button */}
       <button
         type="button"
-        onClick={() => onShowToast(t("chat.comingSoon"))}
+        onClick={onCompose}
         className={cn(
           "w-full py-2.5 rounded-lg",
           "bg-primary text-on-primary font-medium text-sm",
@@ -32,7 +34,7 @@ export default function InboxSidebar({
           "cursor-pointer"
         )}
       >
-        {t("compose")}
+        {t("composeBtn")}
       </button>
 
       {/* My Email Section */}

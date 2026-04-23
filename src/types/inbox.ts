@@ -44,6 +44,14 @@ export type MessageDraft = {
   attachments?: File[];
 };
 
+export type SentMessage = {
+  id: string;
+  recipientEmail: string;
+  subject: string;
+  body: string;
+  sentAt: string;
+};
+
 export type MessageFilter = {
   folder: MessageFolder;
   isRead?: boolean;

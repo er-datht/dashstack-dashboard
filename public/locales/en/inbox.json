@@ -1,6 +1,20 @@
 {
   "title": "Inbox",
-  "compose": "+ Compose",
+  "composeBtn": "+ Compose",
+  "compose": {
+    "newMessage": "New Message",
+    "to": "To",
+    "toPlaceholder": "Enter recipient email",
+    "subject": "Subject",
+    "subjectPlaceholder": "Enter subject",
+    "body": "Message",
+    "bodyPlaceholder": "Write your message...",
+    "send": "Send",
+    "cancel": "Cancel",
+    "close": "Close",
+    "messageSent": "Message sent",
+    "me": "Me"
+  },
   "myEmail": "My Email",
   "folders": {
     "inbox": "Inbox",
