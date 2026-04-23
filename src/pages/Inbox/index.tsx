@@ -6,12 +6,14 @@ import {
   inboxLabels,
 } from "./mockData";
 import type { EmailRecord } from "./mockData";
-import type { SentMessage, DraftMessage } from "../../types/inbox";
+import type { SentMessage, DraftMessage, BinnedMessage } from "../../types/inbox";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import InboxSidebar from "./InboxSidebar";
 import ChatView from "./ChatView";
 import MessageList from "./MessageList";
 import ComposeView from "./ComposeView";
+
+const BIN_ELIGIBLE_FOLDERS = ["inbox", "starred", "sent", "important"];
 
 export default function Inbox(): React.JSX.Element {
   const { t } = useTranslation("inbox");
@@ -36,6 +38,12 @@ export default function Inbox(): React.JSX.Element {
     subject: string;
     body: string;
   } | null>(null);
+  const [binnedMessages, setBinnedMessages] = useLocalStorage<BinnedMessage[]>(
+    "inbox-binned-messages",
+    []
+  );
+
+  const binnedIdSet = new Set(binnedMessages.map((m) => m.id));
 
   const setActiveFolder = (folder: string) => {
     setActiveFolderRaw(folder);
@@ -64,7 +72,9 @@ export default function Inbox(): React.JSX.Element {
     });
   };
 
-  const starredCount = Object.values(starredIds).filter(Boolean).length;
+  const starredCount = Object.keys(starredIds).filter(
+    (id) => starredIds[id] && !binnedIdSet.has(id)
+  ).length;
 
   // Auto-dismiss toast after 2 seconds
   useEffect(() => {
@@ -138,7 +148,8 @@ export default function Inbox(): React.JSX.Element {
 
   const handleSaveDraft = (
     data: { recipientEmail: string; subject: string; body: string },
-    draftId?: string | null
+    draftId?: string | null,
+    navigateToDraft?: boolean
   ) => {
     if (draftId) {
       // Update existing draft
@@ -167,6 +178,13 @@ export default function Inbox(): React.JSX.Element {
       };
       setDraftMessages((prev) => [...prev, newDraft]);
       setEditingDraftId(newId);
+    }
+    if (navigateToDraft) {
+      setShowCompose(false);
+      setEditingDraftId(null);
+      setDraftInitialData(null);
+      setActiveFolderRaw("draft");
+      setSelectedRecord(null);
     }
   };
 
@@ -198,15 +216,148 @@ export default function Inbox(): React.JSX.Element {
     }),
   }));
 
+  // Shared helper: resolve source folder, find record, build BinnedMessage
+  const buildBinnedMessage = (id: string): { binned: BinnedMessage; isSent: boolean } | null => {
+    if (binnedIdSet.has(id)) return null;
+
+    let sourceFolder = activeFolder;
+    if (activeFolder === "starred") {
+      if (mockEmailRecords.some((r) => r.id === id)) {
+        sourceFolder = "inbox";
+      } else if (sentMessages.some((m) => m.id === id)) {
+        sourceFolder = "sent";
+      }
+    }
+
+    const record =
+      mockEmailRecords.find((r) => r.id === id) ||
+      sentEmailRecords.find((r) => r.id === id);
+    if (!record) return null;
+
+    const sentMsg = sourceFolder === "sent" ? sentMessages.find((m) => m.id === id) : undefined;
+
+    return {
+      binned: {
+        id: record.id,
+        senderName: record.senderName,
+        labelId: record.labelId,
+        subject: record.subject,
+        time: record.time,
+        sourceFolder: sourceFolder as BinnedMessage["sourceFolder"],
+        ...(sentMsg && {
+          recipientEmail: sentMsg.recipientEmail,
+          body: sentMsg.body,
+          sentAt: sentMsg.sentAt,
+        }),
+      },
+      isSent: sourceFolder === "sent",
+    };
+  };
+
+  const handleDeleteToBin = (id: string) => {
+    const result = buildBinnedMessage(id);
+    if (!result) return;
+
+    // Guard inside updater to prevent duplicates from rapid clicks
+    setBinnedMessages((prev) => {
+      if (prev.some((m) => m.id === id)) return prev;
+      return [...prev, result.binned];
+    });
+
+    if (result.isSent) {
+      setSentMessages((prev) => prev.filter((m) => m.id !== id));
+    }
+
+    setToast(t("list.deletedToBin"));
+  };
+
+  const handleBulkDeleteToBin = (ids: string[]) => {
+    const results = ids
+      .map((id) => buildBinnedMessage(id))
+      .filter((r): r is NonNullable<typeof r> => r !== null);
+
+    if (results.length === 0) return;
+
+    const sentIdsToRemove = new Set(
+      results.filter((r) => r.isSent).map((r) => r.binned.id)
+    );
+
+    // Guard inside updater to prevent duplicates from stale state
+    setBinnedMessages((prev) => {
+      const existingIds = new Set(prev.map((m) => m.id));
+      const newItems = results
+        .filter((r) => !existingIds.has(r.binned.id))
+        .map((r) => r.binned);
+      if (newItems.length === 0) return prev;
+      return [...prev, ...newItems];
+    });
+
+    if (sentIdsToRemove.size > 0) {
+      setSentMessages((prev) =>
+        prev.filter((m) => !sentIdsToRemove.has(m.id))
+      );
+    }
+
+    setToast(t("list.deletedToBin"));
+  };
+
+  const handleRestoreFromBin = (id: string) => {
+    const binned = binnedMessages.find((m) => m.id === id);
+    if (!binned) return;
+
+    setBinnedMessages((prev) => prev.filter((m) => m.id !== id));
+
+    // If source was sent, re-add to sentMessages with preserved data
+    if (binned.sourceFolder === "sent") {
+      const restoredSent: SentMessage = {
+        id: binned.id,
+        recipientEmail: binned.recipientEmail ?? "",
+        subject: binned.subject,
+        body: binned.body ?? "",
+        sentAt: binned.sentAt ?? new Date().toISOString(),
+      };
+      setSentMessages((prev) => [...prev, restoredSent]);
+    }
+
+    setToast(t("list.restored"));
+  };
+
   // Determine which records to show based on active folder
-  const displayRecords =
-    activeFolder === "sent"
-      ? sentEmailRecords
-      : activeFolder === "draft"
-        ? draftEmailRecords
-        : activeFolder === "starred"
-          ? [...mockEmailRecords, ...sentEmailRecords, ...draftEmailRecords]
-          : mockEmailRecords;
+  const getDisplayRecords = (): EmailRecord[] => {
+    if (activeFolder === "bin") {
+      return binnedMessages.map((m) => ({
+        id: m.id,
+        senderName: m.senderName,
+        labelId: m.labelId,
+        subject: m.subject,
+        time: m.time,
+      }));
+    }
+    if (activeFolder === "sent") {
+      return sentEmailRecords.filter((r) => !binnedIdSet.has(r.id));
+    }
+    if (activeFolder === "draft") {
+      return draftEmailRecords;
+    }
+    if (activeFolder === "starred") {
+      return [...mockEmailRecords, ...sentEmailRecords, ...draftEmailRecords].filter(
+        (r) => !binnedIdSet.has(r.id)
+      );
+    }
+    return mockEmailRecords.filter((r) => !binnedIdSet.has(r.id));
+  };
+  const displayRecords = getDisplayRecords();
+
+  // Determine handlers based on active folder
+  const getDeleteHandler = () => {
+    if (activeFolder === "draft") return handleDeleteDraft;
+    if (BIN_ELIGIBLE_FOLDERS.includes(activeFolder)) return handleDeleteToBin;
+    return undefined;
+  };
+  const deleteHandler = getDeleteHandler();
+  const bulkDeleteHandler = BIN_ELIGIBLE_FOLDERS.includes(activeFolder)
+    ? handleBulkDeleteToBin
+    : undefined;
 
   // Right panel content
   const renderRightPanel = () => {
@@ -267,7 +418,9 @@ export default function Inbox(): React.JSX.Element {
         starredIds={starredIds}
         onToggleStar={toggleStar}
         activeFolder={activeFolder}
-        onDelete={activeFolder === "draft" ? handleDeleteDraft : undefined}
+        onDelete={deleteHandler}
+        onRestore={activeFolder === "bin" ? handleRestoreFromBin : undefined}
+        onBulkDelete={bulkDeleteHandler}
       />
     );
   };
@@ -291,6 +444,7 @@ export default function Inbox(): React.JSX.Element {
             starred: starredCount,
             sent: sentMessages.length,
             draft: draftMessages.length,
+            bin: binnedMessages.length,
           }}
         />
 

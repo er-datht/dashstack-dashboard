@@ -83,7 +83,7 @@ After implementation and `code-reviewer` findings are addressed, Claude runs `/o
 
 ### Archive maintenance
 
-When archive exceeds ~50 changes, sync all to main specs, keep the 20 most recent archives, delete the rest. Git preserves the full history — use `git log -- openspec/changes/archive/` to recover old proposals if needed.
+When archive reaches ~50 changes, notify the user and let them decide whether to sync. Do not auto-sync or assume they want it. If the user approves: sync all to main specs, keep the 20 most recent archives, delete the rest. Git preserves the full history — use `git log -- openspec/changes/archive/` to recover old proposals if needed.
 
 ---
 

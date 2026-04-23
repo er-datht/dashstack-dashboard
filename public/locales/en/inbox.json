@@ -10,11 +10,9 @@
     "body": "Message",
     "bodyPlaceholder": "Write your message...",
     "send": "Send",
-    "cancel": "Cancel",
     "close": "Close",
     "messageSent": "Message sent",
     "me": "Me",
-    "saveAsDraft": "Save as Draft",
     "draftSaved": "Draft saved",
     "editDraft": "Edit Draft",
     "noSubject": "(No subject)",
@@ -42,7 +40,12 @@
     "search": "Search",
     "showing": "Showing {{start}}-{{end}} of {{total}}",
     "selectMessage": "Select message",
-    "star": "Star"
+    "star": "Star",
+    "restore": "Restore",
+    "restored": "Message restored",
+    "deletedToBin": "Moved to Bin",
+    "noSelection": "No messages selected",
+    "selectAll": "Select all"
   },
   "chat": {
     "send": "Send",

@@ -10,11 +10,9 @@
     "body": "メッセージ",
     "bodyPlaceholder": "メッセージを入力...",
     "send": "送信",
-    "cancel": "キャンセル",
     "close": "閉じる",
     "messageSent": "メッセージを送信しました",
     "me": "自分",
-    "saveAsDraft": "下書きを保存",
     "draftSaved": "下書きを保存しました",
     "editDraft": "下書きを編集",
     "noSubject": "（件名なし）",
@@ -42,7 +40,12 @@
     "search": "検索",
     "showing": "{{start}}-{{end}} / {{total}}件表示中",
     "selectMessage": "メッセージを選択",
-    "star": "スター"
+    "star": "スター",
+    "restore": "復元",
+    "restored": "メッセージを復元しました",
+    "deletedToBin": "ゴミ箱に移動しました",
+    "noSelection": "メッセージが選択されていません",
+    "selectAll": "すべて選択"
   },
   "chat": {
     "send": "送信",

@@ -18,7 +18,8 @@ type ComposeViewProps = {
   editingDraftId?: string | null;
   onSaveDraft?: (
     data: { recipientEmail: string; subject: string; body: string },
-    draftId?: string | null
+    draftId?: string | null,
+    navigateToDraft?: boolean
   ) => void;
   onShowToast?: (message: string) => void;
 };
@@ -49,42 +50,35 @@ export default function ComposeView({
     subject: false,
     body: false,
   });
-  const [autoSaveStatus, setAutoSaveStatus] = useState<
-    "idle" | "saving" | "saved"
-  >("idle");
-  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Refs to capture latest values for unmount auto-save
+  const latestDataRef = useRef({ recipientEmail, subject, body });
+  const onSaveDraftRef = useRef(onSaveDraft);
+  const editingDraftIdRef = useRef(editingDraftId);
 
-  // Auto-save draft with 3-second debounce
   useEffect(() => {
-    if (autoSaveTimerRef.current) {
-      clearTimeout(autoSaveTimerRef.current);
-    }
+    latestDataRef.current = { recipientEmail, subject, body };
+  }, [recipientEmail, subject, body]);
 
-    if (!onSaveDraft) return;
-    if (!recipientEmail.trim() && !subject.trim() && !body.trim()) return;
+  useEffect(() => {
+    onSaveDraftRef.current = onSaveDraft;
+  }, [onSaveDraft]);
 
-    autoSaveTimerRef.current = setTimeout(() => {
-      setAutoSaveStatus("saving");
-      onSaveDraft(
-        {
-          recipientEmail: recipientEmail.trim(),
-          subject: subject.trim(),
-          body: body.trim(),
-        },
-        editingDraftId
-      );
-      setTimeout(() => {
-        setAutoSaveStatus("saved");
-        setTimeout(() => setAutoSaveStatus("idle"), 2000);
-      }, 300);
-    }, 3000);
+  useEffect(() => {
+    editingDraftIdRef.current = editingDraftId;
+  }, [editingDraftId]);
 
+  // Auto-save draft only on unmount
+  useEffect(() => {
     return () => {
-      if (autoSaveTimerRef.current) {
-        clearTimeout(autoSaveTimerRef.current);
-      }
+      const { recipientEmail: r, subject: s, body: b } = latestDataRef.current;
+      if (!onSaveDraftRef.current) return;
+      if (!r.trim() && !s.trim() && !b.trim()) return;
+      onSaveDraftRef.current(
+        { recipientEmail: r.trim(), subject: s.trim(), body: b.trim() },
+        editingDraftIdRef.current
+      );
     };
-  }, [recipientEmail, subject, body, onSaveDraft, editingDraftId]);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,13 +116,6 @@ export default function ComposeView({
               ? t("compose.editDraft")
               : t("compose.newMessage")}
           </h2>
-          {autoSaveStatus !== "idle" && (
-            <span className="text-xs text-secondary">
-              {autoSaveStatus === "saving"
-                ? t("compose.saving")
-                : t("compose.draftSaved")}
-            </span>
-          )}
         </div>
         <button
           type="button"
@@ -231,32 +218,6 @@ export default function ComposeView({
 
       {/* Footer */}
       <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-default">
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-4 py-2 rounded-lg text-sm font-medium text-primary bg-surface border border-default hover:bg-surface-secondary transition-colors cursor-pointer"
-        >
-          {t("compose.cancel")}
-        </button>
-        {onSaveDraft && (
-          <button
-            type="button"
-            onClick={() => {
-              onSaveDraft(
-                {
-                  recipientEmail: recipientEmail.trim(),
-                  subject: subject.trim(),
-                  body: body.trim(),
-                },
-                editingDraftId
-              );
-              onShowToast?.(t("compose.draftSaved"));
-            }}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-primary bg-surface border border-default hover:bg-surface-secondary transition-colors cursor-pointer"
-          >
-            {t("compose.saveAsDraft")}
-          </button>
-        )}
         <button
           type="submit"
           className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-on-primary hover:opacity-90 transition-opacity cursor-pointer"

@@ -159,6 +159,36 @@ You will:
 
 - **Accessibility**: ARIA labels, keyboard navigation, screen readers
 
+- **No Nested Conditions**: Avoid nested ternaries, deeply nested if/else chains, and nested conditional rendering blocks. These harm readability, make diffs harder to review, and introduce subtle bugs.
+  - **Ternaries**: Never nest ternary operators. If a value depends on more than one condition, extract it to a variable using if/else or a lookup object before the JSX.
+  - **If/else**: Flatten nested if/else blocks using early returns, guard clauses, or switch statements. Maximum nesting depth: 2 levels.
+  - **JSX conditionals**: Avoid stacking `{condition && (...)}` or `{condition ? A : B}` blocks that depend on overlapping conditions. Instead, compute the value before the return statement using a helper function or variable, then render the single result.
+  - **displayRecords pattern**: When branching on folder/tab/view, prefer a helper function with early returns or a switch statement over a chain of nested ternaries.
+
+  **Bad** (nested ternary):
+  ```tsx
+  const content = isA ? <A /> : isB ? <B /> : isC ? <C /> : <D />;
+  ```
+  **Good** (flat with early returns):
+  ```tsx
+  function getContent() {
+    if (isA) return <A />;
+    if (isB) return <B />;
+    if (isC) return <C />;
+    return <D />;
+  }
+  ```
+  **Bad** (overlapping JSX conditionals):
+  ```tsx
+  {isDraft && onDelete && (<DeleteButton />)}
+  {isEligible && onDelete && (<DeleteButton />)}
+  {isBin && onRestore && (<RestoreButton />)}
+  ```
+  **Good** (single conditional block):
+  ```tsx
+  {onDelete && activeFolder !== "bin" && (<DeleteButton />)}
+  {onRestore && activeFolder === "bin" && (<RestoreButton />)}
+
 ## Problem-Solving Approach
 
 When facing challenges:

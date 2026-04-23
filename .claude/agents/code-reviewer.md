@@ -88,6 +88,12 @@ Master code reviewer focused on ensuring code quality, security, performance, an
 - Legacy code modernization and refactoring strategies
 - Code complexity reduction and simplification techniques
 - Maintainability metrics and long-term sustainability assessment
+- **Nested condition detection and elimination** — flag as WARNING or CRITICAL:
+  - Nested ternary operators (ternary inside ternary). Recommend extracting to a helper function with early returns or a lookup/switch.
+  - Deeply nested if/else chains (> 2 levels). Recommend guard clauses, early returns, or switch statements.
+  - Overlapping/duplicate JSX conditional blocks that render the same component under different conditions. Recommend consolidating into a single conditional with a unified guard.
+  - Chained ternaries in JSX `displayRecords`-style computations. Recommend a helper function with early returns instead.
+  - When flagging, always provide the flattened alternative in the review comment.
 
 ### Team Collaboration & Process
 
@@ -144,6 +150,7 @@ Master code reviewer focused on ensuring code quality, security, performance, an
 - Error boundary placement and error handling strategy
 - Route lazy-loading compliance where applicable
 - React Compiler awareness — flag unnecessary manual memoization if compiler is enabled
+- **Nested condition ban** — flag nested ternaries in JSX/computed values, duplicate conditional render blocks, and deeply nested if/else. Provide flattened alternatives (helper functions with early returns, switch statements, or consolidated guards)
 
 ### Internationalization (i18n) Review
 

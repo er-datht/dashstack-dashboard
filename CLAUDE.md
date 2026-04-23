@@ -199,7 +199,7 @@ Right-size within this sequence by shortening each stage — not by removing sta
 
 ### Archive Maintenance
 
-When archive exceeds ~50 changes, sync all to main specs (`opsx:sync`), keep the 20 most recent archives, delete the rest. Git preserves the full history — use `git log -- openspec/changes/archive/` to recover old proposals if needed.
+When archive reaches ~50 changes, notify the user and let them decide whether to sync. Do not auto-sync or assume they want it. If the user approves: sync all to main specs (`opsx:sync`), keep the 20 most recent archives, delete the rest. Git preserves the full history — use `git log -- openspec/changes/archive/` to recover old proposals if needed.
 
 ### Non-Code Actions (No Workflow Needed)
 
@@ -250,6 +250,10 @@ When archive exceeds ~50 changes, sync all to main specs (`opsx:sync`), keep the
 39. `invoice-page` — Invoice page with sender/recipient header, items table, total, Print/Send buttons, i18n
 40. `inbox-page` — Inbox page: two-panel layout, folder sidebar, message list with search/pagination, chat view with label dropdown, i18n, accessibility
 41. `inbox-starred-messages` — Functional star-toggle on message rows, Starred folder filtering, live sidebar count, pagination reset on folder switch
+42. `inbox-bin-folder` — Bin folder: soft-delete to bin, restore from bin, bulk delete, per-row Trash2/RotateCcw buttons, binned message exclusion from source folders, live bin count, starred count excludes binned
+43. `inbox-select-all-checkbox` — Select-all/unselect-all checkbox in MessageList header with indeterminate state, page-change selection clearing
+44. `remove-compose-cancel-button` — Removed Cancel button from ComposeView footer (redundant with X close button), cleaned up tests and i18n keys
+45. `remove-save-as-draft-button` — Removed Save as Draft button from ComposeView footer (redundant with auto-save on unmount), cleaned up i18n keys
 
 ## Common Gotchas
 
