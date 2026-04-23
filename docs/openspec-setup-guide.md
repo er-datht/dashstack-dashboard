@@ -667,7 +667,7 @@ Requirements change — this is normal. The change directory (`openspec/changes/
 
 ### Archive Maintenance
 
-When archive exceeds ~50 changes, sync all to main specs (`opsx:sync`), keep the 20 most recent archives, delete the rest. Git preserves the full history.
+When archive reaches ~50 changes, notify the user and let them decide whether to sync. Do not auto-sync or assume they want it. If the user approves: sync all to main specs (`opsx:sync`), keep the 20 most recent archives, delete the rest. Git preserves the full history.
 
 ### Non-Code Actions (No Workflow Needed)
 
@@ -778,7 +778,7 @@ monorepo-root/
 
 ### Archive Maintenance
 
-When archive exceeds ~50 changes, sync all to main specs (`opsx:sync`), keep the 20 most recent archives, delete the rest. Git preserves the full history.
+When archive reaches ~50 changes, notify the user and let them decide whether to sync. Do not auto-sync or assume they want it. If the user approves: sync all to main specs (`opsx:sync`), keep the 20 most recent archives, delete the rest. Git preserves the full history.
 
 ### When Requirements Change Mid-Implementation
 
