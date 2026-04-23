@@ -226,6 +226,66 @@ Right-size within this pipeline by shortening each stage, not by removing stages
 
 - **Same intent, refined scope** → update the existing change (revise specs/tasks, continue)
 - **Fundamentally different direction** → start a new change (old artifacts become context)
+
+## OpenSpec Commands
+
+- `/opsx:propose "description"` — Plan a change (proposal, design, specs, tasks)
+- `/opsx:apply [change-name]` — Implement tasks from a change
+- `/opsx:archive [change-name]` — Archive a completed change
+- `/opsx:explore [topic]` — Think mode (read-only)
+
+**Expanded commands (finer control):**
+
+- `/opsx:new [change-name]` — Scaffold a change directory without creating artifacts
+- `/opsx:ff [change-name]` — Fast-forward: create all remaining planning artifacts at once
+- `/opsx:continue [change-name]` — Create the next artifact one step at a time
+- `/opsx:verify [change-name]` — Validate implementation against specs
+- `/opsx:sync [change-name]` — Merge delta specs to main specs
+- `/opsx:bulk-archive` — Archive multiple completed changes at once
+- `/opsx:onboard` — Guided tutorial walkthrough
+
+**When to use `ff` vs `continue`:**
+
+| Situation | Use |
+|-----------|-----|
+| Clear requirements, ready to build | `/opsx:ff` or `/opsx:propose` |
+| Exploring, want to review each artifact | `/opsx:continue` |
+| Time pressure, need to move fast | `/opsx:ff` |
+| Complex change, want control | `/opsx:continue` |
+
+**Rule of thumb:** If you can describe the full scope upfront, use `propose` or `ff`. If figuring it out as you go, use `new` + `continue`.
+
+## Verify Before Archiving
+
+Always run `opsx:verify` before `opsx:archive` to validate that the implementation matches the specs.
+
+## Parallel Changes
+
+Work on multiple changes concurrently — each lives in its own `openspec/changes/` directory:
+
+- Use `/opsx:apply [change-name]` to resume a specific change
+- Use `/opsx:bulk-archive` to archive multiple completed changes at once
+- Each change's artifacts are independent — no cross-contamination
+
+## Update vs. New Change
+
+**Update the existing change when:**
+- Same intent, refined execution
+- Scope narrows (shipping MVP first, rest later)
+- Design tweaks based on implementation discoveries
+
+**Start a new change when:**
+- Intent fundamentally changed
+- Scope exploded to different work entirely
+- Original change can be marked "done" standalone
+
+**Quick test:** Can the original change be archived as a complete, coherent unit without these new changes? If yes → new change. If no → update.
+
+## Archive Maintenance
+
+Never delete archived changes — they are the audit trail (proposal, design, tasks, specs) that doesn't exist in structured form anywhere else. Let the archive grow; it's markdown and has negligible cost.
+
+When the "Existing specs" list grows unwieldy, reorganize it by domain rather than listing every change individually. When spec files grow too large from accumulated deltas, split them by subdomain.
 ```
 
 ## Step 6: Add to CLAUDE.md
@@ -280,11 +340,13 @@ Every change runs the same OpenSpec pipeline. Subagents are **mandatory at their
 | `<your-specialist>` | During `opsx:apply` | No UI/code surface |
 | `code-reviewer` | After `opsx:apply` | Never |
 
-**Commands:** /opsx:propose, /opsx:apply, /opsx:archive, /opsx:explore
+**Core commands:** /opsx:propose, /opsx:apply, /opsx:archive, /opsx:explore
+
+**Expanded commands:** /opsx:new, /opsx:ff, /opsx:continue, /opsx:verify, /opsx:sync, /opsx:bulk-archive, /opsx:onboard
 
 [OpenSpec](https://github.com/Fission-AI/OpenSpec) specs live in `openspec/`.
 
-**Archive maintenance:** When archive reaches ~50 changes, notify the user and let them decide whether to sync. Do not auto-sync or assume they want it. If the user approves: sync all to main specs (`opsx:sync`), keep the 20 most recent, delete the rest. Git preserves the full history.
+**Archive maintenance:** Never delete archived changes — they are the audit trail (proposal, design, tasks, specs) that doesn't exist in structured form anywhere else. Let the archive grow; it's markdown and has negligible cost. When the "Existing specs" list grows unwieldy, reorganize by domain. When spec files grow too large, split by subdomain.
 
 **Existing specs** (update as you archive):
 
@@ -341,11 +403,25 @@ Then archive the findings as your baseline specs.
 
 ## Command Cheat Sheet
 
+**Core commands:**
+
 | Command                | What                     |
 | ---------------------- | ------------------------ |
-| `/opsx:propose "desc"` | Plan a change            |
+| `/opsx:propose "desc"` | Plan a change (all artifacts at once) |
 | `/opsx:apply`          | Implement                |
 | `/opsx:archive`        | Archive done change      |
-| `/opsx:explore`        | Think mode               |
-| `/opsx:onboard`        | Guided tutorial          |
+| `/opsx:explore`        | Think mode (read-only)   |
+
+**Expanded commands:**
+
+| Command                | What                     |
+| ---------------------- | ------------------------ |
+| `/opsx:new "name"`     | Scaffold change, step through artifacts |
+| `/opsx:ff`             | Fast-forward: all artifacts at once     |
+| `/opsx:continue`       | Create next artifact one at a time      |
 | `/opsx:verify`         | Check impl matches specs |
+| `/opsx:sync`           | Merge delta specs to main |
+| `/opsx:bulk-archive`   | Archive multiple changes at once |
+| `/opsx:onboard`        | Guided tutorial          |
+
+**`ff` vs `continue`:** Use `propose`/`ff` when scope is clear. Use `new` + `continue` when exploring.

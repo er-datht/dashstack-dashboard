@@ -573,12 +573,33 @@ Every change runs the same OpenSpec pipeline. Subagents are **mandatory at their
 
 Always use `opsx:propose` before implementing any change. The proposal scales to the change — a simple fix gets a brief proposal, a new feature gets a thorough one.
 
-**OpenSpec commands:**
+**Core commands (every change):**
 
-- `/opsx:propose "description"` — Plan a change (proposal, design, specs, tasks)
+- `/opsx:propose "description"` — Plan a change (proposal, design, specs, tasks — creates all artifacts at once)
 - `/opsx:apply [change-name]` — Implement tasks from a change
 - `/opsx:archive [change-name]` — Archive a completed change
 - `/opsx:explore [topic]` — Think through ideas (read-only)
+
+**Expanded commands (finer control):**
+
+- `/opsx:new [change-name]` — Scaffold a change directory without creating artifacts
+- `/opsx:ff [change-name]` — Fast-forward: create all remaining planning artifacts at once
+- `/opsx:continue [change-name]` — Create the next artifact one step at a time, reviewing each before proceeding
+- `/opsx:verify [change-name]` — Validate implementation against specs (completeness, correctness, coherence)
+- `/opsx:sync [change-name]` — Merge delta specs from a change into main `openspec/specs/`
+- `/opsx:bulk-archive` — Archive multiple completed changes at once with conflict detection
+- `/opsx:onboard` — Guided tutorial walkthrough
+
+**When to use `ff` vs `continue`:**
+
+| Situation | Use |
+|-----------|-----|
+| Clear requirements, ready to build | `/opsx:ff` or `/opsx:propose` |
+| Exploring, want to review each artifact | `/opsx:continue` |
+| Time pressure, need to move fast | `/opsx:ff` |
+| Complex change, want control over each step | `/opsx:continue` |
+
+**Rule of thumb:** If you can describe the full scope upfront, use `propose` or `ff`. If figuring it out as you go, use `new` + `continue`.
 
 [OpenSpec](https://github.com/Fission-AI/OpenSpec) specs live in `openspec/`.
 
@@ -640,6 +661,30 @@ requirements-analyst (clarify requirements with the user FIRST)
 
 Right-size by shortening each stage, not by removing stages. Skipping an agent requires its "Skip when" condition in the table above to be true.
 
+### Parallel Changes
+
+Work on multiple changes concurrently. Each change lives in its own `openspec/changes/` directory:
+
+- Use `/opsx:apply [change-name]` to resume a specific change
+- Use `/opsx:bulk-archive` to archive multiple completed changes at once (detects spec conflicts automatically)
+- Each change's artifacts are independent — no cross-contamination
+
+### Update vs. New Change
+
+When requirements shift during a change, decide whether to update the existing change or start a new one:
+
+**Update the existing change when:**
+- Same intent, refined execution
+- Scope narrows (shipping MVP first, rest later)
+- Design tweaks based on implementation discoveries
+
+**Start a new change when:**
+- Intent fundamentally changed
+- Scope exploded to different work entirely
+- Original change can be marked "done" standalone
+
+**Quick test:** Can the original change be archived as a complete, coherent unit without these new changes? If yes → new change. If no → update.
+
 ### When Requirements Change Mid-Implementation
 
 Requirements change — this is normal. The change directory (`openspec/changes/{change-name}/`) and all its artifacts (`.openspec.yaml`, `proposal.md`, `design.md`, `tasks.md`, `specs/`) must be preserved and updated in place. Never delete a change and start over unless the direction fundamentally changed.
@@ -667,7 +712,9 @@ Requirements change — this is normal. The change directory (`openspec/changes/
 
 ### Archive Maintenance
 
-When archive reaches ~50 changes, notify the user and let them decide whether to sync. Do not auto-sync or assume they want it. If the user approves: sync all to main specs (`opsx:sync`), keep the 20 most recent archives, delete the rest. Git preserves the full history.
+Never delete archived changes — they are the audit trail (proposal, design, tasks, specs) that doesn't exist in structured form anywhere else. Let the archive grow; it's markdown and has negligible cost.
+
+When the "Existing specs" list grows unwieldy, reorganize it by domain rather than listing every change individually. When spec files grow too large from accumulated deltas, split them by subdomain.
 
 ### Non-Code Actions (No Workflow Needed)
 
@@ -732,12 +779,33 @@ Every change runs the same OpenSpec pipeline — size only affects how deep each
 
 Always use `opsx:propose` before implementing any change. The proposal scales to the change — a simple fix gets a brief proposal, a new feature gets a thorough one.
 
-**OpenSpec commands:**
+**Core commands (every change):**
 
-- `/opsx:propose "description"` — Plan a change (proposal, design, specs, tasks)
+- `/opsx:propose "description"` — Plan a change (proposal, design, specs, tasks — creates all artifacts at once)
 - `/opsx:apply [change-name]` — Implement tasks from a change
 - `/opsx:archive [change-name]` — Archive a completed change
 - `/opsx:explore [topic]` — Think through ideas (read-only)
+
+**Expanded commands (finer control):**
+
+- `/opsx:new [change-name]` — Scaffold a change directory without creating artifacts
+- `/opsx:ff [change-name]` — Fast-forward: create all remaining planning artifacts at once
+- `/opsx:continue [change-name]` — Create the next artifact one step at a time, reviewing each before proceeding
+- `/opsx:verify [change-name]` — Validate implementation against specs (completeness, correctness, coherence)
+- `/opsx:sync [change-name]` — Merge delta specs from a change into main `openspec/specs/`
+- `/opsx:bulk-archive` — Archive multiple completed changes at once with conflict detection
+- `/opsx:onboard` — Guided tutorial walkthrough
+
+**When to use `ff` vs `continue`:**
+
+| Situation | Use |
+|-----------|-----|
+| Clear requirements, ready to build | `/opsx:ff` or `/opsx:propose` |
+| Exploring, want to review each artifact | `/opsx:continue` |
+| Time pressure, need to move fast | `/opsx:ff` |
+| Complex change, want control over each step | `/opsx:continue` |
+
+**Rule of thumb:** If you can describe the full scope upfront, use `propose` or `ff`. If figuring it out as you go, use `new` + `continue`.
 
 [OpenSpec](https://github.com/Fission-AI/OpenSpec) specs live in `openspec/`.
 
@@ -776,9 +844,33 @@ monorepo-root/
 
 ```
 
+### Parallel Changes
+
+Work on multiple changes concurrently — each lives in its own `openspec/changes/` directory:
+
+- Use `/opsx:apply [change-name]` to resume a specific change
+- Use `/opsx:bulk-archive` to archive multiple completed changes at once
+- Each change's artifacts are independent — no cross-contamination
+
+### Update vs. New Change
+
+**Update the existing change when:**
+- Same intent, refined execution
+- Scope narrows (shipping MVP first, rest later)
+- Design tweaks based on implementation discoveries
+
+**Start a new change when:**
+- Intent fundamentally changed
+- Scope exploded to different work entirely
+- Original change can be marked "done" standalone
+
+**Quick test:** Can the original change be archived as a complete, coherent unit without these new changes? If yes → new change. If no → update.
+
 ### Archive Maintenance
 
-When archive reaches ~50 changes, notify the user and let them decide whether to sync. Do not auto-sync or assume they want it. If the user approves: sync all to main specs (`opsx:sync`), keep the 20 most recent archives, delete the rest. Git preserves the full history.
+Never delete archived changes — they are the audit trail (proposal, design, tasks, specs) that doesn't exist in structured form anywhere else. Let the archive grow; it's markdown and has negligible cost.
+
+When the "Existing specs" list grows unwieldy, reorganize it by domain rather than listing every change individually. When spec files grow too large from accumulated deltas, split them by subdomain.
 
 ### When Requirements Change Mid-Implementation
 
