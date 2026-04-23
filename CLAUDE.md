@@ -207,53 +207,28 @@ When archive reaches ~50 changes, notify the user and let them decide whether to
 - Git operations, running dev server, config lookups, reading files
 - When the user explicitly invokes a specific `/opsx:` command directly (follow that command instead)
 
-**Existing specs** (archived in `openspec/changes/archive/`):
+**Existing specs** (archived in `openspec/changes/archive/`; older archives pruned 2026-04-23 — recoverable via `git log -- openspec/changes/archive/`):
 
-1. `core-architecture-build-system` — Vite 7 pipeline, React Compiler, TypeScript config, app bootstrap
-2. `design-token-theme-system` — 3-tier styling, CSS/SCSS tokens, theme switching, SCSS mixins
-3. `routing-navigation` — React Router v7, lazy loading, DashboardLayout, sidebar navigation
-4. `data-layer-api-react-query` — Dual API clients, React Query config, domain services/hooks
-5. `internationalization` — i18next config, namespaces, LanguageSwitcher
-6. `dashboard-data-visualization` — Dashboard composition, recharts, DealDetailsTable
-7. `product-management-features` — Products, Favorites, ProductStock, WishlistContext
-8. `shared-ui-components-remaining-pages` — TableCommon, StatusBadge, Buttons, TopNav, Sidebar, remaining pages
-9. `add-korean-language` — (Removed by `remove-korean-language`) Korean (ko) language support was added then removed
-10. `calendar-page` — Calendar page: grid, events sidebar, month navigation
-11. `calendar-add-event` — Add event modal with form fields and save flow
-12. `calendar-edit-delete-event` — Edit/delete events via popover actions
-13. `calendar-delete-confirm-modal` — Confirmation modal for event deletion
-14. `calendar-modal-image-participants` — Image upload, participants input, popover image display, sidebar avatar
-15. `fix-popover-viewport-overflow` — Popover viewport boundary clamping (top/bottom/left/right)
-16. `popover-guests-avatar-row` — Horizontal avatar row for popover guests section
-17. `setup-unit-testing` — Vitest + React Testing Library setup, test conventions, example tests
-18. `pin-package-versions` — Pin all dependency versions to exact (no ^ or ~ prefixes)
-19. `remove-korean-language` — Removed Korean (ko) language support: i18n config, LanguageSwitcher, 14 translation files, docs
-20. `calendar-today-highlight` — Visual highlight (colored circle badge) for today's date in the calendar grid
-21. `calendar-day-week-views` — Day and Week views with 24-hour time grids, CalendarHeader extraction, view state management, modal time inputs, timed events
-22. `sidebar-paginated-events` — Paginated event sidebar showing max 4 events with incremental "See More" button
-23. `settings-page` — General Settings page: logo upload, 5-field form, validation, save with loading/toast, theme support
-24. `settings-page-enhancements` — Drag & drop logo upload, placeholder text for form fields
-25. `settings-logo-upload-toast` — Success toast notification on logo upload, generalized toast system
-26. `user-menu-header` — User profile dropdown menu in TopNav with gradient icons, multi-dropdown coordination, toast notifications, theme support
-27. `update-language-dropdown` — Redesigned LanguageSwitcher: click-based dropdown with flag images, checkmark indicator, translated header, mutual exclusivity with UserMenu
-28. `notification-dropdown` — Notification dropdown panel in TopNav triggered by the bell icon: 4 static items with colored Lucide-icon circles, "Coming soon" toast on item/footer click, 3-way dropdown coordination, theme support
-29. `style-completed-todo-rows` — First iteration of completed-row styling: blue `bg-primary` row, outlined-white checkbox with `!text-on-primary` checkmark, strikethrough `!text-on-primary` text; action-icon buttons on completed rows use `text-on-primary` + `hover:bg-white/10`. (Superseded by `simplify-completed-todo-styling`.)
-30. `redesign-todo-row-cards` — Per-card row layout for Todo list: replaced shared `divide-y` with independent `rounded-xl` cards and `space-y-3` spacing; active-row delete icon switched to Lucide `XCircle`; completed rows hid the star button and showed an always-visible `Trash2`-in-translucent-square delete; font-weight differentiation (semibold active / bold completed); pagination and empty state moved outside the list card.
-31. `starred-todo-yellow-background` — Added a third card-background state (`bg-warning-light` yellow) for starred-but-not-completed todos; completed-blue wins when both flags are true. (Superseded by `simplify-completed-todo-styling`, which drops the "completed wins" rule.)
-32. `simplify-completed-todo-styling` — Partial revert of the three prior Todo changes: completed rows drop the blue background and instead inherit the card color keyed only on `starred` (white or yellow); completed checkbox reverts to filled-primary with white checkmark; text unified to `font-semibold .text-primary` + conditional `line-through`; star + `XCircle` delete restored on every row (no more always-visible trash); added forest-theme `.bg-warning-light` override in `src/index.css` using `color-mix(var(--color-warning-500) 15%, transparent)` for AA contrast.
-33. `contact-page` — Contact page: responsive 3-col card grid with avatar photos (User icon fallback), truncated name/email with tooltips, outlined Message button, Load More pagination (6 per batch), mock data (18 contacts), i18n (en/jp), toast on Add New Contact
-34. `contact-message-navigate-inbox` — Changed Contact card Message button from "Coming soon" toast to `useNavigate(ROUTES.INBOX)` navigation
-35. `add-new-contact-page` — Add New Contact form page at /contact/add: photo upload, 6-field form (First Name, Last Name, Email, Phone, Date of Birth, Gender custom dropdown), validation, toast + navigate on submit, i18n (en/jp), Contact page button navigates to new route
-36. `required-field-asterisks` — Red asterisk (`*`) on required field labels across 3 pages: AddNewContact (3 fields), Settings (4 fields), Calendar AddEventModal (1 field), with Settings test regex matcher updates
-37. `team-page` — Team page: responsive 3-col card grid with avatar photos (User icon fallback), truncated name/email, Message button, Load More pagination (6 per batch), mock data (12 members), Add New Member form page at /team/add, i18n (en/jp), sidebar navigation wired
-38. `refactor-add-person-form` — Extracted shared AddPersonForm component from AddNewContact and AddNewMember; parameterized by namespace, titleKey, successKey, backRoute; both pages reduced to thin wrappers
-39. `invoice-page` — Invoice page with sender/recipient header, items table, total, Print/Send buttons, i18n
-40. `inbox-page` — Inbox page: two-panel layout, folder sidebar, message list with search/pagination, chat view with label dropdown, i18n, accessibility
-41. `inbox-starred-messages` — Functional star-toggle on message rows, Starred folder filtering, live sidebar count, pagination reset on folder switch
-42. `inbox-bin-folder` — Bin folder: soft-delete to bin, restore from bin, bulk delete, per-row Trash2/RotateCcw buttons, binned message exclusion from source folders, live bin count, starred count excludes binned
-43. `inbox-select-all-checkbox` — Select-all/unselect-all checkbox in MessageList header with indeterminate state, page-change selection clearing
-44. `remove-compose-cancel-button` — Removed Cancel button from ComposeView footer (redundant with X close button), cleaned up tests and i18n keys
-45. `remove-save-as-draft-button` — Removed Save as Draft button from ComposeView footer (redundant with auto-save on unmount), cleaned up i18n keys
+1. `style-completed-todo-rows` — First iteration of completed-row styling (superseded by `simplify-completed-todo-styling`)
+2. `update-language-dropdown` — Redesigned LanguageSwitcher: click-based dropdown with flag images, checkmark indicator, translated header
+3. `contact-message-navigate-inbox` — Changed Contact card Message button to `useNavigate(ROUTES.INBOX)` navigation
+4. `contact-page` — Contact page: responsive 3-col card grid, avatar photos, Load More pagination, mock data (18 contacts), i18n
+5. `add-new-contact-page` — Add New Contact form page at /contact/add: photo upload, 6-field form, validation, i18n
+6. `calendar-date-picker` — Date picker for calendar with react-calendar, theme support, order filter date picker
+7. `refactor-add-person-form` — Extracted shared AddPersonForm from AddNewContact and AddNewMember
+8. `required-field-asterisks` — Red asterisk on required field labels across AddNewContact, Settings, Calendar AddEventModal
+9. `team-page` — Team page: 3-col card grid, avatar photos, Load More pagination, Add New Member form, i18n
+10. `invoice-page` — Invoice page with sender/recipient header, items table, total, Print/Send buttons, i18n
+11. `mono-repo-setup-guide` — Mono-repo detection and workflow setup guide
+12. `inbox-page` — Inbox page: two-panel layout, folder sidebar, message list with search/pagination, chat view, i18n
+13. `inbox-starred-messages` — Star-toggle on message rows, Starred folder filtering, live sidebar count
+14. `fix-starred-folder-missing-sent-draft` — Fixed starred folder to include sent and draft messages
+15. `inbox-bin-folder` — Bin folder: soft-delete to bin, restore from bin, bulk delete, live bin count
+16. `inbox-compose` — Compose view: form fields, send to localStorage, auto-save draft on unmount
+17. `inbox-draft-feature` — Draft save/auto-save to Inbox, draft folder display
+18. `inbox-select-all-checkbox` — Select-all/unselect-all checkbox with indeterminate state
+19. `remove-compose-cancel-button` — Removed Cancel button from ComposeView footer (redundant with X close)
+20. `remove-save-as-draft-button` — Removed Save as Draft button from ComposeView footer (redundant with auto-save)
 
 ## Common Gotchas
 
