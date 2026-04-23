@@ -45,7 +45,8 @@
     "restored": "メッセージを復元しました",
     "deletedToBin": "ゴミ箱に移動しました",
     "noSelection": "メッセージが選択されていません",
-    "selectAll": "すべて選択"
+    "selectAll": "すべて選択",
+    "addLabel": "ラベルを追加"
   },
   "chat": {
     "send": "送信",

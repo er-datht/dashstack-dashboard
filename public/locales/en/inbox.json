@@ -45,7 +45,8 @@
     "restored": "Message restored",
     "deletedToBin": "Moved to Bin",
     "noSelection": "No messages selected",
-    "selectAll": "Select all"
+    "selectAll": "Select all",
+    "addLabel": "Add label"
   },
   "chat": {
     "send": "Send",

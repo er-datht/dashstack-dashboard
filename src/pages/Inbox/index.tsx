@@ -43,6 +43,14 @@ export default function Inbox(): React.JSX.Element {
     []
   );
 
+  const [labelOverrides, setLabelOverrides] = useState<Record<string, string>>(
+    {}
+  );
+
+  const handleLabelAssign = (recordId: string, labelId: string) => {
+    setLabelOverrides((prev) => ({ ...prev, [recordId]: labelId }));
+  };
+
   const binnedIdSet = new Set(binnedMessages.map((m) => m.id));
 
   const setActiveFolder = (folder: string) => {
@@ -196,7 +204,7 @@ export default function Inbox(): React.JSX.Element {
   const sentEmailRecords: EmailRecord[] = sentMessages.map((msg) => ({
     id: msg.id,
     senderName: t("compose.me"),
-    labelId: "",
+    labelId: labelOverrides[msg.id] || "",
     subject: msg.subject,
     time: new Date(msg.sentAt).toLocaleTimeString([], {
       hour: "numeric",
@@ -208,7 +216,7 @@ export default function Inbox(): React.JSX.Element {
   const draftEmailRecords: EmailRecord[] = draftMessages.map((draft) => ({
     id: draft.id,
     senderName: t("compose.me"),
-    labelId: "",
+    labelId: labelOverrides[draft.id] || "",
     subject: draft.subject || t("compose.noSubject"),
     time: new Date(draft.savedAt).toLocaleTimeString([], {
       hour: "numeric",
@@ -402,7 +410,12 @@ export default function Inbox(): React.JSX.Element {
           }
           activeLabel={activeLabel}
           labels={inboxLabels}
-          onLabelChange={setActiveLabel}
+          onLabelChange={(labelId: string) => {
+            setActiveLabel(labelId);
+            if (selectedRecord) {
+              handleLabelAssign(selectedRecord.id, labelId);
+            }
+          }}
           onShowToast={setToast}
           onBack={() => setSelectedRecord(null)}
         />
@@ -421,6 +434,7 @@ export default function Inbox(): React.JSX.Element {
         onDelete={deleteHandler}
         onRestore={activeFolder === "bin" ? handleRestoreFromBin : undefined}
         onBulkDelete={bulkDeleteHandler}
+        onAssignLabel={handleLabelAssign}
       />
     );
   };

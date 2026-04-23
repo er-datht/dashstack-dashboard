@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Download, Info, Trash2, Star, ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { Search, Download, Info, Trash2, Star, ChevronLeft, ChevronRight, RotateCcw, Tag } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../utils/cn";
 import type { EmailRecord, InboxLabel } from "./mockData";
@@ -17,6 +17,7 @@ type MessageListProps = {
   onDelete?: (id: string) => void;
   onRestore?: (id: string) => void;
   onBulkDelete?: (ids: string[]) => void;
+  onAssignLabel?: (recordId: string, labelId: string) => void;
 };
 
 export default function MessageList({
@@ -30,18 +31,45 @@ export default function MessageList({
   onDelete,
   onRestore,
   onBulkDelete,
+  onAssignLabel,
 }: MessageListProps): React.JSX.Element {
   const { t } = useTranslation("inbox");
   const [page, setPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const selectAllRef = useRef<HTMLInputElement>(null);
+  const [openLabelDropdownId, setOpenLabelDropdownId] = useState<string | null>(
+    null
+  );
+  const labelDropdownRef = useRef<HTMLDivElement>(null);
 
   // Reset pagination and selection when active folder changes
   useEffect(() => {
     setPage(0);
     setSelectedIds(new Set());
   }, [activeFolder]);
+
+  // Click-outside and Escape to close label dropdown
+  useEffect(() => {
+    if (!openLabelDropdownId) return;
+    const handleMouseDown = (e: MouseEvent) => {
+      if (
+        labelDropdownRef.current &&
+        !labelDropdownRef.current.contains(e.target as Node)
+      ) {
+        setOpenLabelDropdownId(null);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenLabelDropdownId(null);
+    };
+    document.addEventListener("mousedown", handleMouseDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [openLabelDropdownId]);
 
   // Folder filter: if "starred", show only starred records
   const folderRecords =
@@ -213,7 +241,7 @@ export default function MessageList({
 
                 {/* Message Info: label + subject */}
                 <div className="flex-1 flex items-center gap-2.5 min-w-0">
-                  {label && (
+                  {label ? (
                     <span
                       className="px-1 py-0.5 rounded-sm text-xs font-medium flex-shrink-0 w-16 text-center"
                       style={{
@@ -223,7 +251,56 @@ export default function MessageList({
                     >
                       {t(label.nameKey)}
                     </span>
-                  )}
+                  ) : onAssignLabel ? (
+                    <div
+                      className="relative flex-shrink-0"
+                      ref={
+                        openLabelDropdownId === record.id
+                          ? labelDropdownRef
+                          : undefined
+                      }
+                    >
+                      <button
+                        type="button"
+                        aria-label={t("list.addLabel")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenLabelDropdownId((prev) =>
+                            prev === record.id ? null : record.id
+                          );
+                        }}
+                        className="p-1 text-secondary hover:text-primary hover:bg-surface-secondary rounded-md transition-colors cursor-pointer"
+                      >
+                        <Tag className="w-4 h-4" />
+                      </button>
+
+                      {openLabelDropdownId === record.id && (
+                        <div className="absolute top-full left-0 mt-1 w-40 py-1 rounded-lg shadow-lg bg-usermenu-bg border border-usermenu-border z-50 animate-usermenu-enter">
+                          {labels.map((labelOption) => (
+                            <button
+                              key={labelOption.id}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onAssignLabel(record.id, labelOption.id);
+                                setOpenLabelDropdownId(null);
+                              }}
+                              className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-left hover:bg-usermenu-hover transition-colors cursor-pointer text-usermenu-text"
+                            >
+                              <div
+                                className="w-3 h-3 rounded-sm flex-shrink-0"
+                                style={{
+                                  border: `1.2px solid ${labelOption.color}`,
+                                  backgroundColor: "transparent",
+                                }}
+                              />
+                              {t(labelOption.nameKey)}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
                   <span className="text-sm text-primary truncate min-w-0">
                     {record.subject}
                   </span>
