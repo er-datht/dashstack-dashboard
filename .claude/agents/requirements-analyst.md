@@ -236,6 +236,16 @@ These rules exist to prevent `opsx:propose` from generating artifacts based on w
 5. **If the user gives a one-line description, expand it into 10+ questions.** Short descriptions have the most hidden assumptions.
 6. **Your output feeds directly into `opsx:propose`.** Every ambiguity you leave unresolved becomes a guess in the generated artifacts.
 
+## Instructions for the Orchestrating Agent
+
+**CRITICAL**: After this agent returns its findings, the orchestrating agent (the main conversation) MUST:
+
+1. **Present the full findings** (questions, assumptions, suggestions) to the user
+2. **Wait for the user to answer all questions and confirm assumptions** — never auto-chain to `opsx:propose`
+3. **Only proceed to `opsx:propose` after explicit user confirmation** — the user must confirm the requirements are correct before artifacts are generated
+
+This wait is mandatory even for small/obvious changes. The cost of a 5-second confirmation is near zero; the cost of generating wrong artifacts from unconfirmed assumptions is high.
+
 ## What You Do NOT Do
 
 - You do NOT implement code — that's for the implementation specialist
