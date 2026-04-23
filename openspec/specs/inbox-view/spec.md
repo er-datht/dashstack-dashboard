@@ -14,14 +14,14 @@ The Inbox page SHALL render a two-panel layout: a left sidebar panel (~284px) an
 - **THEN** the page displays an "Inbox" title and two side-by-side panels in white cards, with the right panel showing the message list view by default
 
 ### Requirement: Compose button
-The left panel SHALL display a full-width blue "+ Compose" button at the top.
+The left panel SHALL display a full-width blue "+ Compose" button at the top. Clicking the button SHALL open ComposeView in the right panel with empty fields for composing a new message.
 
 #### Scenario: Compose button click
 - **WHEN** user clicks the "+ Compose" button
-- **THEN** a "Coming soon" toast notification is displayed
+- **THEN** ComposeView opens in the right panel with empty form fields
 
 ### Requirement: Email folder tabs
-The left panel SHALL display a "My Email" section with folder tabs: Inbox (1253), Starred (245), Sent (24,532), Draft (09), Spam (14), Important (18), Bin (09). Each folder shows an icon, name, and count.
+The left panel SHALL display a "My Email" section with folder tabs: Inbox (dynamic), Starred (dynamic), Sent (dynamic), Draft (dynamic), Spam (14), Important (18), Bin (09). Each folder shows an icon, name, and count. The Draft folder count SHALL reflect the actual number of saved drafts in localStorage.
 
 #### Scenario: Default active folder
 - **WHEN** the Inbox page loads
@@ -72,15 +72,23 @@ The search input SHALL filter email records in real time by matching the query a
 - **THEN** all email records are displayed again
 
 ### Requirement: Message list rows
-The message list SHALL display email records as table-like rows separated by bottom borders. Each row SHALL contain, left to right: a checkbox (unchecked, bordered square), a star icon (outlined), the sender name (medium weight, truncated to ~168px), a color-coded label badge (Primary/Social/Work/Friends), the message subject/preview (truncated, regular weight), and a timestamp on the far right.
+The message list SHALL display email records as table-like rows separated by bottom borders. Each row SHALL contain, left to right: a checkbox (unchecked, bordered square), a star icon (outlined), the sender name (medium weight, truncated to ~168px), a color-coded label badge (Primary/Social/Work/Friends -- omitted when labelId is empty), the message subject/preview (truncated, regular weight), and a timestamp on the far right. When the active folder is `"draft"`, each row SHALL additionally display a trash icon button for deleting the draft.
 
 #### Scenario: Message list renders on page load
 - **WHEN** user navigates to `/inbox`
 - **THEN** the right panel shows a scrollable list of email record rows, each with checkbox, star, sender name, label badge, message preview, and time
 
 #### Scenario: Select a conversation
-- **WHEN** user clicks an email record row
-- **THEN** the right panel switches to the chat view showing messages for that conversation, and the chat header label badge reflects the row's label
+- **WHEN** user clicks an email record row in a non-draft folder
+- **THEN** the right panel switches to the chat view showing messages for that conversation
+
+#### Scenario: Select a draft row
+- **WHEN** user clicks an email record row in the Draft folder
+- **THEN** the right panel switches to ComposeView pre-filled with the draft's data
+
+#### Scenario: Draft row displays trash icon
+- **WHEN** the Draft folder is active
+- **THEN** each row shows a trash icon button on the right side (before the timestamp)
 
 ### Requirement: Message list pagination
 The message list SHALL display pagination below the records with a "Showing X-Y of Z" text on the left and left/right arrow navigation buttons on the right.
@@ -182,19 +190,27 @@ Each message list row's star button SHALL toggle that record's starred state. St
 - **THEN** the chat view is not opened and the row is not selected
 
 ### Requirement: Starred folder filtering
-When the `Starred` folder tab is active, the message list SHALL display only records whose current starred state is true. All other folder tabs SHALL display the full record list (unchanged behavior). Switching folders SHALL reset pagination to page 1.
+When the `Starred` folder tab is active, the message list SHALL display only records whose current starred state is true, drawn from ALL record sources (inbox, sent, and draft). All other folder tabs SHALL display their folder-specific records (unchanged behavior). Switching folders SHALL reset pagination to page 1.
 
 #### Scenario: Starred folder shows only starred records
 - **WHEN** user clicks the `Starred` folder tab
-- **THEN** only records currently marked as starred are visible in the message list
+- **THEN** only records currently marked as starred are visible in the message list, including starred records from inbox, sent, and draft sources
+
+#### Scenario: Starred sent message appears in Starred folder
+- **WHEN** user stars a sent message and navigates to the `Starred` folder tab
+- **THEN** that sent message appears in the starred message list
+
+#### Scenario: Starred draft message appears in Starred folder
+- **WHEN** user stars a draft message and navigates to the `Starred` folder tab
+- **THEN** that draft message appears in the starred message list
 
 #### Scenario: Unstarring from within the Starred folder
 - **WHEN** user is on the `Starred` folder tab and clicks the filled star on a visible row
 - **THEN** that row is removed from the visible list and the remaining starred records stay visible
 
-#### Scenario: Switching away from Starred restores full list
+#### Scenario: Switching away from Starred restores folder-specific list
 - **WHEN** user is on the `Starred` folder tab and clicks the `Inbox` folder tab
-- **THEN** all records are visible again regardless of starred state
+- **THEN** only inbox records are visible (not sent or draft records)
 
 #### Scenario: Folder switch resets pagination
 - **WHEN** user is on page 2 of the `Inbox` folder and clicks the `Starred` folder tab
@@ -214,3 +230,29 @@ The `Starred` folder tab in the left sidebar SHALL display a count equal to the 
 #### Scenario: Count decrements on unstar
 - **WHEN** user unstars a previously-starred record
 - **THEN** the `Starred` folder tab count decreases by 1
+
+### Requirement: Sent folder displays composed messages
+When the `Sent` folder tab is active, the message list SHALL display messages that were composed and sent by the user (loaded from the `"inbox-sent-messages"` localStorage key), converted to the email record format. Each sent record SHALL show "Me" as the sender name, no label badge, the subject, and a formatted time. If no sent messages exist in localStorage, the message list SHALL be empty.
+
+#### Scenario: Sent folder shows localStorage messages
+- **WHEN** user clicks the "Sent" folder tab and there are sent messages in localStorage
+- **THEN** the message list displays only the sent messages with "Me" as sender, subject, and time
+
+#### Scenario: Sent folder with no messages
+- **WHEN** user clicks the "Sent" folder tab and there are no sent messages in localStorage
+- **THEN** the message list is empty (no records displayed)
+
+#### Scenario: Newly sent message appears in Sent folder
+- **WHEN** user composes and sends a message, then navigates to the Sent folder
+- **THEN** the newly sent message appears in the Sent folder list
+
+### Requirement: Dynamic Sent folder count
+The `Sent` folder tab in the left sidebar SHALL display a count equal to the current number of sent messages stored in localStorage. The count SHALL update immediately when a new message is sent via compose.
+
+#### Scenario: Sent count reflects localStorage state
+- **WHEN** the Inbox page loads
+- **THEN** the Sent folder tab count equals the number of entries in the `"inbox-sent-messages"` localStorage key
+
+#### Scenario: Sent count increments after compose
+- **WHEN** user sends a message via compose
+- **THEN** the Sent folder tab count increases by 1

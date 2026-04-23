@@ -14,6 +14,7 @@ type MessageListProps = {
   starredIds: Record<string, boolean>;
   onToggleStar: (id: string) => void;
   activeFolder: string;
+  onDelete?: (id: string) => void;
 };
 
 export default function MessageList({
@@ -24,6 +25,7 @@ export default function MessageList({
   starredIds,
   onToggleStar,
   activeFolder,
+  onDelete,
 }: MessageListProps): React.JSX.Element {
   const { t } = useTranslation("inbox");
   const [page, setPage] = useState(0);
@@ -164,6 +166,21 @@ export default function MessageList({
                   </span>
                 </div>
               </div>
+
+              {/* Delete button for draft rows */}
+              {activeFolder === "draft" && onDelete && (
+                <button
+                  type="button"
+                  aria-label={t("chat.delete")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(record.id);
+                  }}
+                  className="flex-shrink-0 p-1.5 text-secondary hover:text-[var(--color-danger)] hover:bg-surface-secondary rounded-md transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
 
               {/* Time */}
               <span className="text-sm text-primary flex-shrink-0 whitespace-nowrap">

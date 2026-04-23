@@ -32,16 +32,17 @@ export type MessageAttachment = {
 export type MessageFolder =
   | "inbox"
   | "sent"
-  | "drafts"
+  | "draft"
   | "trash"
   | "spam"
   | "archive";
 
-export type MessageDraft = {
+export type DraftMessage = {
+  id: string;
   recipientEmail: string;
   subject: string;
   body: string;
-  attachments?: File[];
+  savedAt: string;
 };
 
 export type SentMessage = {
