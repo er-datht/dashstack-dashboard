@@ -19,6 +19,7 @@ const defaultProps = {
   activeFolder: 'inbox',
   onFolderChange: vi.fn(),
   onShowToast: vi.fn(),
+  onCompose: vi.fn(),
 }
 
 describe('InboxSidebar — folderCountOverrides', () => {

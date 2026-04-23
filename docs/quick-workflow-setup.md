@@ -7,16 +7,18 @@ Set up the OpenSpec + Agent Pipeline workflow in any project in ~10 minutes.
 A principles-based workflow where every change runs the same pipeline — size only controls how deep each stage goes, never whether the stage runs.
 
 ```
-requirements-analyst (clarify requirements FIRST) → opsx:propose →
+requirements-analyst (clarify requirements FIRST)
+⏸ WAIT — present findings to user, wait for confirmation
+→ opsx:propose (from confirmed requirements) →
 security-reviewer (if deps — ⛔ BLOCKS) →
 unit-test-writer (if testable) → ⏸ WAIT for user →
 opsx:apply (user-triggered) → code-reviewer →
 opsx:verify → opsx:archive
 ```
 
-- **Small changes** — fast pass through every stage (quick reviewer pass, brief proposal, quick code review).
-- **Medium changes** — normal depth at every stage. `requirements-analyst` and `code-reviewer` are never skipped.
-- **Large changes** — deep pass, with thorough requirements gathering by `requirements-analyst` before `opsx:propose` runs.
+- **Small changes** — fast pass through every stage (quick reviewer pass, may need zero questions but still present findings and wait for user confirmation, brief proposal, quick code review).
+- **Medium changes** — normal depth at every stage. `requirements-analyst` and `code-reviewer` are never skipped. Always wait for user confirmation after requirements-analyst before running `opsx:propose`.
+- **Large changes** — deep pass, with thorough requirements gathering by `requirements-analyst` — **wait for user answers** before running `opsx:propose`.
 
 5 agents mapped to OpenSpec workflow stages:
 
@@ -192,8 +194,8 @@ Replace `<your-specialist>` below:
 
 ## The Pipeline (every change)
 
-1. `requirements-analyst` — check requirements, ask clarifying questions, resolve ambiguities BEFORE generating artifacts
-2. `opsx:propose` — create proposal + design + specs + tasks (from clarified requirements)
+1. `requirements-analyst` — check requirements, ask clarifying questions, resolve ambiguities BEFORE generating artifacts. **⏸ WAIT for user** — present the analyst's findings (questions, assumptions, suggestions) and wait for the user to confirm before proceeding. Never auto-chain to `opsx:propose`.
+2. `opsx:propose` — create proposal + design + specs + tasks (from user-confirmed requirements)
 3. `security-reviewer` — before any `yarn add` / external URL / web-sourced code (skip only if the change adds none). **⛔ BLOCKING: all work pauses until verdict is ✅ allow.**
 4. `unit-test-writer` — before `opsx:apply` when the change produces testable units
 5. **⏸ WAIT for user** — present findings, wait for user to trigger apply. Never auto-chain.
@@ -206,8 +208,8 @@ Right-size within this pipeline by shortening each stage, not by removing stages
 
 ## Right-Sizing
 
-- **Small** (one-line fix, typo, styling tweak): full pipeline, minimal depth. `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions). Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
-- **Medium** (multi-file bug fix, new component): full pipeline, normal depth. `requirements-analyst` and `code-reviewer` are never skipped.
+- **Small** (one-line fix, typo, styling tweak): full pipeline, minimal depth. `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions but still present findings and wait for user confirmation). Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
+- **Medium** (multi-file bug fix, new component): full pipeline, normal depth. `requirements-analyst` and `code-reviewer` are never skipped. Always wait for user confirmation after requirements-analyst before running `opsx:propose`.
 - **Large** (new page, cross-cutting feature): full pipeline, deep depth. `requirements-analyst` does thorough requirements gathering — **wait for user answers** before running `opsx:propose`. **Always wait for user to trigger `opsx:apply`.**
 
 ## Available Agents
@@ -246,30 +248,33 @@ Every change runs the same OpenSpec pipeline. Subagents are **mandatory at their
 
 **The pipeline (every change):**
 
-1. `opsx:propose` — create proposal + design + specs + tasks
-2. `requirements-analyst` — validate artifacts, surface ambiguities, ask clarifying questions
+1. `requirements-analyst` — check requirements, ask clarifying questions, resolve ambiguities BEFORE generating artifacts. **⏸ WAIT for user** — present the analyst's findings (questions, assumptions, suggestions) and wait for the user to confirm before proceeding. Never auto-chain to `opsx:propose`.
+2. `opsx:propose` — create proposal + design + specs + tasks (from user-confirmed requirements)
 3. `security-reviewer` — before any `yarn add` / external URL / web-sourced code (skip only if the change adds none). **⛔ BLOCKING: all work pauses until verdict is ✅ allow.**
 4. `unit-test-writer` — before `opsx:apply` when the change produces testable units (skip only for pure config/styling/docs)
-5. **⏸ WAIT for user** — present findings from steps 2–4 and wait for the user to explicitly trigger `opsx:apply`. Never auto-chain implementation.
+5. **⏸ WAIT for user** — present findings from steps 3–4 and wait for the user to explicitly trigger `opsx:apply`. Never auto-chain implementation.
 6. `opsx:apply` via `<your-specialist>` — implementation (user-triggered)
 7. `code-reviewer` — review the diff
 8. `opsx:verify` — validate implementation matches specs
 9. `opsx:archive` — finalize
 
 **Small changes** (typos, renames, one-line fixes):
-- Still run every applicable agent, minimal depth. Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
+
+- Full pipeline, minimal depth. `requirements-analyst` and `code-reviewer` are never skipped — quick pass (may need zero questions but still present findings and wait for user confirmation). Skip `unit-test-writer` only if no testable unit is produced; skip `security-reviewer` only if no deps/external code.
 
 **Medium changes** (new component, multi-file bug fix, refactor):
-- Full pipeline, normal depth. Do not skip `requirements-analyst` — it catches gaps the author can't see.
+
+- Full pipeline, normal depth. `requirements-analyst` and `code-reviewer` are never skipped. Always wait for user confirmation after requirements-analyst before running `opsx:propose`.
 
 **Large changes** (new page, new feature, cross-cutting refactor):
-- Full pipeline, deep depth. After `requirements-analyst` returns questions, present artifacts and **wait for user approval** before calling `unit-test-writer`. After pre-implementation stages complete, **always wait for user to trigger `opsx:apply`**.
+
+- Full pipeline, deep depth. `requirements-analyst` does thorough requirements gathering — **wait for user answers** before running `opsx:propose`. After pre-implementation stages complete, **always wait for user to trigger `opsx:apply`**.
 
 ### Available Subagents
 
 | Agent | OpenSpec Stage | Skip when |
 |-------|---------------|-----------|
-| `requirements-analyst` | After `opsx:propose` | Never — even "obvious" proposals have gaps the author can't see |
+| `requirements-analyst` | **Before** `opsx:propose` | Never — even "obvious" requests have hidden assumptions |
 | `security-reviewer` | Before package install / external URL | Change adds no deps and no external code |
 | `unit-test-writer` | Before `opsx:apply` (TDD) | No testable units — pure config, routing, styling-only, docs |
 | `<your-specialist>` | During `opsx:apply` | No UI/code surface |
