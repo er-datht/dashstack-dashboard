@@ -14,6 +14,12 @@ How to use the OpenSpec workflow in this project with Claude Code.
 | `/opsx:verify`                                         | Check implementation matches specs before archiving     |
 | `/opsx:archive`                                        | Archive a completed change                              |
 | `/opsx:explore "should we use server-side filtering?"` | Think through an idea without changing code             |
+| `/opsx:new "change-name"`                              | Scaffold a change, step through artifacts one at a time |
+| `/opsx:ff`                                             | Fast-forward: create all artifacts at once              |
+| `/opsx:continue`                                       | Create next artifact for an existing change             |
+| `/opsx:sync`                                           | Merge delta specs to main specs                         |
+| `/opsx:bulk-archive`                                   | Archive multiple completed changes at once              |
+| `/opsx:onboard`                                        | Guided tutorial walkthrough                             |
 
 ---
 
@@ -81,9 +87,64 @@ Claude dispatches work to specialized agents mapped to workflow stages:
 
 After implementation and `code-reviewer` findings are addressed, Claude runs `/opsx:verify` to check implementation matches specs (completeness, correctness, coherence), then `/opsx:archive` to preserve the specs for future reference. Verify won't block archive but surfaces issues worth addressing first.
 
+### Expanded Commands
+
+The core commands (`propose`, `apply`, `archive`, `explore`) handle most workflows. For finer control, expanded commands are also available:
+
+**Core commands (every change):**
+
+- `/opsx:propose "description"` — Plan a change (creates all artifacts at once)
+- `/opsx:apply [change-name]` — Implement tasks
+- `/opsx:archive [change-name]` — Archive a completed change
+- `/opsx:explore [topic]` — Think through ideas (read-only)
+
+**Expanded commands (finer control):**
+
+- `/opsx:new [change-name]` — Scaffold a change directory without creating artifacts
+- `/opsx:ff [change-name]` — Fast-forward: create all remaining planning artifacts at once
+- `/opsx:continue [change-name]` — Create the next artifact one step at a time, reviewing each before proceeding
+- `/opsx:verify [change-name]` — Validate implementation against specs (completeness, correctness, coherence)
+- `/opsx:sync [change-name]` — Merge delta specs from a change into main `openspec/specs/`
+- `/opsx:bulk-archive` — Archive multiple completed changes at once with conflict detection
+- `/opsx:onboard` — Onboard to the project by reading existing specs and architecture
+
+**When to use `ff` vs `continue`:**
+
+| Situation | Use |
+|-----------|-----|
+| Clear requirements, ready to build | `/opsx:ff` or `/opsx:propose` |
+| Exploring, want to review each artifact | `/opsx:continue` |
+| Want to iterate on proposal before specs | `/opsx:continue` |
+| Time pressure, need to move fast | `/opsx:ff` |
+| Complex change, want control over each step | `/opsx:continue` |
+
+**Rule of thumb:** If you can describe the full scope upfront, use `propose` or `ff`. If you're figuring it out as you go (after `/opsx:explore`), use `new` + `continue`.
+
+### Parallel Changes
+
+You can work on multiple changes concurrently. Each change lives in its own `openspec/changes/` directory, so context-switching is straightforward:
+
+```
+Change A: propose → apply (in progress)
+                        │
+                   context switch
+                        │
+Change B: propose → apply → archive
+                        │
+                   context switch back
+                        │
+Change A:          → resume apply → archive
+```
+
+- Use `/opsx:apply [change-name]` to resume a specific change
+- Use `/opsx:bulk-archive` to archive multiple completed changes at once (detects spec conflicts automatically)
+- Each change's artifacts are independent — no cross-contamination
+
 ### Archive maintenance
 
-When archive reaches ~50 changes, notify the user and let them decide whether to sync. Do not auto-sync or assume they want it. If the user approves: sync all to main specs, keep the 20 most recent archives, delete the rest. Git preserves the full history — use `git log -- openspec/changes/archive/` to recover old proposals if needed.
+Never delete archived changes — they are the audit trail (proposal, design, tasks, specs) that doesn't exist in structured form anywhere else. Let the archive grow; it's markdown and has negligible cost.
+
+When the **Existing specs** list in CLAUDE.md grows unwieldy, reorganize it by domain rather than listing every change individually. When spec files grow too large from accumulated deltas, split them by subdomain (e.g., `inbox/compose/spec.md`, `inbox/folders/spec.md`).
 
 ---
 
@@ -190,6 +251,8 @@ For scenarios A-C, Claude updates the existing change. For scenario D, it starts
 - Scope exploded into different work entirely
 - Original change can be marked "done" standalone
 
+**Quick test:** Can the original change be archived as a complete, coherent unit without these new changes? If yes → new change. If no → update.
+
 ### Key principle: You never lose context
 
 Every pivot builds on what was learned. The specs from the abandoned approach become context for the new one — prior decisions, edge cases discovered, code already read. The workflow doesn't restart from zero.
@@ -204,3 +267,5 @@ Every pivot builds on what was learned. The specs from the abandoned approach be
 - **You control when implementation starts.** Claude never auto-triggers `opsx:apply`. After pre-implementation stages (requirements-analyst, unit-test-writer), Claude presents findings and waits for you to explicitly start implementation.
 - **Specs are living documents.** They capture decisions, not just requirements. When you change direction, the spec gets updated — it's a record of the current truth, not the original plan.
 - **Check existing specs.** Before asking for a feature, it helps to know what's already been built. Ask Claude "what specs exist for the calendar?" to see prior work.
+- **Expanded commands for finer control.** Use `/opsx:new` + `/opsx:continue` to step through artifacts one at a time. Use `/opsx:ff` to create all artifacts at once. See the "Expanded Commands" section above.
+- **Parallel changes are supported.** Work on multiple changes concurrently — each lives in its own directory under `openspec/changes/`. Use `/opsx:apply [change-name]` to resume a specific change.

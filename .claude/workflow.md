@@ -244,7 +244,9 @@ Verify won't block archive, but it surfaces issues worth addressing first.
 
 ## Archive Maintenance
 
-When archive exceeds ~50 changes, sync all to main specs (`opsx:sync`), keep the 20 most recent archives, delete the rest. Git preserves the full history — use `git log -- openspec/changes/archive/` to recover old proposals if needed.
+Never delete archived changes — they are the audit trail (proposal, design, tasks, specs) that doesn't exist in structured form anywhere else. Let the archive grow; it's markdown and has negligible cost.
+
+When the "Existing specs" list grows unwieldy, reorganize it by domain rather than listing every change individually. When spec files grow too large from accumulated deltas, split them by subdomain.
 
 ## When Requirements Change: Update vs. Start Fresh
 

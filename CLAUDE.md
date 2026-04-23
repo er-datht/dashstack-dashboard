@@ -160,12 +160,34 @@ Every change runs the same OpenSpec pipeline. Subagents are **mandatory at their
 
 Always use `opsx:propose` before implementing any change. The proposal scales to the change — a simple fix gets a brief proposal, a new feature gets a thorough one.
 
-**OpenSpec commands:**
+**Core commands (every change):**
 
-- `/opsx:propose "description"` — Plan a change (proposal, design, specs, tasks)
+- `/opsx:propose "description"` — Plan a change (proposal, design, specs, tasks — creates all artifacts at once)
 - `/opsx:apply [change-name]` — Implement tasks from a change
 - `/opsx:archive [change-name]` — Archive a completed change
 - `/opsx:explore [topic]` — Think through ideas (read-only)
+
+**Expanded commands (available for finer control):**
+
+- `/opsx:new [change-name]` — Scaffold a change directory without creating artifacts (separate from artifact creation)
+- `/opsx:ff [change-name]` — Fast-forward: create all remaining planning artifacts at once (like `propose` but for an existing scaffold)
+- `/opsx:continue [change-name]` — Create the next artifact one step at a time, reviewing each before proceeding
+- `/opsx:verify [change-name]` — Validate implementation against specs (completeness, correctness, coherence)
+- `/opsx:sync [change-name]` — Merge delta specs from a change into main `openspec/specs/`
+- `/opsx:bulk-archive` — Archive multiple completed changes at once with conflict detection
+- `/opsx:onboard` — Onboard to the project by reading existing specs and architecture
+
+**When to use `ff` vs `continue`:**
+
+| Situation                                   | Use                           |
+| ------------------------------------------- | ----------------------------- |
+| Clear requirements, ready to build          | `/opsx:ff` or `/opsx:propose` |
+| Exploring, want to review each artifact     | `/opsx:continue`              |
+| Want to iterate on proposal before specs    | `/opsx:continue`              |
+| Time pressure, need to move fast            | `/opsx:ff`                    |
+| Complex change, want control over each step | `/opsx:continue`              |
+
+**Rule of thumb:** If you can describe the full scope upfront, use `propose` or `ff`. If you're figuring it out as you go (after `/opsx:explore`), use `new` + `continue`.
 
 [OpenSpec](https://github.com/Fission-AI/OpenSpec) specs live in `openspec/`.
 
@@ -173,13 +195,13 @@ Always use `opsx:propose` before implementing any change. The proposal scales to
 
 Each agent maps to a specific stage of the OpenSpec workflow. The agent is required at its stage unless its explicit "Skip when" condition is met.
 
-| Agent | OpenSpec Stage | Purpose | Skip when |
-|-------|---------------|---------|-----------|
-| `requirements-analyst` | **Before** `opsx:propose` | Checks requirements, asks clarifying questions, resolves ambiguities so `opsx:propose` generates correct artifacts the first time | Never skip — even "obvious" requests have hidden assumptions |
-| `security-reviewer` | Before `yarn add` / fetching external URLs / using web-searched code | **⛔ BLOCKING** — reviews packages, URLs, and external snippets for typosquatting, CVEs, malicious code. Pause all work until verdict is ✅ allow. | The change adds no dependencies and pulls in no external code |
-| `unit-test-writer` | Before `opsx:apply` (TDD) | Writes tests from specs before implementation so tests drive the diff | The change produces no testable units — pure config, routing constants, styling-only tweaks, docs |
-| `react-frontend-specialist` | During `opsx:apply` | Implements UI components, layouts, state, API integration, bug fixes, refactoring, accessibility | The change has no UI surface (e.g., pure config) |
-| `code-reviewer` | After `opsx:apply`, before `opsx:verify` | Reviews the diff for quality, correctness, security, and best practices | Never skip |
+| Agent                       | OpenSpec Stage                                                       | Purpose                                                                                                                                            | Skip when                                                                                         |
+| --------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `requirements-analyst`      | **Before** `opsx:propose`                                            | Checks requirements, asks clarifying questions, resolves ambiguities so `opsx:propose` generates correct artifacts the first time                  | Never skip — even "obvious" requests have hidden assumptions                                      |
+| `security-reviewer`         | Before `yarn add` / fetching external URLs / using web-searched code | **⛔ BLOCKING** — reviews packages, URLs, and external snippets for typosquatting, CVEs, malicious code. Pause all work until verdict is ✅ allow. | The change adds no dependencies and pulls in no external code                                     |
+| `unit-test-writer`          | Before `opsx:apply` (TDD)                                            | Writes tests from specs before implementation so tests drive the diff                                                                              | The change produces no testable units — pure config, routing constants, styling-only tweaks, docs |
+| `react-frontend-specialist` | During `opsx:apply`                                                  | Implements UI components, layouts, state, API integration, bug fixes, refactoring, accessibility                                                   | The change has no UI surface (e.g., pure config)                                                  |
+| `code-reviewer`             | After `opsx:apply`, before `opsx:verify`                             | Reviews the diff for quality, correctness, security, and best practices                                                                            | Never skip                                                                                        |
 
 **Canonical sequence (every change):**
 
@@ -197,9 +219,51 @@ requirements-analyst              (clarify requirements with the user FIRST)
 
 Right-size within this sequence by shortening each stage — not by removing stages. A trivial request still gets a fast `requirements-analyst` pass (may need zero questions); a styling tweak still gets `code-reviewer`. Skipping an agent requires its "Skip when" condition to be true.
 
+### Parallel Changes
+
+Work on multiple changes concurrently. Each change lives in its own `openspec/changes/` directory, so context-switching is straightforward:
+
+```
+Change A: propose → apply (in progress)
+                        │
+                   context switch
+                        │
+Change B: propose → apply → archive
+                        │
+                   context switch back
+                        │
+Change A:          → resume apply → archive
+```
+
+- Use `/opsx:apply [change-name]` to resume a specific change
+- Use `/opsx:bulk-archive` to archive multiple completed changes at once (detects spec conflicts automatically)
+- Each change's artifacts are independent — no cross-contamination
+
+### Update vs. New Change
+
+When requirements shift during a change, decide whether to update the existing change or start a new one:
+
+**Update the existing change when:**
+
+- Same intent, refined execution (e.g., "dark mode toggle" → "dark mode toggle with system preference detection")
+- Scope narrows (shipping MVP first, rest later)
+- Learning-driven corrections (codebase isn't what you expected)
+- Design tweaks based on implementation discoveries
+
+**Start a new change when:**
+
+- Intent fundamentally changed (e.g., "add dark mode" → "add custom theme engine")
+- Scope exploded to different work entirely
+- Original change can be marked "done" standalone
+- Patches would confuse more than clarify
+
+**Quick test:** Can the original change be archived as a complete, coherent unit without these new changes? If yes → new change. If no → update.
+
 ### Archive Maintenance
 
-When archive reaches ~50 changes, notify the user and let them decide whether to sync. Do not auto-sync or assume they want it. If the user approves: sync all to main specs (`opsx:sync`), keep the 20 most recent archives, delete the rest. Git preserves the full history — use `git log -- openspec/changes/archive/` to recover old proposals if needed.
+Never delete archived changes — they are the audit trail (proposal, design, tasks, specs) that doesn't exist in structured form anywhere else. Let the archive grow; it's markdown and has negligible cost.
+
+When the **Existing specs** list below grows unwieldy, reorganize it by domain rather than listing every change individually. When spec files grow too large from accumulated deltas, split them by subdomain (e.g., `inbox/compose/spec.md`, `inbox/folders/spec.md`).
 
 ### Non-Code Actions (No Workflow Needed)
 
@@ -207,53 +271,31 @@ When archive reaches ~50 changes, notify the user and let them decide whether to
 - Git operations, running dev server, config lookups, reading files
 - When the user explicitly invokes a specific `/opsx:` command directly (follow that command instead)
 
-**Existing specs** (archived in `openspec/changes/archive/`):
+**Existing specs** (archived in `openspec/changes/archive/`, organized by domain):
 
-1. `core-architecture-build-system` — Vite 7 pipeline, React Compiler, TypeScript config, app bootstrap
-2. `design-token-theme-system` — 3-tier styling, CSS/SCSS tokens, theme switching, SCSS mixins
-3. `routing-navigation` — React Router v7, lazy loading, DashboardLayout, sidebar navigation
-4. `data-layer-api-react-query` — Dual API clients, React Query config, domain services/hooks
-5. `internationalization` — i18next config, namespaces, LanguageSwitcher
-6. `dashboard-data-visualization` — Dashboard composition, recharts, DealDetailsTable
-7. `product-management-features` — Products, Favorites, ProductStock, WishlistContext
-8. `shared-ui-components-remaining-pages` — TableCommon, StatusBadge, Buttons, TopNav, Sidebar, remaining pages
-9. `add-korean-language` — (Removed by `remove-korean-language`) Korean (ko) language support was added then removed
-10. `calendar-page` — Calendar page: grid, events sidebar, month navigation
-11. `calendar-add-event` — Add event modal with form fields and save flow
-12. `calendar-edit-delete-event` — Edit/delete events via popover actions
-13. `calendar-delete-confirm-modal` — Confirmation modal for event deletion
-14. `calendar-modal-image-participants` — Image upload, participants input, popover image display, sidebar avatar
-15. `fix-popover-viewport-overflow` — Popover viewport boundary clamping (top/bottom/left/right)
-16. `popover-guests-avatar-row` — Horizontal avatar row for popover guests section
-17. `setup-unit-testing` — Vitest + React Testing Library setup, test conventions, example tests
-18. `pin-package-versions` — Pin all dependency versions to exact (no ^ or ~ prefixes)
-19. `remove-korean-language` — Removed Korean (ko) language support: i18n config, LanguageSwitcher, 14 translation files, docs
-20. `calendar-today-highlight` — Visual highlight (colored circle badge) for today's date in the calendar grid
-21. `calendar-day-week-views` — Day and Week views with 24-hour time grids, CalendarHeader extraction, view state management, modal time inputs, timed events
-22. `sidebar-paginated-events` — Paginated event sidebar showing max 4 events with incremental "See More" button
-23. `settings-page` — General Settings page: logo upload, 5-field form, validation, save with loading/toast, theme support
-24. `settings-page-enhancements` — Drag & drop logo upload, placeholder text for form fields
-25. `settings-logo-upload-toast` — Success toast notification on logo upload, generalized toast system
-26. `user-menu-header` — User profile dropdown menu in TopNav with gradient icons, multi-dropdown coordination, toast notifications, theme support
-27. `update-language-dropdown` — Redesigned LanguageSwitcher: click-based dropdown with flag images, checkmark indicator, translated header, mutual exclusivity with UserMenu
-28. `notification-dropdown` — Notification dropdown panel in TopNav triggered by the bell icon: 4 static items with colored Lucide-icon circles, "Coming soon" toast on item/footer click, 3-way dropdown coordination, theme support
-29. `style-completed-todo-rows` — First iteration of completed-row styling: blue `bg-primary` row, outlined-white checkbox with `!text-on-primary` checkmark, strikethrough `!text-on-primary` text; action-icon buttons on completed rows use `text-on-primary` + `hover:bg-white/10`. (Superseded by `simplify-completed-todo-styling`.)
-30. `redesign-todo-row-cards` — Per-card row layout for Todo list: replaced shared `divide-y` with independent `rounded-xl` cards and `space-y-3` spacing; active-row delete icon switched to Lucide `XCircle`; completed rows hid the star button and showed an always-visible `Trash2`-in-translucent-square delete; font-weight differentiation (semibold active / bold completed); pagination and empty state moved outside the list card.
-31. `starred-todo-yellow-background` — Added a third card-background state (`bg-warning-light` yellow) for starred-but-not-completed todos; completed-blue wins when both flags are true. (Superseded by `simplify-completed-todo-styling`, which drops the "completed wins" rule.)
-32. `simplify-completed-todo-styling` — Partial revert of the three prior Todo changes: completed rows drop the blue background and instead inherit the card color keyed only on `starred` (white or yellow); completed checkbox reverts to filled-primary with white checkmark; text unified to `font-semibold .text-primary` + conditional `line-through`; star + `XCircle` delete restored on every row (no more always-visible trash); added forest-theme `.bg-warning-light` override in `src/index.css` using `color-mix(var(--color-warning-500) 15%, transparent)` for AA contrast.
-33. `contact-page` — Contact page: responsive 3-col card grid with avatar photos (User icon fallback), truncated name/email with tooltips, outlined Message button, Load More pagination (6 per batch), mock data (18 contacts), i18n (en/jp), toast on Add New Contact
-34. `contact-message-navigate-inbox` — Changed Contact card Message button from "Coming soon" toast to `useNavigate(ROUTES.INBOX)` navigation
-35. `add-new-contact-page` — Add New Contact form page at /contact/add: photo upload, 6-field form (First Name, Last Name, Email, Phone, Date of Birth, Gender custom dropdown), validation, toast + navigate on submit, i18n (en/jp), Contact page button navigates to new route
-36. `required-field-asterisks` — Red asterisk (`*`) on required field labels across 3 pages: AddNewContact (3 fields), Settings (4 fields), Calendar AddEventModal (1 field), with Settings test regex matcher updates
-37. `team-page` — Team page: responsive 3-col card grid with avatar photos (User icon fallback), truncated name/email, Message button, Load More pagination (6 per batch), mock data (12 members), Add New Member form page at /team/add, i18n (en/jp), sidebar navigation wired
-38. `refactor-add-person-form` — Extracted shared AddPersonForm component from AddNewContact and AddNewMember; parameterized by namespace, titleKey, successKey, backRoute; both pages reduced to thin wrappers
-39. `invoice-page` — Invoice page with sender/recipient header, items table, total, Print/Send buttons, i18n
-40. `inbox-page` — Inbox page: two-panel layout, folder sidebar, message list with search/pagination, chat view with label dropdown, i18n, accessibility
-41. `inbox-starred-messages` — Functional star-toggle on message rows, Starred folder filtering, live sidebar count, pagination reset on folder switch
-42. `inbox-bin-folder` — Bin folder: soft-delete to bin, restore from bin, bulk delete, per-row Trash2/RotateCcw buttons, binned message exclusion from source folders, live bin count, starred count excludes binned
-43. `inbox-select-all-checkbox` — Select-all/unselect-all checkbox in MessageList header with indeterminate state, page-change selection clearing
-44. `remove-compose-cancel-button` — Removed Cancel button from ComposeView footer (redundant with X close button), cleaned up tests and i18n keys
-45. `remove-save-as-draft-button` — Removed Save as Draft button from ComposeView footer (redundant with auto-save on unmount), cleaned up i18n keys
+**Core Infrastructure** — build pipeline, TypeScript config, app bootstrap, design tokens, theme switching, SCSS mixins, routing, lazy loading, sidebar navigation, dual API clients, React Query config, domain services/hooks, i18n config, unit testing setup, pinned package versions
+
+**Dashboard** — dashboard composition, recharts widgets, DealDetailsTable
+
+**Calendar** — month/day/week views with time grids, add/edit/delete events, confirmation modal, image upload, participants input, popover viewport clamping, guest avatar row, today highlight, paginated event sidebar
+
+**Todo** — per-card row layout, starred yellow background, completed row styling (checkbox, strikethrough, star/delete on every row), forest-theme warning-light override
+
+**Contact** — 3-col card grid, avatar photos, Message button navigates to Inbox, Add New Contact form page (photo upload, 6-field form, validation)
+
+**Team** — 3-col card grid, avatar photos, Add New Member form page, shared AddPersonForm component extracted from Contact/Team
+
+**Inbox** — two-panel layout, folder sidebar, message list with search/pagination, chat view, label dropdown, star-toggle with Starred folder, bin folder (soft-delete/restore/bulk-delete), select-all checkbox, compose view (removed redundant Cancel and Save as Draft buttons)
+
+**Invoice** — sender/recipient header, items table, total, Print/Send buttons
+
+**Settings** — general settings form (logo upload with drag & drop, 5-field form, validation, save with toast), required field asterisks across pages
+
+**TopNav** — user profile dropdown menu, language switcher dropdown, notification dropdown, 3-way dropdown coordination, toast system
+
+**i18n** — Korean language added then removed (net: en/jp only)
+
+**Shared UI** — TableCommon, StatusBadge, Buttons, product management (Products, Favorites, ProductStock, WishlistContext)
 
 ## Common Gotchas
 
