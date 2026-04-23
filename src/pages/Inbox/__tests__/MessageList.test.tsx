@@ -22,7 +22,9 @@ import type { EmailRecord, InboxLabel } from '../mockData'
 
 const mockLabels: InboxLabel[] = [
   { id: 'primary', nameKey: 'labels.primary', color: '#00b69b' },
+  { id: 'social', nameKey: 'labels.social', color: '#5a8cff' },
   { id: 'work', nameKey: 'labels.work', color: '#fd9a56' },
+  { id: 'friends', nameKey: 'labels.friends', color: '#d456fd' },
 ]
 
 // Small set of records for testing — only 3 to keep things simple
@@ -232,6 +234,230 @@ describe('MessageList — star toggle', () => {
 
       // After folder switch, page resets to 0 — Sender 1 should be visible again
       expect(screen.getByText('Sender 1')).toBeInTheDocument()
+    })
+  })
+})
+
+/**
+ * Tests for the add-label button and dropdown (inbox-label-badge-button change).
+ *
+ * Behaviors under test:
+ *   - Tag icon renders in the label slot when record has empty labelId and onAssignLabel is provided
+ *   - Tag button has correct aria-label from i18n
+ *   - Clicking Tag button opens a dropdown listing all labels
+ *   - Selecting a label calls onAssignLabel(recordId, labelId) and closes dropdown
+ *   - Clicking Tag button does NOT trigger row's onSelect (stopPropagation)
+ *   - Escape key closes the dropdown
+ *   - Only one dropdown open at a time
+ *   - Tag button does not render when onAssignLabel is not provided
+ */
+
+// Records with empty labelId to test the add-label button
+const unlabelledRecords: EmailRecord[] = [
+  { id: 'ul-1', senderName: 'Dave', labelId: '', subject: 'Unlabelled message', time: '1:00 PM' },
+  { id: 'ul-2', senderName: 'Eve', labelId: '', subject: 'Another unlabelled', time: '2:00 PM' },
+  { id: 'ul-3', senderName: 'Frank', labelId: 'primary', subject: 'Labelled message', time: '3:00 PM' },
+]
+
+describe('MessageList — add-label button', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  describe('Tag icon rendering', () => {
+    it('renders Tag button for records with empty labelId when onAssignLabel is provided', () => {
+      render(
+        <MessageList
+          {...defaultProps}
+          records={unlabelledRecords}
+          onAssignLabel={vi.fn()}
+        />
+      )
+
+      const tagButtons = screen.getAllByRole('button', { name: 'list.addLabel' })
+      // Dave and Eve have empty labelId — should get Tag buttons
+      expect(tagButtons).toHaveLength(2)
+    })
+
+    it('does not render Tag button when onAssignLabel is not provided', () => {
+      render(
+        <MessageList
+          {...defaultProps}
+          records={unlabelledRecords}
+        />
+      )
+
+      expect(screen.queryByRole('button', { name: 'list.addLabel' })).not.toBeInTheDocument()
+    })
+
+    it('renders label badge (not Tag button) for records with a labelId', () => {
+      render(
+        <MessageList
+          {...defaultProps}
+          records={unlabelledRecords}
+          onAssignLabel={vi.fn()}
+        />
+      )
+
+      // Frank has labelId 'primary' — should show badge text, not a Tag button
+      expect(screen.getByText('labels.primary')).toBeInTheDocument()
+      // Only 2 Tag buttons (Dave and Eve), not 3
+      expect(screen.getAllByRole('button', { name: 'list.addLabel' })).toHaveLength(2)
+    })
+  })
+
+  describe('dropdown behavior', () => {
+    it('opens dropdown listing all labels when Tag button is clicked', () => {
+      render(
+        <MessageList
+          {...defaultProps}
+          records={unlabelledRecords}
+          onAssignLabel={vi.fn()}
+        />
+      )
+
+      const tagButtons = screen.getAllByRole('button', { name: 'list.addLabel' })
+      fireEvent.click(tagButtons[0])
+
+      // All 4 labels should appear in the dropdown
+      // The label name keys are rendered via t() which returns the key as-is in tests
+      // 'labels.primary' already appears as a badge for Frank — check for dropdown items
+      const workLabels = screen.getAllByText('labels.work')
+      expect(workLabels.length).toBeGreaterThanOrEqual(1)
+      expect(screen.getByText('labels.social')).toBeInTheDocument()
+      expect(screen.getByText('labels.friends')).toBeInTheDocument()
+    })
+
+    it('calls onAssignLabel with recordId and labelId on label selection', () => {
+      const onAssignLabel = vi.fn()
+
+      render(
+        <MessageList
+          {...defaultProps}
+          records={unlabelledRecords}
+          onAssignLabel={onAssignLabel}
+        />
+      )
+
+      // Open dropdown on Dave's row
+      const tagButtons = screen.getAllByRole('button', { name: 'list.addLabel' })
+      fireEvent.click(tagButtons[0])
+
+      // Select "Work" label
+      const workOption = screen.getByText('labels.work')
+      fireEvent.click(workOption)
+
+      expect(onAssignLabel).toHaveBeenCalledWith('ul-1', 'work')
+    })
+
+    it('closes dropdown after label selection', () => {
+      render(
+        <MessageList
+          {...defaultProps}
+          records={unlabelledRecords}
+          onAssignLabel={vi.fn()}
+        />
+      )
+
+      const tagButtons = screen.getAllByRole('button', { name: 'list.addLabel' })
+      fireEvent.click(tagButtons[0])
+
+      // Dropdown should be open — "labels.social" visible in dropdown
+      expect(screen.getByText('labels.social')).toBeInTheDocument()
+
+      // Select a label
+      fireEvent.click(screen.getByText('labels.social'))
+
+      // Dropdown should be closed — "labels.social" no longer in document
+      expect(screen.queryByText('labels.social')).not.toBeInTheDocument()
+    })
+
+    it('closes dropdown on Escape key', () => {
+      render(
+        <MessageList
+          {...defaultProps}
+          records={unlabelledRecords}
+          onAssignLabel={vi.fn()}
+        />
+      )
+
+      const tagButtons = screen.getAllByRole('button', { name: 'list.addLabel' })
+      fireEvent.click(tagButtons[0])
+
+      // Dropdown open
+      expect(screen.getByText('labels.social')).toBeInTheDocument()
+
+      // Press Escape
+      fireEvent.keyDown(document, { key: 'Escape' })
+
+      // Dropdown closed
+      expect(screen.queryByText('labels.social')).not.toBeInTheDocument()
+    })
+
+    it('opens only one dropdown at a time', () => {
+      render(
+        <MessageList
+          {...defaultProps}
+          records={unlabelledRecords}
+          onAssignLabel={vi.fn()}
+        />
+      )
+
+      const tagButtons = screen.getAllByRole('button', { name: 'list.addLabel' })
+
+      // Open first dropdown (Dave)
+      fireEvent.click(tagButtons[0])
+      // Count dropdown label options — should be 4 (one per label)
+      let socialLabels = screen.getAllByText('labels.social')
+      expect(socialLabels).toHaveLength(1)
+
+      // Open second dropdown (Eve) — first should close
+      fireEvent.click(tagButtons[1])
+      socialLabels = screen.getAllByText('labels.social')
+      // Still only 1 dropdown visible
+      expect(socialLabels).toHaveLength(1)
+    })
+  })
+
+  describe('event propagation', () => {
+    it('does NOT call onSelect when Tag button is clicked (stopPropagation)', () => {
+      const onSelect = vi.fn()
+      const onAssignLabel = vi.fn()
+
+      render(
+        <MessageList
+          {...defaultProps}
+          records={unlabelledRecords}
+          onSelect={onSelect}
+          onAssignLabel={onAssignLabel}
+        />
+      )
+
+      const tagButtons = screen.getAllByRole('button', { name: 'list.addLabel' })
+      fireEvent.click(tagButtons[0])
+
+      expect(onSelect).not.toHaveBeenCalled()
+    })
+
+    it('does NOT call onSelect when a dropdown label option is clicked', () => {
+      const onSelect = vi.fn()
+      const onAssignLabel = vi.fn()
+
+      render(
+        <MessageList
+          {...defaultProps}
+          records={unlabelledRecords}
+          onSelect={onSelect}
+          onAssignLabel={onAssignLabel}
+        />
+      )
+
+      const tagButtons = screen.getAllByRole('button', { name: 'list.addLabel' })
+      fireEvent.click(tagButtons[0])
+      fireEvent.click(screen.getByText('labels.work'))
+
+      expect(onAssignLabel).toHaveBeenCalledTimes(1)
+      expect(onSelect).not.toHaveBeenCalled()
     })
   })
 })

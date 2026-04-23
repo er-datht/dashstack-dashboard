@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, Download, Info, Trash2 } from "lucide-react";
+import { ChevronLeft, Download, Info, Trash2, Tag } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../utils/cn";
 import type { InboxLabel } from "./mockData";
@@ -25,7 +25,7 @@ export default function ChatHeader({
   const [isLabelOpen, setIsLabelOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const currentLabel = labels.find((l) => l.id === activeLabel) ?? labels[0];
+  const currentLabel = labels.find((l) => l.id === activeLabel);
 
   // Click-outside to close dropdown
   useEffect(() => {
@@ -66,18 +66,29 @@ export default function ChatHeader({
         </span>
 
         {/* Label Badge with Dropdown */}
-        <div className="relative" ref={dropdownRef}>
-          <button
-            type="button"
-            onClick={() => setIsLabelOpen(!isLabelOpen)}
-            className="px-2.5 py-0.5 rounded text-xs font-medium cursor-pointer transition-opacity hover:opacity-80"
-            style={{
-              backgroundColor: `${currentLabel.color}20`,
-              color: currentLabel.color,
-            }}
-          >
-            {t(currentLabel.nameKey)}
-          </button>
+        <div className="relative flex items-center" ref={dropdownRef}>
+          {currentLabel ? (
+            <button
+              type="button"
+              onClick={() => setIsLabelOpen(!isLabelOpen)}
+              className="px-2.5 py-0.5 rounded text-xs font-medium cursor-pointer transition-opacity hover:opacity-80"
+              style={{
+                backgroundColor: `${currentLabel.color}20`,
+                color: currentLabel.color,
+              }}
+            >
+              {t(currentLabel.nameKey)}
+            </button>
+          ) : (
+            <button
+              type="button"
+              aria-label={t("list.addLabel")}
+              onClick={() => setIsLabelOpen(!isLabelOpen)}
+              className="text-secondary hover:text-primary transition-colors cursor-pointer"
+            >
+              <Tag className="w-4 h-4" />
+            </button>
+          )}
 
           {isLabelOpen && (
             <div className="absolute top-full left-0 mt-1 w-40 py-1 rounded-lg shadow-lg bg-usermenu-bg border border-usermenu-border z-50 animate-usermenu-enter">
