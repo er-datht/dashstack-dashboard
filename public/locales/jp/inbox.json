@@ -13,7 +13,12 @@
     "cancel": "キャンセル",
     "close": "閉じる",
     "messageSent": "メッセージを送信しました",
-    "me": "自分"
+    "me": "自分",
+    "saveAsDraft": "下書きを保存",
+    "draftSaved": "下書きを保存しました",
+    "editDraft": "下書きを編集",
+    "noSubject": "（件名なし）",
+    "saving": "保存中..."
   },
   "myEmail": "マイメール",
   "folders": {

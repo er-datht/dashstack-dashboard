@@ -6,7 +6,7 @@ import {
   inboxLabels,
 } from "./mockData";
 import type { EmailRecord } from "./mockData";
-import type { SentMessage } from "../../types/inbox";
+import type { SentMessage, DraftMessage } from "../../types/inbox";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import InboxSidebar from "./InboxSidebar";
 import ChatView from "./ChatView";
@@ -15,7 +15,7 @@ import ComposeView from "./ComposeView";
 
 export default function Inbox(): React.JSX.Element {
   const { t } = useTranslation("inbox");
-  const [activeFolder, setActiveFolder] = useState("inbox");
+  const [activeFolder, setActiveFolderRaw] = useState("inbox");
   const [activeLabel, setActiveLabel] = useState("primary");
   const [selectedRecord, setSelectedRecord] = useState<EmailRecord | null>(
     null
@@ -26,6 +26,24 @@ export default function Inbox(): React.JSX.Element {
     "inbox-sent-messages",
     []
   );
+  const [draftMessages, setDraftMessages] = useLocalStorage<DraftMessage[]>(
+    "inbox-draft-messages",
+    []
+  );
+  const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
+  const [draftInitialData, setDraftInitialData] = useState<{
+    recipientEmail: string;
+    subject: string;
+    body: string;
+  } | null>(null);
+
+  const setActiveFolder = (folder: string) => {
+    setActiveFolderRaw(folder);
+    setShowCompose(false);
+    setSelectedRecord(null);
+    setEditingDraftId(null);
+    setDraftInitialData(null);
+  };
 
   // Starred state: keyed by record id, initialized from mock data
   const [starredIds, setStarredIds] = useState<Record<string, boolean>>(() =>
@@ -55,18 +73,40 @@ export default function Inbox(): React.JSX.Element {
     return () => clearTimeout(timer);
   }, [toast]);
 
+  const handleDraftClick = (record: EmailRecord) => {
+    const draft = draftMessages.find((d) => d.id === record.id);
+    if (draft) {
+      setDraftInitialData({
+        recipientEmail: draft.recipientEmail,
+        subject: draft.subject,
+        body: draft.body,
+      });
+      setEditingDraftId(draft.id);
+      setShowCompose(true);
+      setSelectedRecord(null);
+    }
+  };
+
   const handleSelectRecord = (record: EmailRecord) => {
+    if (draftMessages.some((d) => d.id === record.id)) {
+      handleDraftClick(record);
+      return;
+    }
     setSelectedRecord(record);
     setActiveLabel(record.labelId);
   };
 
   const handleCompose = () => {
+    setEditingDraftId(null);
+    setDraftInitialData(null);
     setShowCompose(true);
     setSelectedRecord(null);
   };
 
   const handleComposeClose = () => {
     setShowCompose(false);
+    setEditingDraftId(null);
+    setDraftInitialData(null);
   };
 
   const handleComposeSend = (message: {
@@ -74,6 +114,15 @@ export default function Inbox(): React.JSX.Element {
     subject: string;
     body: string;
   }) => {
+    // If sending a draft, remove it from drafts
+    if (editingDraftId) {
+      setDraftMessages((prev) =>
+        prev.filter((d) => d.id !== editingDraftId)
+      );
+      setEditingDraftId(null);
+      setDraftInitialData(null);
+    }
+
     const sentMessage: SentMessage = {
       id: crypto.randomUUID(),
       recipientEmail: message.recipientEmail,
@@ -85,6 +134,44 @@ export default function Inbox(): React.JSX.Element {
     setToast(t("compose.messageSent"));
     setShowCompose(false);
     setActiveFolder("sent");
+  };
+
+  const handleSaveDraft = (
+    data: { recipientEmail: string; subject: string; body: string },
+    draftId?: string | null
+  ) => {
+    if (draftId) {
+      // Update existing draft
+      setDraftMessages((prev) =>
+        prev.map((d) =>
+          d.id === draftId
+            ? {
+                ...d,
+                recipientEmail: data.recipientEmail,
+                subject: data.subject,
+                body: data.body,
+                savedAt: new Date().toISOString(),
+              }
+            : d
+        )
+      );
+    } else {
+      // Create new draft
+      const newId = crypto.randomUUID();
+      const newDraft: DraftMessage = {
+        id: newId,
+        recipientEmail: data.recipientEmail,
+        subject: data.subject,
+        body: data.body,
+        savedAt: new Date().toISOString(),
+      };
+      setDraftMessages((prev) => [...prev, newDraft]);
+      setEditingDraftId(newId);
+    }
+  };
+
+  const handleDeleteDraft = (id: string) => {
+    setDraftMessages((prev) => prev.filter((d) => d.id !== id));
   };
 
   // Convert sent messages to EmailRecord format for the MessageList
@@ -99,15 +186,40 @@ export default function Inbox(): React.JSX.Element {
     }),
   }));
 
+  // Convert draft messages to EmailRecord format for the MessageList
+  const draftEmailRecords: EmailRecord[] = draftMessages.map((draft) => ({
+    id: draft.id,
+    senderName: t("compose.me"),
+    labelId: "",
+    subject: draft.subject || t("compose.noSubject"),
+    time: new Date(draft.savedAt).toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+    }),
+  }));
+
   // Determine which records to show based on active folder
   const displayRecords =
-    activeFolder === "sent" ? sentEmailRecords : mockEmailRecords;
+    activeFolder === "sent"
+      ? sentEmailRecords
+      : activeFolder === "draft"
+        ? draftEmailRecords
+        : activeFolder === "starred"
+          ? [...mockEmailRecords, ...sentEmailRecords, ...draftEmailRecords]
+          : mockEmailRecords;
 
   // Right panel content
   const renderRightPanel = () => {
     if (showCompose) {
       return (
-        <ComposeView onClose={handleComposeClose} onSend={handleComposeSend} />
+        <ComposeView
+          onClose={handleComposeClose}
+          onSend={handleComposeSend}
+          initialData={draftInitialData}
+          editingDraftId={editingDraftId}
+          onSaveDraft={handleSaveDraft}
+          onShowToast={setToast}
+        />
       );
     }
 
@@ -155,6 +267,7 @@ export default function Inbox(): React.JSX.Element {
         starredIds={starredIds}
         onToggleStar={toggleStar}
         activeFolder={activeFolder}
+        onDelete={activeFolder === "draft" ? handleDeleteDraft : undefined}
       />
     );
   };
@@ -177,6 +290,7 @@ export default function Inbox(): React.JSX.Element {
           folderCountOverrides={{
             starred: starredCount,
             sent: sentMessages.length,
+            draft: draftMessages.length,
           }}
         />
 

@@ -13,7 +13,12 @@
     "cancel": "Cancel",
     "close": "Close",
     "messageSent": "Message sent",
-    "me": "Me"
+    "me": "Me",
+    "saveAsDraft": "Save as Draft",
+    "draftSaved": "Draft saved",
+    "editDraft": "Edit Draft",
+    "noSubject": "(No subject)",
+    "saving": "Saving..."
   },
   "myEmail": "My Email",
   "folders": {

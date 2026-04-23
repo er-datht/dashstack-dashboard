@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import { cn } from "../../utils/cn";
@@ -10,6 +10,17 @@ type ComposeViewProps = {
     subject: string;
     body: string;
   }) => void;
+  initialData?: {
+    recipientEmail: string;
+    subject: string;
+    body: string;
+  } | null;
+  editingDraftId?: string | null;
+  onSaveDraft?: (
+    data: { recipientEmail: string; subject: string; body: string },
+    draftId?: string | null
+  ) => void;
+  onShowToast?: (message: string) => void;
 };
 
 type FieldErrors = {
@@ -21,17 +32,59 @@ type FieldErrors = {
 export default function ComposeView({
   onClose,
   onSend,
+  initialData,
+  editingDraftId,
+  onSaveDraft,
+  onShowToast,
 }: ComposeViewProps): React.JSX.Element {
   const { t } = useTranslation("inbox");
 
-  const [recipientEmail, setRecipientEmail] = useState("");
-  const [subject, setSubject] = useState("");
-  const [body, setBody] = useState("");
+  const [recipientEmail, setRecipientEmail] = useState(
+    initialData?.recipientEmail ?? ""
+  );
+  const [subject, setSubject] = useState(initialData?.subject ?? "");
+  const [body, setBody] = useState(initialData?.body ?? "");
   const [errors, setErrors] = useState<FieldErrors>({
     recipientEmail: false,
     subject: false,
     body: false,
   });
+  const [autoSaveStatus, setAutoSaveStatus] = useState<
+    "idle" | "saving" | "saved"
+  >("idle");
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Auto-save draft with 3-second debounce
+  useEffect(() => {
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    if (!onSaveDraft) return;
+    if (!recipientEmail.trim() && !subject.trim() && !body.trim()) return;
+
+    autoSaveTimerRef.current = setTimeout(() => {
+      setAutoSaveStatus("saving");
+      onSaveDraft(
+        {
+          recipientEmail: recipientEmail.trim(),
+          subject: subject.trim(),
+          body: body.trim(),
+        },
+        editingDraftId
+      );
+      setTimeout(() => {
+        setAutoSaveStatus("saved");
+        setTimeout(() => setAutoSaveStatus("idle"), 2000);
+      }, 300);
+    }, 3000);
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [recipientEmail, subject, body, onSaveDraft, editingDraftId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,9 +116,20 @@ export default function ComposeView({
     >
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-default">
-        <h2 className="text-lg font-semibold text-primary">
-          {t("compose.newMessage")}
-        </h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-semibold text-primary">
+            {editingDraftId
+              ? t("compose.editDraft")
+              : t("compose.newMessage")}
+          </h2>
+          {autoSaveStatus !== "idle" && (
+            <span className="text-xs text-secondary">
+              {autoSaveStatus === "saving"
+                ? t("compose.saving")
+                : t("compose.draftSaved")}
+            </span>
+          )}
+        </div>
         <button
           type="button"
           aria-label={t("compose.close")}
@@ -174,6 +238,25 @@ export default function ComposeView({
         >
           {t("compose.cancel")}
         </button>
+        {onSaveDraft && (
+          <button
+            type="button"
+            onClick={() => {
+              onSaveDraft(
+                {
+                  recipientEmail: recipientEmail.trim(),
+                  subject: subject.trim(),
+                  body: body.trim(),
+                },
+                editingDraftId
+              );
+              onShowToast?.(t("compose.draftSaved"));
+            }}
+            className="px-4 py-2 rounded-lg text-sm font-medium text-primary bg-surface border border-default hover:bg-surface-secondary transition-colors cursor-pointer"
+          >
+            {t("compose.saveAsDraft")}
+          </button>
+        )}
         <button
           type="submit"
           className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-on-primary hover:opacity-90 transition-opacity cursor-pointer"
