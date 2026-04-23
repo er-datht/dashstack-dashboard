@@ -69,12 +69,20 @@ On successful send, the compose view SHALL create a `SentMessage` record with a 
 - **WHEN** a message is sent
 - **THEN** the localStorage entry contains id (unique string), recipientEmail, subject, body, and sentAt (ISO timestamp string)
 
-### Requirement: Cancel button
-The compose view SHALL display a "Cancel" button. Clicking Cancel SHALL close the compose view and return to the message list without saving any data.
+### Requirement: ComposeView footer actions
+The ComposeView footer SHALL display only the Send button. The footer SHALL NOT include a Save as Draft button or a Cancel button.
 
-#### Scenario: Cancel discards compose
-- **WHEN** user clicks "Cancel" in the compose view
-- **THEN** the compose view closes, the message list is displayed, and no data is saved
+#### Scenario: Footer renders with Send button only
+- **WHEN** the ComposeView is displayed
+- **THEN** the footer contains only the "Send" button
+- **THEN** no "Save as Draft" or "Cancel" button is present in the footer
+
+### Requirement: Draft persistence via auto-save on unmount
+When the ComposeView unmounts, the component SHALL automatically save the current field values as a draft if any field has content.
+
+#### Scenario: Draft auto-saved on close
+- **WHEN** the user closes the compose view (via X button) with content in any field
+- **THEN** the draft is automatically saved to localStorage without explicit user action
 
 ### Requirement: Theme support
 The compose view SHALL support all three themes (light, dark, forest) using CSS custom properties and Tailwind utility classes. No hardcoded colors.
@@ -91,7 +99,7 @@ All user-visible text in the compose view SHALL use i18n translation keys from t
 - **THEN** all compose view labels, buttons, and placeholders display in Japanese
 
 ### Requirement: Accessibility
-The close button SHALL have an `aria-label` attribute sourced from an i18n key. All form fields SHALL have associated `<label>` elements. The Send and Cancel buttons SHALL be accessible with clear text labels.
+The close button SHALL have an `aria-label` attribute sourced from an i18n key. All form fields SHALL have associated `<label>` elements. The Send button SHALL be accessible with a clear text label.
 
 #### Scenario: Screen reader announces close button
 - **WHEN** a screen reader user navigates to the close button

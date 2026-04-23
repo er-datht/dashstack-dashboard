@@ -52,15 +52,15 @@ describe('Inbox — compose integration', () => {
   })
 
   describe('closing compose view', () => {
-    it('returns to message list when Cancel is clicked in ComposeView', () => {
+    it('returns to message list when close (X) is clicked in ComposeView', () => {
       render(<Inbox />)
 
       // Open compose
       fireEvent.click(screen.getByRole('button', { name: 'composeBtn' }))
       expect(screen.getByText('compose.newMessage')).toBeInTheDocument()
 
-      // Click Cancel
-      fireEvent.click(screen.getByRole('button', { name: 'compose.cancel' }))
+      // Click close (X)
+      fireEvent.click(screen.getByRole('button', { name: 'compose.close' }))
 
       // Message list should be visible again (search input present)
       expect(screen.getByPlaceholderText('list.search')).toBeInTheDocument()

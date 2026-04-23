@@ -5,10 +5,10 @@ import ComposeView from '../ComposeView'
  * Unit tests for the ComposeView component (inbox-compose change).
  *
  * ComposeView is a form panel with three required fields (To, Subject, Body),
- * a Send button, a Cancel button, and a close (X) button.
+ * a Send button and a close (X) button.
  *
  * Props:
- *   - onClose: () => void — called when Cancel or close (X) is clicked
+ *   - onClose: () => void — called when close (X) is clicked
  *   - onSend: (message: { recipientEmail: string, subject: string, body: string }) => void
  *
  * i18n namespace: "inbox" (globally mocked — keys returned as-is)
@@ -36,11 +36,11 @@ describe('ComposeView', () => {
       expect(screen.getByText('compose.body')).toBeInTheDocument()
     })
 
-    it('renders Send and Cancel buttons', () => {
+    it('renders Send button and no Cancel button', () => {
       render(<ComposeView {...defaultProps} />)
 
       expect(screen.getByRole('button', { name: 'compose.send' })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'compose.cancel' })).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'compose.cancel' })).not.toBeInTheDocument()
     })
 
     it('renders the new message heading', () => {
@@ -50,16 +50,7 @@ describe('ComposeView', () => {
     })
   })
 
-  describe('cancel and close behavior', () => {
-    it('calls onClose when Cancel button is clicked', () => {
-      const onClose = vi.fn()
-      render(<ComposeView {...defaultProps} onClose={onClose} />)
-
-      fireEvent.click(screen.getByRole('button', { name: 'compose.cancel' }))
-
-      expect(onClose).toHaveBeenCalledTimes(1)
-    })
-
+  describe('close behavior', () => {
     it('calls onClose when close (X) button is clicked', () => {
       const onClose = vi.fn()
       render(<ComposeView {...defaultProps} onClose={onClose} />)
