@@ -6,7 +6,7 @@ import {
   inboxLabels,
 } from "./mockData";
 import type { EmailRecord } from "./mockData";
-import type { SentMessage, DraftMessage, BinnedMessage } from "../../types/inbox";
+import type { SentMessage, DraftMessage, BinnedMessage, ArchivedMessage } from "../../types/inbox";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import InboxSidebar from "./InboxSidebar";
 import ChatView from "./ChatView";
@@ -14,6 +14,7 @@ import MessageList from "./MessageList";
 import ComposeView from "./ComposeView";
 
 const BIN_ELIGIBLE_FOLDERS = ["inbox", "starred", "sent", "important"];
+const ARCHIVE_ELIGIBLE_FOLDERS = ["inbox", "starred", "sent", "important", "draft"];
 
 export default function Inbox(): React.JSX.Element {
   const { t } = useTranslation("inbox");
@@ -42,6 +43,10 @@ export default function Inbox(): React.JSX.Element {
     "inbox-binned-messages",
     []
   );
+  const [archivedMessages, setArchivedMessages] = useLocalStorage<ArchivedMessage[]>(
+    "inbox-archived-messages",
+    []
+  );
 
   const [labelOverrides, setLabelOverrides] = useState<Record<string, string>>(
     {}
@@ -52,6 +57,7 @@ export default function Inbox(): React.JSX.Element {
   };
 
   const binnedIdSet = new Set(binnedMessages.map((m) => m.id));
+  const archivedIdSet = new Set(archivedMessages.map((m) => m.id));
 
   const setActiveFolder = (folder: string) => {
     setActiveFolderRaw(folder);
@@ -81,7 +87,7 @@ export default function Inbox(): React.JSX.Element {
   };
 
   const starredCount = Object.keys(starredIds).filter(
-    (id) => starredIds[id] && !binnedIdSet.has(id)
+    (id) => starredIds[id] && !binnedIdSet.has(id) && !archivedIdSet.has(id)
   ).length;
 
   // Auto-dismiss toast after 2 seconds
@@ -262,6 +268,54 @@ export default function Inbox(): React.JSX.Element {
     };
   };
 
+  // Shared helper: resolve source folder, find record, build ArchivedMessage
+  const buildArchivedMessage = (id: string): { archived: ArchivedMessage; isSent: boolean; isDraft: boolean } | null => {
+    if (archivedIdSet.has(id)) return null;
+
+    let sourceFolder = activeFolder;
+    if (activeFolder === "starred") {
+      if (mockEmailRecords.some((r) => r.id === id)) {
+        sourceFolder = "inbox";
+      } else if (sentMessages.some((m) => m.id === id)) {
+        sourceFolder = "sent";
+      } else if (draftMessages.some((m) => m.id === id)) {
+        sourceFolder = "draft";
+      }
+    }
+
+    const record =
+      mockEmailRecords.find((r) => r.id === id) ||
+      sentEmailRecords.find((r) => r.id === id) ||
+      draftEmailRecords.find((r) => r.id === id);
+    if (!record) return null;
+
+    const sentMsg = sourceFolder === "sent" ? sentMessages.find((m) => m.id === id) : undefined;
+    const draftMsg = sourceFolder === "draft" ? draftMessages.find((m) => m.id === id) : undefined;
+
+    return {
+      archived: {
+        id: record.id,
+        senderName: record.senderName,
+        labelId: record.labelId,
+        subject: record.subject,
+        time: record.time,
+        sourceFolder: sourceFolder as ArchivedMessage["sourceFolder"],
+        ...(sentMsg && {
+          recipientEmail: sentMsg.recipientEmail,
+          body: sentMsg.body,
+          sentAt: sentMsg.sentAt,
+        }),
+        ...(draftMsg && {
+          recipientEmail: draftMsg.recipientEmail,
+          body: draftMsg.body,
+          savedAt: draftMsg.savedAt,
+        }),
+      },
+      isSent: sourceFolder === "sent",
+      isDraft: sourceFolder === "draft",
+    };
+  };
+
   const handleDeleteToBin = (id: string) => {
     const result = buildBinnedMessage(id);
     if (!result) return;
@@ -330,8 +384,139 @@ export default function Inbox(): React.JSX.Element {
     setToast(t("list.restored"));
   };
 
+  const handleArchiveMessage = (id: string) => {
+    const result = buildArchivedMessage(id);
+    if (!result) return;
+
+    setArchivedMessages((prev) => {
+      if (prev.some((m) => m.id === id)) return prev;
+      return [...prev, result.archived];
+    });
+
+    if (result.isSent) {
+      setSentMessages((prev) => prev.filter((m) => m.id !== id));
+    }
+    if (result.isDraft) {
+      setDraftMessages((prev) => prev.filter((d) => d.id !== id));
+    }
+
+    setToast(t("list.archived"));
+  };
+
+  const handleBulkArchive = (ids: string[]) => {
+    const results = ids
+      .map((id) => buildArchivedMessage(id))
+      .filter((r): r is NonNullable<typeof r> => r !== null);
+
+    if (results.length === 0) return;
+
+    const sentIdsToRemove = new Set(
+      results.filter((r) => r.isSent).map((r) => r.archived.id)
+    );
+    const draftIdsToRemove = new Set(
+      results.filter((r) => r.isDraft).map((r) => r.archived.id)
+    );
+
+    setArchivedMessages((prev) => {
+      const existingIds = new Set(prev.map((m) => m.id));
+      const newItems = results
+        .filter((r) => !existingIds.has(r.archived.id))
+        .map((r) => r.archived);
+      if (newItems.length === 0) return prev;
+      return [...prev, ...newItems];
+    });
+
+    if (sentIdsToRemove.size > 0) {
+      setSentMessages((prev) =>
+        prev.filter((m) => !sentIdsToRemove.has(m.id))
+      );
+    }
+    if (draftIdsToRemove.size > 0) {
+      setDraftMessages((prev) =>
+        prev.filter((d) => !draftIdsToRemove.has(d.id))
+      );
+    }
+
+    setToast(t("list.archived"));
+  };
+
+  const handleUnarchiveMessage = (id: string) => {
+    const archived = archivedMessages.find((m) => m.id === id);
+    if (!archived) return;
+
+    setArchivedMessages((prev) => prev.filter((m) => m.id !== id));
+
+    if (archived.sourceFolder === "sent") {
+      const restoredSent: SentMessage = {
+        id: archived.id,
+        recipientEmail: archived.recipientEmail ?? "",
+        subject: archived.subject,
+        body: archived.body ?? "",
+        sentAt: archived.sentAt ?? new Date().toISOString(),
+      };
+      setSentMessages((prev) => [...prev, restoredSent]);
+    }
+    if (archived.sourceFolder === "draft") {
+      const restoredDraft: DraftMessage = {
+        id: archived.id,
+        recipientEmail: archived.recipientEmail ?? "",
+        subject: archived.subject,
+        body: archived.body ?? "",
+        savedAt: archived.savedAt ?? new Date().toISOString(),
+      };
+      setDraftMessages((prev) => [...prev, restoredDraft]);
+    }
+
+    setToast(t("list.unarchived"));
+  };
+
+  const handleBulkUnarchive = (ids: string[]) => {
+    const toRestore = archivedMessages.filter((m) => ids.includes(m.id));
+    if (toRestore.length === 0) return;
+
+    setArchivedMessages((prev) => prev.filter((m) => !ids.includes(m.id)));
+
+    const sentToRestore = toRestore.filter((m) => m.sourceFolder === "sent");
+    if (sentToRestore.length > 0) {
+      setSentMessages((prev) => [
+        ...prev,
+        ...sentToRestore.map((m) => ({
+          id: m.id,
+          recipientEmail: m.recipientEmail ?? "",
+          subject: m.subject,
+          body: m.body ?? "",
+          sentAt: m.sentAt ?? new Date().toISOString(),
+        })),
+      ]);
+    }
+    const draftsToRestore = toRestore.filter((m) => m.sourceFolder === "draft");
+    if (draftsToRestore.length > 0) {
+      setDraftMessages((prev) => [
+        ...prev,
+        ...draftsToRestore.map((m) => ({
+          id: m.id,
+          recipientEmail: m.recipientEmail ?? "",
+          subject: m.subject,
+          body: m.body ?? "",
+          savedAt: m.savedAt ?? new Date().toISOString(),
+        })),
+      ]);
+    }
+
+    setToast(t("list.unarchived"));
+  };
+
   // Determine which records to show based on active folder
   const getDisplayRecords = (): EmailRecord[] => {
+    if (activeFolder === "archive") {
+      return archivedMessages.map((m) => ({
+        id: m.id,
+        senderName: m.senderName,
+        labelId: m.labelId,
+        subject: m.subject,
+        time: m.time,
+      }));
+    }
     if (activeFolder === "bin") {
       return binnedMessages.map((m) => ({
         id: m.id,
@@ -342,17 +527,17 @@ export default function Inbox(): React.JSX.Element {
       }));
     }
     if (activeFolder === "sent") {
-      return sentEmailRecords.filter((r) => !binnedIdSet.has(r.id));
+      return sentEmailRecords.filter((r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id));
     }
     if (activeFolder === "draft") {
-      return draftEmailRecords;
+      return draftEmailRecords.filter((r) => !archivedIdSet.has(r.id));
     }
     if (activeFolder === "starred") {
       return [...mockEmailRecords, ...sentEmailRecords, ...draftEmailRecords].filter(
-        (r) => !binnedIdSet.has(r.id)
+        (r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id)
       );
     }
-    return mockEmailRecords.filter((r) => !binnedIdSet.has(r.id));
+    return mockEmailRecords.filter((r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id));
   };
   const displayRecords = getDisplayRecords();
 
@@ -418,6 +603,12 @@ export default function Inbox(): React.JSX.Element {
           }}
           onShowToast={setToast}
           onBack={() => setSelectedRecord(null)}
+          onArchive={ARCHIVE_ELIGIBLE_FOLDERS.includes(activeFolder) ? () => {
+            if (selectedRecord) {
+              handleArchiveMessage(selectedRecord.id);
+              setSelectedRecord(null);
+            }
+          } : undefined}
         />
       );
     }
@@ -435,6 +626,10 @@ export default function Inbox(): React.JSX.Element {
         onRestore={activeFolder === "bin" ? handleRestoreFromBin : undefined}
         onBulkDelete={bulkDeleteHandler}
         onAssignLabel={handleLabelAssign}
+        onArchive={ARCHIVE_ELIGIBLE_FOLDERS.includes(activeFolder) ? handleArchiveMessage : undefined}
+        onBulkArchive={ARCHIVE_ELIGIBLE_FOLDERS.includes(activeFolder) ? handleBulkArchive : undefined}
+        onUnarchive={activeFolder === "archive" ? handleUnarchiveMessage : undefined}
+        onBulkUnarchive={activeFolder === "archive" ? handleBulkUnarchive : undefined}
       />
     );
   };
@@ -459,6 +654,7 @@ export default function Inbox(): React.JSX.Element {
             sent: sentMessages.length,
             draft: draftMessages.length,
             bin: binnedMessages.length,
+            archive: archivedMessages.length,
           }}
         />
 

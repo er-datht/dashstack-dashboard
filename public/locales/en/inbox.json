@@ -26,7 +26,8 @@
     "draft": "Draft",
     "spam": "Spam",
     "important": "Important",
-    "bin": "Bin"
+    "bin": "Bin",
+    "archive": "Archive"
   },
   "labels": {
     "title": "Label",
@@ -46,7 +47,11 @@
     "deletedToBin": "Moved to Bin",
     "noSelection": "No messages selected",
     "selectAll": "Select all",
-    "addLabel": "Add label"
+    "addLabel": "Add label",
+    "archive": "Archive",
+    "archived": "Message archived",
+    "unarchive": "Unarchive",
+    "unarchived": "Message unarchived"
   },
   "chat": {
     "send": "Send",
@@ -59,6 +64,8 @@
     "moreOptions": "More options",
     "voiceChat": "Voice",
     "attachment": "Attach",
-    "image": "Image"
+    "image": "Image",
+    "archive": "Archive",
+    "unarchive": "Unarchive"
   }
 }

@@ -26,7 +26,8 @@
     "draft": "下書き",
     "spam": "スパム",
     "important": "重要",
-    "bin": "ゴミ箱"
+    "bin": "ゴミ箱",
+    "archive": "アーカイブ"
   },
   "labels": {
     "title": "ラベル",
@@ -46,7 +47,11 @@
     "deletedToBin": "ゴミ箱に移動しました",
     "noSelection": "メッセージが選択されていません",
     "selectAll": "すべて選択",
-    "addLabel": "ラベルを追加"
+    "addLabel": "ラベルを追加",
+    "archive": "アーカイブ",
+    "archived": "メッセージをアーカイブしました",
+    "unarchive": "アーカイブ解除",
+    "unarchived": "メッセージのアーカイブを解除しました"
   },
   "chat": {
     "send": "送信",
@@ -59,6 +64,8 @@
     "moreOptions": "その他のオプション",
     "voiceChat": "音声",
     "attachment": "添付",
-    "image": "画像"
+    "image": "画像",
+    "archive": "アーカイブ",
+    "unarchive": "アーカイブ解除"
   }
 }

@@ -6,6 +6,7 @@ import {
   AlertTriangle,
   MessageSquare,
   Trash2,
+  Archive,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { Message } from "../../types/inbox";
@@ -36,6 +37,7 @@ export const inboxFolders: InboxFolder[] = [
     count: 18,
   },
   { id: "bin", nameKey: "folders.bin", icon: Trash2, count: 9 },
+  { id: "archive", nameKey: "folders.archive", icon: Archive, count: 0 },
 ];
 
 export const inboxLabels: InboxLabel[] = [

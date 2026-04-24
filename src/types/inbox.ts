@@ -65,6 +65,19 @@ export type BinnedMessage = {
   sentAt?: string;
 };
 
+export type ArchivedMessage = {
+  id: string;
+  senderName: string;
+  labelId: string;
+  subject: string;
+  time: string;
+  sourceFolder: "inbox" | "sent" | "starred" | "important" | "draft";
+  recipientEmail?: string;
+  body?: string;
+  sentAt?: string;
+  savedAt?: string;
+};
+
 export type MessageFilter = {
   folder: MessageFolder;
   isRead?: boolean;

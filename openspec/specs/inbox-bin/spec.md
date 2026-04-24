@@ -14,7 +14,7 @@ The system SHALL define a `BinnedMessage` type with fields: `id` (string), `send
 - **THEN** the binned message is still present in the Bin folder view
 
 ### Requirement: Per-row delete button on eligible folders
-Each message row SHALL display a Trash2 icon button when the active folder is one of: `inbox`, `starred`, `sent`, `important`. Clicking the delete button SHALL move the message to bin (add it to `binnedMessages` localStorage) and remove it from the current folder view. The button SHALL NOT appear on `draft` folder rows (which retain their existing permanent-delete behavior) or on `spam`, or `bin` folder rows.
+Each message row SHALL display a Trash2 icon button when the active folder is one of: `inbox`, `starred`, `sent`, `important`. Clicking the delete button SHALL move the message to bin (add it to `binnedMessages` localStorage) and remove it from the current folder view. The button SHALL NOT appear on `draft` folder rows (which retain their existing permanent-delete behavior) or on `spam`, `bin`, or `archive` folder rows. Messages that are currently archived SHALL NOT be eligible for direct deletion to bin — they must be unarchived first.
 
 #### Scenario: Delete button visible on inbox row
 - **WHEN** user is viewing the Inbox folder
@@ -26,6 +26,10 @@ Each message row SHALL display a Trash2 icon button when the active folder is on
 
 #### Scenario: Delete button not visible on bin row
 - **WHEN** user is viewing the Bin folder
+- **THEN** rows do not show a Trash2 delete button
+
+#### Scenario: Delete button not visible on archive row
+- **WHEN** user is viewing the Archive folder
 - **THEN** rows do not show a Trash2 delete button
 
 #### Scenario: Single delete moves message to bin
