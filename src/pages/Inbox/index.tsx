@@ -12,6 +12,8 @@ import InboxSidebar from "./InboxSidebar";
 import ChatView from "./ChatView";
 import MessageList from "./MessageList";
 import ComposeView from "./ComposeView";
+import InfoModal from "./InfoModal";
+import type { InfoModalData } from "./InfoModal";
 
 const BIN_ELIGIBLE_FOLDERS = ["inbox", "starred", "sent", "important"];
 const ARCHIVE_ELIGIBLE_FOLDERS = ["inbox", "starred", "sent", "important", "draft"];
@@ -51,6 +53,8 @@ export default function Inbox(): React.JSX.Element {
   const [labelOverrides, setLabelOverrides] = useState<Record<string, string>>(
     {}
   );
+
+  const [infoModalItems, setInfoModalItems] = useState<InfoModalData[]>([]);
 
   const handleLabelAssign = (recordId: string, labelId: string) => {
     setLabelOverrides((prev) => ({ ...prev, [recordId]: labelId }));
@@ -506,6 +510,43 @@ export default function Inbox(): React.JSX.Element {
     setToast(t("list.unarchived"));
   };
 
+  const handleMessageListShowInfo = (selectedRecords: EmailRecord[]) => {
+    if (selectedRecords.length === 0) return;
+    setInfoModalItems(
+      selectedRecords.map((record) => {
+        const label = inboxLabels.find(
+          (l) => l.id === (labelOverrides[record.id] || record.labelId)
+        );
+        return {
+          senderName: record.senderName,
+          subject: record.subject,
+          labelName: label ? t(label.nameKey) : "",
+          labelColor: label?.color ?? "",
+          time: `${new Date().toLocaleDateString()} ${record.time}`,
+          isStarred: !!starredIds[record.id],
+          folder: t(`folders.${activeFolder}`),
+        };
+      })
+    );
+  };
+
+  const handleChatShowInfo = () => {
+    if (!selectedRecord) return;
+    const label = inboxLabels.find((l) => l.id === activeLabel);
+    const sentMsg = sentMessages.find((m) => m.id === selectedRecord.id);
+    setInfoModalItems([
+      {
+        senderName: sentMsg ? sentMsg.recipientEmail : selectedRecord.senderName,
+        subject: selectedRecord.subject,
+        labelName: label ? t(label.nameKey) : "",
+        labelColor: label?.color ?? "",
+        time: `${new Date().toLocaleDateString()} ${selectedRecord.time}`,
+        isStarred: !!starredIds[selectedRecord.id],
+        folder: t(`folders.${activeFolder}`),
+      },
+    ]);
+  };
+
   // Determine which records to show based on active folder
   const getDisplayRecords = (): EmailRecord[] => {
     if (activeFolder === "archive") {
@@ -609,6 +650,7 @@ export default function Inbox(): React.JSX.Element {
               setSelectedRecord(null);
             }
           } : undefined}
+          onShowInfo={handleChatShowInfo}
         />
       );
     }
@@ -630,6 +672,7 @@ export default function Inbox(): React.JSX.Element {
         onBulkArchive={ARCHIVE_ELIGIBLE_FOLDERS.includes(activeFolder) ? handleBulkArchive : undefined}
         onUnarchive={activeFolder === "archive" ? handleUnarchiveMessage : undefined}
         onBulkUnarchive={activeFolder === "archive" ? handleBulkUnarchive : undefined}
+        onShowInfo={handleMessageListShowInfo}
       />
     );
   };
@@ -660,6 +703,12 @@ export default function Inbox(): React.JSX.Element {
 
         {renderRightPanel()}
       </div>
+
+      <InfoModal
+        isOpen={infoModalItems.length > 0}
+        onClose={() => setInfoModalItems([])}
+        items={infoModalItems}
+      />
 
       {/* Toast Notification */}
       {toast && (

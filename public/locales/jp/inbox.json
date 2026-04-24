@@ -67,5 +67,20 @@
     "image": "画像",
     "archive": "アーカイブ",
     "unarchive": "アーカイブ解除"
+  },
+  "info": {
+    "title": "メッセージ情報",
+    "sender": "送信者",
+    "subject": "件名",
+    "label": "ラベル",
+    "dateTime": "日時",
+    "starred": "スター付き",
+    "folder": "フォルダ",
+    "close": "閉じる",
+    "selectedCount": "{{count}}件中{{current}}件目を表示",
+    "previous": "前へ",
+    "next": "次へ",
+    "yes": "はい",
+    "no": "いいえ"
   }
 }

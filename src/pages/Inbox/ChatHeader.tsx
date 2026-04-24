@@ -13,6 +13,7 @@ type ChatHeaderProps = {
   onShowToast: (message: string) => void;
   onBack: () => void;
   onArchive?: () => void;
+  onShowInfo?: () => void;
 };
 
 export default function ChatHeader({
@@ -23,6 +24,7 @@ export default function ChatHeader({
   onShowToast,
   onBack,
   onArchive,
+  onShowInfo,
 }: ChatHeaderProps): React.JSX.Element {
   const { t } = useTranslation("inbox");
   const [isLabelOpen, setIsLabelOpen] = useState(false);
@@ -145,6 +147,10 @@ export default function ChatHeader({
             onClick={() => {
               if (key === "archive" && onArchive) {
                 onArchive();
+                return;
+              }
+              if (key === "info" && onShowInfo) {
+                onShowInfo();
                 return;
               }
               onShowToast(t("chat.comingSoon"));

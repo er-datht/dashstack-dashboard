@@ -67,5 +67,20 @@
     "image": "Image",
     "archive": "Archive",
     "unarchive": "Unarchive"
+  },
+  "info": {
+    "title": "Message Info",
+    "sender": "Sender",
+    "subject": "Subject",
+    "label": "Label",
+    "dateTime": "Date & Time",
+    "starred": "Starred",
+    "folder": "Folder",
+    "close": "Close",
+    "selectedCount": "{{current}} of {{count}} selected",
+    "previous": "Previous",
+    "next": "Next",
+    "yes": "Yes",
+    "no": "No"
   }
 }

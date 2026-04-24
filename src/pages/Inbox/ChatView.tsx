@@ -14,6 +14,7 @@ type ChatViewProps = {
   onShowToast: (message: string) => void;
   onBack: () => void;
   onArchive?: () => void;
+  onShowInfo?: () => void;
 };
 
 function formatTime(createdAt: string, locale: string): string {
@@ -30,6 +31,7 @@ export default function ChatView({
   onShowToast,
   onBack,
   onArchive,
+  onShowInfo,
 }: ChatViewProps): React.JSX.Element {
   const { i18n } = useTranslation();
   return (
@@ -42,6 +44,7 @@ export default function ChatView({
         onShowToast={onShowToast}
         onBack={onBack}
         onArchive={onArchive}
+        onShowInfo={onShowInfo}
       />
 
       {/* Messages Area */}
