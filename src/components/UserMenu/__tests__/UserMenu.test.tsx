@@ -5,6 +5,7 @@ const mockNavigate = vi.fn()
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
+  useLocation: () => ({ pathname: '/dashboard', state: null, search: '', hash: '', key: 'default' }),
 }))
 
 // SVG imports in Vite resolve to file path strings; no special mock needed
@@ -74,7 +75,7 @@ describe('UserMenu', () => {
 
       expect(localStorage.getItem('auth_token')).toBeNull()
       expect(localStorage.getItem('refresh_token')).toBeNull()
-      expect(mockNavigate).toHaveBeenCalledWith('/login')
+      expect(mockNavigate).toHaveBeenCalledWith('/login', { state: { from: '/dashboard' } })
     })
   })
 

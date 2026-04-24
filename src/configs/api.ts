@@ -1,5 +1,6 @@
 import axios from "axios";
 import { appConfig } from "./app-config";
+import { getStoredToken, clearTokens } from "../services/auth";
 import { ROUTES } from "../routes/routes";
 
 /**
@@ -19,8 +20,8 @@ export const apiClient = axios.create({
 // Request Interceptor
 apiClient.interceptors.request.use(
   (config) => {
-    // Get token from localStorage
-    const token = localStorage.getItem(appConfig.auth.tokenKey);
+    // Get token from localStorage or sessionStorage
+    const token = getStoredToken();
 
     // Add token to headers if it exists
     if (token) {
@@ -67,9 +68,8 @@ apiClient.interceptors.response.use(
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          // Unauthorized - clear token and redirect to login
-          localStorage.removeItem(appConfig.auth.tokenKey);
-          localStorage.removeItem(appConfig.auth.refreshTokenKey);
+          // Unauthorized - clear tokens and redirect to login
+          clearTokens();
           window.location.href = ROUTES.LOGIN;
           break;
 

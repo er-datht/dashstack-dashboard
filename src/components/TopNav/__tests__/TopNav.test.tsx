@@ -5,6 +5,11 @@ const mockNavigate = vi.fn();
 
 vi.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
+  useLocation: () => ({ pathname: '/dashboard', state: null, search: '', hash: '', key: 'default' }),
+}));
+
+vi.mock("../../../services/auth", () => ({
+  getStoredUser: () => null,
 }));
 
 // Mock SVG flag imports used by LanguageSwitcher
