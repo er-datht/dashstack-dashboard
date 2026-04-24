@@ -34,6 +34,7 @@ type MessageListProps = {
   onBulkArchive?: (ids: string[]) => void;
   onUnarchive?: (id: string) => void;
   onBulkUnarchive?: (ids: string[]) => void;
+  onShowInfo?: (records: EmailRecord[]) => void;
 };
 
 export default function MessageList({
@@ -52,6 +53,7 @@ export default function MessageList({
   onBulkArchive,
   onUnarchive,
   onBulkUnarchive,
+  onShowInfo,
 }: MessageListProps): React.JSX.Element {
   const { t } = useTranslation("inbox");
   const [page, setPage] = useState(0);
@@ -232,6 +234,19 @@ export default function MessageList({
                   }
                   onBulkDelete([...selectedIds]);
                   setSelectedIds(new Set());
+                  return;
+                }
+                if (key === "info") {
+                  if (selectedIds.size === 0) {
+                    onShowToast(t("list.noSelection"));
+                    return;
+                  }
+                  if (onShowInfo) {
+                    const selectedRecords = records.filter((r) =>
+                      selectedIds.has(r.id)
+                    );
+                    onShowInfo(selectedRecords);
+                  }
                   return;
                 }
                 onShowToast(t("chat.comingSoon"));
