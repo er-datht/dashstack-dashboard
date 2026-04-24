@@ -1,6 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Download, Info, Trash2, Star, ChevronLeft, ChevronRight, RotateCcw, Tag } from "lucide-react";
+import {
+  Search,
+  Archive,
+  Download,
+  Info,
+  Trash2,
+  Star,
+  ChevronLeft,
+  ChevronRight,
+  RotateCcw,
+  Tag,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Tooltip } from "react-tooltip";
 import { cn } from "../../utils/cn";
 import type { EmailRecord, InboxLabel } from "./mockData";
 
@@ -18,6 +30,10 @@ type MessageListProps = {
   onRestore?: (id: string) => void;
   onBulkDelete?: (ids: string[]) => void;
   onAssignLabel?: (recordId: string, labelId: string) => void;
+  onArchive?: (id: string) => void;
+  onBulkArchive?: (ids: string[]) => void;
+  onUnarchive?: (id: string) => void;
+  onBulkUnarchive?: (ids: string[]) => void;
 };
 
 export default function MessageList({
@@ -32,6 +48,10 @@ export default function MessageList({
   onRestore,
   onBulkDelete,
   onAssignLabel,
+  onArchive,
+  onBulkArchive,
+  onUnarchive,
+  onBulkUnarchive,
 }: MessageListProps): React.JSX.Element {
   const { t } = useTranslation("inbox");
   const [page, setPage] = useState(0);
@@ -39,7 +59,7 @@ export default function MessageList({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const selectAllRef = useRef<HTMLInputElement>(null);
   const [openLabelDropdownId, setOpenLabelDropdownId] = useState<string | null>(
-    null
+    null,
   );
   const labelDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -97,7 +117,8 @@ export default function MessageList({
 
   const visibleIds = visibleRecords.map((r) => r.id);
   const selectedCount = visibleIds.filter((id) => selectedIds.has(id)).length;
-  const allSelected = visibleIds.length > 0 && selectedCount === visibleIds.length;
+  const allSelected =
+    visibleIds.length > 0 && selectedCount === visibleIds.length;
   const someSelected = selectedCount > 0 && !allSelected;
 
   // Sync indeterminate DOM property
@@ -142,35 +163,83 @@ export default function MessageList({
           </div>
         </div>
         <div className="flex items-center border border-default rounded-lg overflow-hidden">
-          {([
-            { Icon: Download, label: t("chat.download", "Download"), key: "download" },
-            { Icon: Info, label: t("chat.info", "Info"), key: "info" },
-            { Icon: Trash2, label: t("chat.delete", "Delete"), key: "delete" },
-          ] as const).map(({ Icon, label, key }, index) => (
+          {[
+            activeFolder === "archive"
+              ? {
+                  Icon: RotateCcw,
+                  label: t("chat.unarchive", "Unarchive"),
+                  key: "unarchive" as const,
+                }
+              : onBulkArchive
+                ? {
+                    Icon: Archive,
+                    label: t("chat.archive", "Archive"),
+                    key: "archive" as const,
+                  }
+                : {
+                    Icon: Download,
+                    label: t("chat.download", "Download"),
+                    key: "download" as const,
+                  },
+            { Icon: Info, label: t("chat.info", "Info"), key: "info" as const },
+            {
+              Icon: Trash2,
+              label: t("list.delete", "Delete"),
+              key: "delete" as const,
+            },
+          ].map(({ Icon, label, key }, index) => (
             <button
               key={key}
               type="button"
               aria-label={label}
+              data-tooltip-id="inbox-tooltip"
+              data-tooltip-content={label}
               onClick={() => {
-                if (key !== "delete") {
-                  onShowToast(t("chat.comingSoon"));
+                if (key === "archive") {
+                  if (!onBulkArchive) {
+                    onShowToast(t("chat.comingSoon"));
+                    return;
+                  }
+                  if (selectedIds.size === 0) {
+                    onShowToast(t("list.noSelection"));
+                    return;
+                  }
+                  onBulkArchive([...selectedIds]);
+                  setSelectedIds(new Set());
                   return;
                 }
-                if (!onBulkDelete) {
-                  onShowToast(t("chat.comingSoon"));
+                if (key === "unarchive") {
+                  if (!onBulkUnarchive) {
+                    onShowToast(t("chat.comingSoon"));
+                    return;
+                  }
+                  if (selectedIds.size === 0) {
+                    onShowToast(t("list.noSelection"));
+                    return;
+                  }
+                  onBulkUnarchive([...selectedIds]);
+                  setSelectedIds(new Set());
                   return;
                 }
-                if (selectedIds.size === 0) {
-                  onShowToast(t("list.noSelection"));
+                if (key === "delete") {
+                  if (!onBulkDelete) {
+                    onShowToast(t("chat.comingSoon"));
+                    return;
+                  }
+                  if (selectedIds.size === 0) {
+                    onShowToast(t("list.noSelection"));
+                    return;
+                  }
+                  onBulkDelete([...selectedIds]);
+                  setSelectedIds(new Set());
                   return;
                 }
-                onBulkDelete([...selectedIds]);
-                setSelectedIds(new Set());
+                onShowToast(t("chat.comingSoon"));
               }}
               className={cn(
                 "p-2 text-secondary hover:text-primary hover:bg-surface-secondary",
                 "transition-colors cursor-pointer",
-                index < 2 && "border-r border-default"
+                index < 2 && "border-r border-default",
               )}
             >
               <Icon className="w-4 h-4" />
@@ -221,7 +290,7 @@ export default function MessageList({
                       "flex-shrink-0 transition-colors cursor-pointer",
                       starredIds[record.id]
                         ? "text-warning"
-                        : "text-secondary hover:text-primary"
+                        : "text-secondary hover:text-primary",
                     )}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -266,7 +335,7 @@ export default function MessageList({
                         onClick={(e) => {
                           e.stopPropagation();
                           setOpenLabelDropdownId((prev) =>
-                            prev === record.id ? null : record.id
+                            prev === record.id ? null : record.id,
                           );
                         }}
                         className="p-1 text-secondary hover:text-primary hover:bg-surface-secondary rounded-md transition-colors cursor-pointer"
@@ -307,38 +376,83 @@ export default function MessageList({
                 </div>
               </div>
 
-              {/* Delete button — parent controls which handler (or undefined) via onDelete */}
-              {activeFolder !== "bin" && onDelete && (
-                <button
-                  type="button"
-                  aria-label={t("chat.delete")}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(record.id);
-                  }}
-                  className="flex-shrink-0 p-1.5 text-secondary hover:text-[var(--color-danger)] hover:bg-surface-secondary rounded-md transition-colors cursor-pointer"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              )}
+              {/* Action buttons group */}
+              <div className="flex items-center gap-4 flex-shrink-0">
+                {/* Archive button — visible on archive-eligible folders */}
+                {activeFolder !== "bin" &&
+                  activeFolder !== "archive" &&
+                  onArchive && (
+                    <button
+                      type="button"
+                      aria-label={t("list.archive")}
+                      data-tooltip-id="inbox-tooltip"
+                      data-tooltip-content={t("list.archive")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onArchive(record.id);
+                      }}
+                      className="p-1.5 text-secondary hover:text-primary hover:bg-surface-secondary rounded-md transition-colors cursor-pointer"
+                    >
+                      <Archive className="w-4 h-4" />
+                    </button>
+                  )}
 
-              {/* Restore button for bin folder */}
-              {activeFolder === "bin" && onRestore && (
-                <button
-                  type="button"
-                  aria-label={t("list.restore")}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRestore(record.id);
-                  }}
-                  className="flex-shrink-0 p-1.5 text-secondary hover:text-[var(--color-success)] hover:bg-surface-secondary rounded-md transition-colors cursor-pointer"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                </button>
-              )}
+                {/* Delete button — parent controls which handler (or undefined) via onDelete */}
+                {activeFolder !== "bin" &&
+                  activeFolder !== "archive" &&
+                  onDelete && (
+                    <button
+                      type="button"
+                      aria-label={t("chat.delete")}
+                      data-tooltip-id="inbox-tooltip"
+                      data-tooltip-content={t("chat.delete")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(record.id);
+                      }}
+                      className="p-1.5 text-secondary hover:text-[var(--color-danger)] hover:bg-surface-secondary rounded-md transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+
+                {/* Restore button for bin folder */}
+                {activeFolder === "bin" && onRestore && (
+                  <button
+                    type="button"
+                    aria-label={t("list.restore")}
+                    data-tooltip-id="inbox-tooltip"
+                    data-tooltip-content={t("list.restore")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRestore(record.id);
+                    }}
+                    className="p-1.5 text-secondary hover:text-[var(--color-success)] hover:bg-surface-secondary rounded-md transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                )}
+
+                {/* Restore button for archive folder */}
+                {activeFolder === "archive" && onUnarchive && (
+                  <button
+                    type="button"
+                    aria-label={t("list.unarchive")}
+                    data-tooltip-id="inbox-tooltip"
+                    data-tooltip-content={t("list.unarchive")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUnarchive(record.id);
+                    }}
+                    className="p-1.5 text-secondary hover:text-[var(--color-success)] hover:bg-surface-secondary rounded-md transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
 
               {/* Time */}
-              <span className="text-sm text-primary flex-shrink-0 whitespace-nowrap">
+              <span className="text-sm text-primary flex-shrink-0 w-20 text-right">
                 {record.time}
               </span>
             </button>
@@ -349,18 +463,26 @@ export default function MessageList({
       {/* Pagination */}
       <div className="flex items-center justify-between px-5 py-3">
         <span className="text-sm font-bold text-primary opacity-60">
-          {t("list.showing", { start: start + 1, end, total: totalRecords, defaultValue: `Showing ${start + 1}-${end} of ${totalRecords}` })}
+          {t("list.showing", {
+            start: start + 1,
+            end,
+            total: totalRecords,
+            defaultValue: `Showing ${start + 1}-${end} of ${totalRecords}`,
+          })}
         </span>
         <div className="flex items-center border border-default rounded-lg overflow-hidden h-[30px]">
           <button
             type="button"
             disabled={!hasPrev}
-            onClick={() => { setPage((p) => p - 1); setSelectedIds(new Set()); }}
+            onClick={() => {
+              setPage((p) => p - 1);
+              setSelectedIds(new Set());
+            }}
             className={cn(
               "px-2.5 h-full border-r border-default transition-colors",
               hasPrev
                 ? "text-secondary hover:bg-surface-secondary cursor-pointer"
-                : "text-secondary/30 cursor-default"
+                : "text-secondary/30 cursor-default",
             )}
           >
             <ChevronLeft className="w-5 h-5" />
@@ -368,18 +490,23 @@ export default function MessageList({
           <button
             type="button"
             disabled={!hasNext}
-            onClick={() => { setPage((p) => p + 1); setSelectedIds(new Set()); }}
+            onClick={() => {
+              setPage((p) => p + 1);
+              setSelectedIds(new Set());
+            }}
             className={cn(
               "px-2.5 h-full transition-colors",
               hasNext
                 ? "text-secondary hover:bg-surface-secondary cursor-pointer"
-                : "text-secondary/30 cursor-default"
+                : "text-secondary/30 cursor-default",
             )}
           >
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
       </div>
+
+      <Tooltip id="inbox-tooltip" place="top" />
     </div>
   );
 }

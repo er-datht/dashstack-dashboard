@@ -13,6 +13,7 @@ type ChatViewProps = {
   onLabelChange: (labelId: string) => void;
   onShowToast: (message: string) => void;
   onBack: () => void;
+  onArchive?: () => void;
 };
 
 function formatTime(createdAt: string, locale: string): string {
@@ -28,6 +29,7 @@ export default function ChatView({
   onLabelChange,
   onShowToast,
   onBack,
+  onArchive,
 }: ChatViewProps): React.JSX.Element {
   const { i18n } = useTranslation();
   return (
@@ -39,6 +41,7 @@ export default function ChatView({
         onLabelChange={onLabelChange}
         onShowToast={onShowToast}
         onBack={onBack}
+        onArchive={onArchive}
       />
 
       {/* Messages Area */}
