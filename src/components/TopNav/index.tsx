@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../LanguageSwitcher";
 import UserMenu from "../UserMenu";
 import NotificationDropdown from "../NotificationDropdown";
+import { getStoredUser } from "../../services/auth";
 
 type TopNavProps = {
   sidebarCollapsed?: boolean;
@@ -14,6 +15,10 @@ export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+  const storedUser = getStoredUser();
+  const userName = storedUser?.name || "Moni Roy";
+  const userRole = storedUser?.role || "Admin";
   const containerRef = useRef<HTMLDivElement>(null);
   const langContainerRef = useRef<HTMLDivElement>(null);
   const notifContainerRef = useRef<HTMLDivElement>(null);
@@ -171,16 +176,16 @@ export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
               className="flex items-center gap-3 pl-4 border-l border-l-topnav-border cursor-pointer bg-transparent"
             >
               <img
-                src="https://ui-avatars.com/api/?name=Moni+Roy&background=818cf8&color=fff&size=128"
-                alt="Moni Roy"
+                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=818cf8&color=fff&size=128`}
+                alt={userName}
                 className="w-9 h-9 rounded-full"
               />
               <div className="hidden sm:block text-left">
                 <p className="text-sm font-semibold leading-tight text-topnav-text-primary">
-                  Moni Roy
+                  {userName}
                 </p>
-                <p className="text-xs leading-tight text-topnav-text-secondary">
-                  Admin
+                <p className="text-xs leading-tight text-topnav-text-secondary capitalize">
+                  {userRole}
                 </p>
               </div>
               <ChevronDown

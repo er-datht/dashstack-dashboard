@@ -2,7 +2,10 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import DashboardLayout from "../layouts/DashboardLayout";
+import { withAuth } from "../hoc/withAuth";
 import { ROUTES } from "./routes";
+
+const ProtectedDashboardLayout = withAuth(DashboardLayout);
 
 // Lazy load all page components
 const Dashboard = lazy(() => import("../pages/Dashboard"));
@@ -24,6 +27,7 @@ const AddNewMember = lazy(() => import("../pages/Team/AddNewMember"));
 const Table = lazy(() => import("../pages/Table"));
 const Settings = lazy(() => import("../pages/Settings"));
 const Login = lazy(() => import("../pages/Login"));
+const Register = lazy(() => import("../pages/Register"));
 
 // Loading fallback component
 const LoadingFallback = () => {
@@ -46,9 +50,10 @@ export default function AppRoutes() {
         <Routes>
           {/* Public Routes */}
           <Route path={ROUTES.LOGIN} element={<Login />} />
+          <Route path={ROUTES.REGISTER} element={<Register />} />
 
           {/* Protected Routes with Dashboard Layout */}
-          <Route path={ROUTES.ROOT} element={<DashboardLayout />}>
+          <Route path={ROUTES.ROOT} element={<ProtectedDashboardLayout />}>
             <Route index element={<Navigate to={ROUTES.DASHBOARD} replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="products" element={<Products />} />

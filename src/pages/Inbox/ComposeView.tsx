@@ -36,7 +36,6 @@ export default function ComposeView({
   initialData,
   editingDraftId,
   onSaveDraft,
-  onShowToast,
 }: ComposeViewProps): React.JSX.Element {
   const { t } = useTranslation("inbox");
 

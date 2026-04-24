@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "../../utils/cn";
-import { appConfig } from "../../configs/app-config";
+import { clearTokens } from "../../services/auth";
 import { ROUTES } from "../../routes/routes";
 
 import manageAccountIcon from "../../assets/icons/manage-account.svg";
@@ -55,6 +55,7 @@ export default function UserMenu({
 }: UserMenuProps): React.JSX.Element {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const [toast, setToast] = useState<string | null>(null);
 
   // Handle Escape key
@@ -83,9 +84,8 @@ export default function UserMenu({
   }, [toast]);
 
   const handleLogout = () => {
-    localStorage.removeItem(appConfig.auth.tokenKey);
-    localStorage.removeItem(appConfig.auth.refreshTokenKey);
-    navigate(ROUTES.LOGIN);
+    clearTokens();
+    navigate(ROUTES.LOGIN, { state: { from: location.pathname } });
     onClose();
   };
 
