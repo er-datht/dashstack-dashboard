@@ -8,6 +8,10 @@ import type { ID } from "./common";
 export type Contact = {
   id: ID;
   name: string;
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: string;
+  gender?: string;
   email: string;
   phone?: string;
   company?: string;

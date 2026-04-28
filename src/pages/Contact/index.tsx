@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { Users } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { ROUTES } from "../../routes/routes";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
+import type { Contact as ContactType } from "../../types/contact";
 import { mockContacts } from "./contactData";
 import ContactCard from "./ContactCard";
 
@@ -12,6 +14,7 @@ const CONTACTS_PER_PAGE = 6;
 export default function Contact(): React.JSX.Element {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [contacts] = useLocalStorage<ContactType[]>("contacts", mockContacts);
   const [visibleCount, setVisibleCount] = useState(CONTACTS_PER_PAGE);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -30,8 +33,8 @@ export default function Contact(): React.JSX.Element {
     setVisibleCount((prev) => prev + CONTACTS_PER_PAGE);
   };
 
-  const visibleContacts = mockContacts.slice(0, visibleCount);
-  const hasMore = visibleCount < mockContacts.length;
+  const visibleContacts = contacts.slice(0, visibleCount);
+  const hasMore = visibleCount < contacts.length;
 
   return (
     <div className="p-6">
