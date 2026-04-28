@@ -92,6 +92,7 @@ export const mockMessages: Message[] = [
 export type EmailRecord = {
   id: string;
   senderName: string;
+  senderEmail?: string;
   labelId: string;
   subject: string;
   time: string;
@@ -102,6 +103,7 @@ export const mockEmailRecords: EmailRecord[] = [
   {
     id: "rec-1",
     senderName: "Ethan Rodriguez",
+    senderEmail: "ethan.rodriguez@example.com",
     labelId: "primary",
     subject: "Enroll in our Graphic Design Certificate program today!",
     time: "8:38 AM",
@@ -110,6 +112,7 @@ export const mockEmailRecords: EmailRecord[] = [
   {
     id: "rec-2",
     senderName: "Jullu Jalal",
+    senderEmail: "jullu.jalal@example.com",
     labelId: "primary",
     subject: "Our Bachelor of Commerce program is ACBSP-accredited.",
     time: "8:38 AM",
@@ -117,6 +120,7 @@ export const mockEmailRecords: EmailRecord[] = [
   {
     id: "rec-3",
     senderName: "Sophie Walker",
+    senderEmail: "sophie.walker@example.com",
     labelId: "work",
     subject: "Learn about our specialized UX/UI Design workshops.",
     time: "4:30 PM",
@@ -125,6 +129,7 @@ export const mockEmailRecords: EmailRecord[] = [
   {
     id: "rec-4",
     senderName: "Oliver Patel",
+    senderEmail: "oliver.patel@example.com",
     labelId: "friends",
     subject: "Experience our Digital Marketing Strategy course.",
     time: "6:05 PM",
@@ -132,6 +137,7 @@ export const mockEmailRecords: EmailRecord[] = [
   {
     id: "rec-5",
     senderName: "Ella Carter",
+    senderEmail: "ella.carter@example.com",
     labelId: "primary",
     subject: "Explore the exciting realm of Product Development with us.",
     time: "2:55 PM",
@@ -140,6 +146,7 @@ export const mockEmailRecords: EmailRecord[] = [
   {
     id: "rec-6",
     senderName: "Maya Thompson",
+    senderEmail: "maya.thompson@example.com",
     labelId: "social",
     subject:
       "Join us as we delve into the fascinating field of Product Strategy.",
@@ -148,6 +155,7 @@ export const mockEmailRecords: EmailRecord[] = [
   {
     id: "rec-7",
     senderName: "Liam Johnson",
+    senderEmail: "liam.johnson@example.com",
     labelId: "social",
     subject: "Step into the innovative world of Product Leadership with us.",
     time: "5:00 PM",
@@ -155,6 +163,7 @@ export const mockEmailRecords: EmailRecord[] = [
   {
     id: "rec-8",
     senderName: "Sophia Martinez",
+    senderEmail: "sophia.martinez@example.com",
     labelId: "work",
     subject: "Discover the dynamic landscape of Product Innovation with us.",
     time: "9:00 AM",
@@ -163,6 +172,7 @@ export const mockEmailRecords: EmailRecord[] = [
   {
     id: "rec-9",
     senderName: "Oliver Brown",
+    senderEmail: "oliver.brown@example.com",
     labelId: "work",
     subject: "Uncover the secrets of successful Product Management with us.",
     time: "3:45 PM",
@@ -170,6 +180,7 @@ export const mockEmailRecords: EmailRecord[] = [
   {
     id: "rec-10",
     senderName: "Ava Wilson",
+    senderEmail: "ava.wilson@example.com",
     labelId: "social",
     subject: "Venture into the world of Product Design with us.",
     time: "11:30 AM",
@@ -177,6 +188,7 @@ export const mockEmailRecords: EmailRecord[] = [
   {
     id: "rec-11",
     senderName: "Noah Smith",
+    senderEmail: "noah.smith@example.com",
     labelId: "friends",
     subject: "Join us on the exciting path of Product Development.",
     time: "2:00 PM",
@@ -184,6 +196,7 @@ export const mockEmailRecords: EmailRecord[] = [
   {
     id: "rec-12",
     senderName: "Leo Kim",
+    senderEmail: "leo.kim@example.com",
     labelId: "social",
     subject: "Start your adventure with our Mobile App Development program.",
     time: "9:10 PM",
@@ -191,6 +204,7 @@ export const mockEmailRecords: EmailRecord[] = [
   {
     id: "rec-13",
     senderName: "Victoria Nguyen",
+    senderEmail: "victoria.nguyen@example.com",
     labelId: "friends",
     subject: "Dive deep into our Artificial Intelligence specialization.",
     time: "10:50 PM",

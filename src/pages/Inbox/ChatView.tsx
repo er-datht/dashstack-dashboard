@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import type { Message } from "../../types/inbox";
 import type { InboxLabel } from "./mockData";
@@ -15,6 +16,7 @@ type ChatViewProps = {
   onBack: () => void;
   onArchive?: () => void;
   onShowInfo?: () => void;
+  onSendMessage: (text: string) => void;
 };
 
 function formatTime(createdAt: string, locale: string): string {
@@ -32,8 +34,17 @@ export default function ChatView({
   onBack,
   onArchive,
   onShowInfo,
+  onSendMessage,
 }: ChatViewProps): React.JSX.Element {
   const { i18n } = useTranslation();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (messagesEndRef.current && typeof messagesEndRef.current.scrollIntoView === "function") {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages.length]);
+
   return (
     <div className="card flex-1 flex flex-col overflow-hidden">
       <ChatHeader
@@ -58,9 +69,10 @@ export default function ChatView({
             avatarUrl={message.senderAvatar}
           />
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
-      <ChatInput onShowToast={onShowToast} />
+      <ChatInput onShowToast={onShowToast} onSend={onSendMessage} />
     </div>
   );
 }

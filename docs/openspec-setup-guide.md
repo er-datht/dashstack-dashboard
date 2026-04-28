@@ -120,7 +120,7 @@ Routing: React Router v7 (src/routes/)
 
 ### 1.3 Scan the project
 
-Gather project information by reading the codebase directly — do NOT ask the user for information you can find yourself.
+Gather project information by reading existing OpenSpec specs first (`openspec/specs/`), then the codebase for details not in specs — do NOT ask the user for information you can find yourself.
 
 #### Single repo scan
 
@@ -533,7 +533,7 @@ The workflow follows four OpenSpec principles:
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense for the change at hand.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
 - **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal. Size scales _depth_, not which stages run.
-- **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify _deltas_ — not green-field descriptions.
+- **Brownfield-first** — This is an existing codebase. Read existing specs first (`openspec/specs/`), then code only for details not in specs, understand what's there, then specify _deltas_ — not green-field descriptions.
 
 ### Right-Sizing the Process
 
@@ -646,7 +646,7 @@ monorepo-root/
 
 ```
 
-requirements-analyst (clarify requirements with the user FIRST)
+requirements-analyst (read specs FIRST, then clarify requirements with the user)
 ⏸ WAIT — present findings to user, wait for confirmation
 → opsx:propose (generate artifacts from confirmed requirements)
 → security-reviewer (if yarn add / external code — ⛔ BLOCKS until safe)
@@ -740,7 +740,7 @@ The workflow follows four OpenSpec principles:
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense for the change at hand.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
 - **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal. Size scales _depth_, not which stages run.
-- **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify _deltas_ — not green-field descriptions.
+- **Brownfield-first** — This is an existing codebase. Read existing specs first (`openspec/specs/`), then code only for details not in specs, understand what's there, then specify _deltas_ — not green-field descriptions.
 
 ### Right-Sizing the Process
 
@@ -938,7 +938,7 @@ Each agent maps to a specific stage of the OpenSpec workflow. The agent is requi
 **Canonical sequence (every change):**
 ```
 
-requirements-analyst (clarify requirements FIRST)
+requirements-analyst (read specs FIRST, then clarify requirements)
 ⏸ WAIT — present findings to user, wait for confirmation
 → opsx:propose (generate artifacts from confirmed requirements)
 → security-reviewer (if yarn add / external code — ⛔ BLOCKS until safe)
@@ -969,7 +969,7 @@ requirements-analyst (clarify requirements FIRST)
 **Canonical sequence (every change):**
 ```
 
-requirements-analyst (clarify requirements FIRST) →
+requirements-analyst (read specs FIRST, then clarify requirements) →
 ⏸ WAIT for user confirmation →
 opsx:propose (from confirmed requirements) →
 security-reviewer (if go get — ⛔ BLOCKS) →

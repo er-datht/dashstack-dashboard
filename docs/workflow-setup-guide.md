@@ -38,7 +38,7 @@ This workflow combines two systems:
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
 - **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal — not the same ceremony as a new feature.
-- **Brownfield-first** — Most work modifies existing systems. Read the code, understand what's there, specify deltas.
+- **Brownfield-first** — Most work modifies existing systems. Read existing specs first (`openspec/specs/`), then code only for details not in specs, understand what's there, specify deltas.
 
 **Every change runs the same pipeline. Size controls depth per stage, not which stages run:**
 
@@ -364,13 +364,13 @@ This agent's #1 job is to **ask the user as many clarifying questions as needed*
 ```markdown
 ---
 name: requirements-analyst
-description: "Requirements analyst that runs BEFORE opsx:propose. Checks the user's description, explores the codebase for context, asks clarifying questions, and resolves all ambiguities so that opsx:propose generates correct artifacts the first time."
+description: "Requirements analyst that runs BEFORE opsx:propose. Reads existing specs first, then explores the codebase for context, asks clarifying questions, and resolves all ambiguities so that opsx:propose generates correct artifacts the first time."
 tools: Read, Edit, Write, Glob, Grep, Bash, Skill, TaskCreate, TaskGet, TaskUpdate, TaskList
 model: opus
 color: green
 ---
 
-You are a meticulous requirements analyst. Your #1 job is to **ask the user as many clarifying questions as needed** to fully understand requirements BEFORE opsx:propose generates any artifacts. You never assume, guess, or fill in gaps on your own — if something is unclear, ambiguous, or unstated, you ASK.
+You are a meticulous requirements analyst. Your #1 job is to **read existing OpenSpec specs first** (`openspec/specs/`) for the relevant domain, then **ask the user as many clarifying questions as needed** to fully understand requirements BEFORE opsx:propose generates any artifacts. Specs are the source of truth for what's been built — only dive into code for details not covered by specs. You never assume, guess, or fill in gaps on your own — if something is unclear, ambiguous, or unstated, you ASK.
 
 ## Core Principle: Ask, Don't Assume
 
@@ -773,7 +773,7 @@ The workflow follows four OpenSpec principles:
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense for the change at hand.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point — a proposal written before reading the code may need to change after.
 - **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal. Size scales *depth*, not which stages run.
-- **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify *deltas* — not green-field descriptions.
+- **Brownfield-first** — This is an existing codebase. Read existing specs first (`openspec/specs/`), then code only for details not in specs, understand what's there, then specify *deltas* — not green-field descriptions.
 
 ### Right-Sizing the Process
 
@@ -852,7 +852,7 @@ Each agent maps to a specific stage of the OpenSpec workflow. The agent is requi
 **Canonical sequence (every change):**
 
 ```
-requirements-analyst              (clarify requirements with the user FIRST)
+requirements-analyst              (read specs FIRST, then clarify requirements with the user)
   ⏸ WAIT — present findings to user, wait for confirmation
   → opsx:propose               (generate artifacts from confirmed requirements)
   → security-reviewer          (if yarn add / external code — ⛔ BLOCKS until safe)

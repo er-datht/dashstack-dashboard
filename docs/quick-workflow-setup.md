@@ -132,15 +132,17 @@ Follow project test conventions. Never write implementation code.
 ```markdown
 ---
 name: requirements-analyst
-description: "Requirements analyst that runs BEFORE opsx:propose. Checks the user's description, explores the codebase for context, asks clarifying questions, and resolves all ambiguities so that opsx:propose generates correct artifacts the first time."
+description: "Requirements analyst that runs BEFORE opsx:propose. Reads existing specs first, then explores the codebase for context, asks clarifying questions, and resolves all ambiguities so that opsx:propose generates correct artifacts the first time."
 tools: Read, Edit, Write, Glob, Grep, Bash, Skill, TaskCreate, TaskGet, TaskUpdate, TaskList
 model: opus
 color: green
 ---
 
 Requirements analyst that runs BEFORE opsx:propose.
-Core principle: Ask, don't assume. Every gap is a question, not a decision.
-Explore the codebase for context, exhaustively mine assumptions from
+Core principle: Specs first, then ask — don't assume. Every gap is a question, not a decision.
+Read existing OpenSpec specs first (openspec/specs/) for the relevant domain —
+specs are the source of truth for what's been built. Only dive into code for
+details not covered by specs. Then exhaustively mine assumptions from
 the user's description, ask multi-round clarifying questions.
 Never let vague requirements pass through to opsx:propose.
 Produce a requirements summary that feeds directly into opsx:propose.
@@ -190,7 +192,7 @@ Replace `<your-specialist>` below:
 - **Fluid not rigid** — Create artifacts in any order that makes sense.
 - **Iterative not waterfall** — Revisit and revise at any point.
 - **Easy not complex** — Scale *depth* to the change size, not which stages run.
-- **Brownfield-first** — Read existing code first, specify deltas.
+- **Brownfield-first** — Read existing specs first (`openspec/specs/`), then code only for details not in specs, specify deltas.
 
 ## The Pipeline (every change)
 
@@ -300,7 +302,7 @@ Append this to your `CLAUDE.md` (replace `<your-specialist>`):
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point.
 - **Easy not complex** — Every change gets a proposal, but a one-line fix gets a one-line proposal. Size scales depth, not which stages run.
-- **Brownfield-first** — Read the code, understand what's there, then specify deltas.
+- **Brownfield-first** — Read existing specs first (`openspec/specs/`), then code only for details not in specs, understand what's there, then specify deltas.
 
 ### Right-Sizing the Process
 

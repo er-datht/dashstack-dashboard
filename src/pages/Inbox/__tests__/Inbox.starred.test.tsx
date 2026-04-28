@@ -1,5 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import Inbox from '../index'
+
+function renderInbox() {
+  return render(<MemoryRouter><Inbox /></MemoryRouter>)
+}
 
 /**
  * Integration tests for the inbox-starred-messages change.
@@ -18,7 +23,7 @@ import Inbox from '../index'
 describe('Inbox — starred messages integration', () => {
   describe('initial state', () => {
     it('renders the Starred folder with a count matching seeded starred records', () => {
-      render(<Inbox />)
+      renderInbox()
 
       // The Starred folder button should exist with some count > 0
       // (task 1.2 seeds 3-4 records as starred)
@@ -33,7 +38,7 @@ describe('Inbox — starred messages integration', () => {
 
   describe('star toggle updates sidebar count', () => {
     it('increments starred count when an unstarred record is starred', () => {
-      render(<Inbox />)
+      renderInbox()
 
       // Get initial starred count from sidebar
       const starredFolderButton = screen.getByText('folders.starred').closest('button')!
@@ -62,7 +67,7 @@ describe('Inbox — starred messages integration', () => {
     })
 
     it('decrements starred count when a starred record is unstarred', () => {
-      render(<Inbox />)
+      renderInbox()
 
       const starredFolderButton = screen.getByText('folders.starred').closest('button')!
       const initialCountText = starredFolderButton.textContent!
@@ -86,7 +91,7 @@ describe('Inbox — starred messages integration', () => {
 
   describe('starred folder filtering', () => {
     it('shows only starred records when Starred folder is clicked', () => {
-      render(<Inbox />)
+      renderInbox()
 
       // Count initial visible records (all records shown on page 1)
       const initialStarButtons = screen.getAllByRole('button', { name: 'list.star' })
@@ -103,7 +108,7 @@ describe('Inbox — starred messages integration', () => {
     })
 
     it('removes a row from Starred view when unstarring it', () => {
-      render(<Inbox />)
+      renderInbox()
 
       // Switch to Starred folder
       const starredFolderButton = screen.getByText('folders.starred').closest('button')!
@@ -127,7 +132,7 @@ describe('Inbox — starred messages integration', () => {
     })
 
     it('restores full list when switching away from Starred folder', () => {
-      render(<Inbox />)
+      renderInbox()
 
       // Note the initial record count on page 1
       const initialStarButtons = screen.getAllByRole('button', { name: 'list.star' })
@@ -153,7 +158,7 @@ describe('Inbox — starred messages integration', () => {
 
   describe('star click does not open conversation', () => {
     it('does not navigate to ChatView when star is clicked', () => {
-      render(<Inbox />)
+      renderInbox()
 
       // Verify we are on the MessageList (not ChatView)
       // MessageList has a search input; ChatView does not

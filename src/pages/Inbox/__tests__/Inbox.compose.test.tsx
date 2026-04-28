@@ -1,5 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import Inbox from '../index'
+
+function renderInbox() {
+  return render(<MemoryRouter><Inbox /></MemoryRouter>)
+}
 
 /**
  * Integration tests for the inbox-compose change.
@@ -26,7 +31,7 @@ describe('Inbox — compose integration', () => {
 
   describe('opening compose view', () => {
     it('shows ComposeView when Compose button in sidebar is clicked', () => {
-      render(<Inbox />)
+      renderInbox()
 
       // The sidebar has a Compose button with translation key "compose"
       const composeButton = screen.getByRole('button', { name: 'composeBtn' })
@@ -37,7 +42,7 @@ describe('Inbox — compose integration', () => {
     })
 
     it('hides MessageList search when ComposeView is open', () => {
-      render(<Inbox />)
+      renderInbox()
 
       // MessageList has a search input — verify it exists initially
       expect(screen.getByPlaceholderText('list.search')).toBeInTheDocument()
@@ -53,7 +58,7 @@ describe('Inbox — compose integration', () => {
 
   describe('closing compose view', () => {
     it('returns to message list when close (X) is clicked in ComposeView', () => {
-      render(<Inbox />)
+      renderInbox()
 
       // Open compose
       fireEvent.click(screen.getByRole('button', { name: 'composeBtn' }))
@@ -71,7 +76,7 @@ describe('Inbox — compose integration', () => {
 
   describe('sending a message', () => {
     it('persists sent message to localStorage and closes compose', () => {
-      render(<Inbox />)
+      renderInbox()
 
       // Open compose
       fireEvent.click(screen.getByRole('button', { name: 'composeBtn' }))
@@ -108,7 +113,7 @@ describe('Inbox — compose integration', () => {
     })
 
     it('shows a toast notification after sending', () => {
-      render(<Inbox />)
+      renderInbox()
 
       // Open compose and fill fields
       fireEvent.click(screen.getByRole('button', { name: 'composeBtn' }))
@@ -147,7 +152,7 @@ describe('Inbox — compose integration', () => {
       ]
       localStorage.setItem(STORAGE_KEY, JSON.stringify(sentMessages))
 
-      render(<Inbox />)
+      renderInbox()
 
       // Click on the Sent folder in the sidebar
       const sentFolderButton = screen.getByText('folders.sent').closest('button')!
@@ -177,7 +182,7 @@ describe('Inbox — compose integration', () => {
       ]
       localStorage.setItem(STORAGE_KEY, JSON.stringify(sentMessages))
 
-      render(<Inbox />)
+      renderInbox()
 
       // The Sent folder count should reflect the number of sent messages in localStorage
       const sentFolderButton = screen.getByText('folders.sent').closest('button')!

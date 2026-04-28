@@ -39,6 +39,7 @@ export type MessageFolder =
 
 export type DraftMessage = {
   id: string;
+  senderEmail?: string;
   recipientEmail: string;
   subject: string;
   body: string;
@@ -47,6 +48,7 @@ export type DraftMessage = {
 
 export type SentMessage = {
   id: string;
+  senderEmail?: string;
   recipientEmail: string;
   subject: string;
   body: string;
@@ -76,6 +78,16 @@ export type ArchivedMessage = {
   body?: string;
   sentAt?: string;
   savedAt?: string;
+};
+
+export type DeliveredMessage = {
+  id: string;
+  senderEmail: string;
+  senderName: string;
+  recipientEmail: string;
+  subject: string;
+  body: string;
+  sentAt: string;
 };
 
 export type MessageFilter = {
