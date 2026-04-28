@@ -1,10 +1,4 @@
-# Capability: add-person-form
-
-## Purpose
-
-Shared `AddPersonForm` component that encapsulates the person-creation form (photo upload, 6 fields, validation, submission) and is configured via props so that `AddNewContact` and `AddNewMember` are thin wrappers.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: AddPersonForm shared component accepts 4 configuration props
 The `AddPersonForm` component SHALL accept props: `namespace` (string — i18n namespace), `titleKey` (string — translation key for page heading), `successKey` (string — translation key for success toast), `backRoute` (string — route to navigate to after submission), and an optional `onSubmit` callback (`(data: PersonFormData) => void`). A `PersonFormData` type SHALL be exported from the component, containing: `firstName` (string), `lastName` (string), `email` (string), `phone` (string), `dateOfBirth` (string), `gender` (string), `photoPreview` (string | null).
@@ -25,30 +19,8 @@ The `AddPersonForm` component SHALL accept props: `namespace` (string — i18n n
 - **WHEN** `onSubmit` is not provided and user submits a valid form
 - **THEN** the form behaves identically to before — toast and navigate without calling any callback
 
-### Requirement: AddPersonForm preserves all existing form behavior
-The shared component SHALL retain all behavior from the original forms: photo upload with drag-and-drop, 6 form fields (First Name, Last Name, Email required; Phone, Date of Birth, Gender optional), validation with error messages, custom gender dropdown with click-outside/Escape close, and submission with loading spinner, success toast, and navigation.
-
-#### Scenario: Submission uses successKey and backRoute
-- **WHEN** user submits a valid form with `successKey="memberAdded"` and `backRoute="/team"`
-- **THEN** the toast displays `t("memberAdded")` and navigates to `/team` after 1 second
-
-#### Scenario: All form validation still works
-- **WHEN** user submits with empty required fields
-- **THEN** validation errors appear identically to the original forms
-
-### Requirement: AddNewContact becomes a thin wrapper
-`AddNewContact` SHALL import and render `AddPersonForm` with props: `namespace="contact"`, `titleKey="addNewContact"`, `successKey="contactAdded"`, `backRoute={ROUTES.CONTACT}`.
-
-#### Scenario: AddNewContact renders identically
-- **WHEN** user navigates to `/contact/add`
-- **THEN** the page renders identically to before the refactor
-
 ### Requirement: AddNewMember becomes a thin wrapper
 `AddNewMember` SHALL import and render `AddPersonForm` with props: `namespace="team"`, `titleKey="addNewMemberTitle"`, `successKey="memberAdded"`, `backRoute={ROUTES.TEAM}`, and an `onSubmit` handler that persists the new member to localStorage.
-
-#### Scenario: AddNewMember renders identically
-- **WHEN** user navigates to `/team/add`
-- **THEN** the page renders identically to before the refactor
 
 #### Scenario: AddNewMember passes onSubmit handler
 - **WHEN** user navigates to `/team/add` and submits a valid form

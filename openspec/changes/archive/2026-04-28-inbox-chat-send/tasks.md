@@ -33,12 +33,12 @@
 
 ## 6. Verify
 
-- [ ] 6.1 Test chat send via button click — message appears as right-aligned blue bubble
-- [ ] 6.2 Test chat send via Enter key — same behavior
-- [ ] 6.3 Test empty and whitespace-only input — silently ignored
-- [ ] 6.4 Test auto-scroll — chat scrolls to bottom on send
-- [ ] 6.5 Test mic/paperclip/image icons still show "Coming soon" toast
-- [ ] 6.6 Test cross-user delivery: user A sends to user B's email via chat → log out → log in as user B → message appears in inbox
-- [ ] 6.7 Test cross-user delivery via ComposeView: compose to user B → log in as user B → message in inbox
-- [ ] 6.8 Test that delivered messages survive logout (localStorage key not cleared)
-- [ ] 6.9 Test all three themes (light, dark, forest) — sent bubble and inbox row styling correct
+- [x] 6.1 Test chat send via button click — message appears as right-aligned blue bubble
+- [x] 6.2 Test chat send via Enter key — same behavior
+- [x] 6.3 Test empty and whitespace-only input — silently ignored
+- [x] 6.4 Test auto-scroll — chat scrolls to bottom on send
+- [x] 6.5 Test mic/paperclip/image icons still show "Coming soon" toast
+- [x] 6.6 Test cross-user delivery: user A sends to user B's email via chat → log out → log in as user B → message appears in inbox
+- [x] 6.7 Test cross-user delivery via ComposeView: compose to user B → log in as user B → message in inbox
+- [x] 6.8 Test that delivered messages survive logout (localStorage key not cleared)
+- [x] 6.9 Test all three themes (light, dark, forest) — sent bubble and inbox row styling correct

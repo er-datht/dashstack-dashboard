@@ -15,11 +15,22 @@ const ALLOWED_IMAGE_TYPES = [
   "image/webp",
 ];
 
+export type PersonFormData = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  dateOfBirth: string;
+  gender: string;
+  photoPreview: string | null;
+};
+
 type AddPersonFormProps = {
   namespace: string;
   titleKey: string;
   successKey: string;
   backRoute: string;
+  onSubmit?: (data: PersonFormData) => void;
 };
 
 type FormErrors = {
@@ -34,6 +45,7 @@ export default function AddPersonForm({
   titleKey,
   successKey,
   backRoute,
+  onSubmit,
 }: AddPersonFormProps): React.JSX.Element {
   const { t } = useTranslation(namespace);
   const navigate = useNavigate();
@@ -157,6 +169,8 @@ export default function AddPersonForm({
 
   const handleSubmit = () => {
     if (!validate()) return;
+
+    onSubmit?.({ firstName, lastName, email, phone, dateOfBirth, gender, photoPreview });
 
     setIsSaving(true);
     setTimeout(() => {
