@@ -24,8 +24,18 @@ export default function TeamCard({
       className={cn(
         "card rounded-xl overflow-hidden",
         "shadow-sm hover:shadow-md transition-shadow duration-200",
-        "flex flex-col"
+        "flex flex-col",
+        "cursor-pointer"
       )}
+      onClick={() => navigate(`/team/${member.id}`)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          navigate(`/team/${member.id}`);
+        }
+      }}
+      role="link"
+      tabIndex={0}
     >
       {/* Avatar area */}
       <div className="relative w-full aspect-[4/3] bg-surface-secondary flex items-center justify-center overflow-hidden">
@@ -60,7 +70,10 @@ export default function TeamCard({
 
         {/* Message button */}
         <button
-          onClick={() => navigate(ROUTES.INBOX)}
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(ROUTES.INBOX);
+          }}
           className={cn(
             "mt-2 flex items-center justify-center gap-2 w-full",
             "px-4 py-2 rounded-lg",

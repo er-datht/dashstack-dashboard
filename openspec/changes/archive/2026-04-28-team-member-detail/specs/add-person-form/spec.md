@@ -1,10 +1,22 @@
-# Capability: person-form
+## RENAMED Requirements
 
-## Purpose
+### Requirement: AddPersonForm shared component accepts 4 configuration props
+- **FROM:** AddPersonForm shared component accepts 4 configuration props
+- **TO:** PersonForm shared component accepts configuration props
 
-Shared `PersonForm` component (renamed from `AddPersonForm`) that encapsulates the person-creation/editing form (photo upload, 6 fields, validation, submission) and is configured via props so that `AddNewContact`, `AddNewMember`, and `MemberDetail` are thin wrappers.
+### Requirement: AddPersonForm preserves all existing form behavior
+- **FROM:** AddPersonForm preserves all existing form behavior
+- **TO:** PersonForm preserves all existing form behavior
 
-## Requirements
+### Requirement: AddNewContact becomes a thin wrapper
+- **FROM:** AddNewContact becomes a thin wrapper
+- **TO:** AddNewContact becomes a thin wrapper
+
+### Requirement: AddNewMember becomes a thin wrapper
+- **FROM:** AddNewMember becomes a thin wrapper
+- **TO:** AddNewMember becomes a thin wrapper
+
+## MODIFIED Requirements
 
 ### Requirement: PersonForm shared component accepts configuration props
 The `PersonForm` component (renamed from `AddPersonForm`) SHALL accept props: `namespace` (string), `titleKey` (string), `successKey` (string), `backRoute` (string), optional `onSubmit` callback (`(data: PersonFormData) => void`), optional `initialValues` (`Partial<PersonFormData>` — pre-populates form fields for edit mode), and optional `submitKey` (string — translation key for the submit button, defaults to `"addNow"`). A `PersonFormData` type SHALL be exported from the component. The component directory SHALL be `src/components/PersonForm/`.
@@ -49,17 +61,6 @@ The `PersonForm` component (renamed from `AddPersonForm`) SHALL accept props: `n
 - **WHEN** `PersonForm` is rendered with `initialValues={{ photoPreview: "https://example.com/photo.jpg" }}`
 - **THEN** the photo upload area displays the image from the provided URL
 
-### Requirement: PersonForm preserves all existing form behavior
-The shared component SHALL retain all behavior from the original forms: photo upload with drag-and-drop, 6 form fields (First Name, Last Name, Email required; Phone, Date of Birth, Gender optional), validation with error messages, custom gender dropdown with click-outside/Escape close, and submission with loading spinner, success toast, and navigation.
-
-#### Scenario: Submission uses successKey and backRoute
-- **WHEN** user submits a valid form with `successKey="memberAdded"` and `backRoute="/team"`
-- **THEN** the toast displays `t("memberAdded")` and navigates to `/team` after 1 second
-
-#### Scenario: All form validation still works
-- **WHEN** user submits with empty required fields
-- **THEN** validation errors appear identically to the original forms
-
 ### Requirement: AddNewContact becomes a thin wrapper
 `AddNewContact` SHALL import and render `PersonForm` (updated import path from `src/components/PersonForm`) with props: `namespace="contact"`, `titleKey="addNewContact"`, `successKey="contactAdded"`, `backRoute={ROUTES.CONTACT}`.
 
@@ -72,7 +73,7 @@ The shared component SHALL retain all behavior from the original forms: photo up
 
 #### Scenario: AddNewMember renders identically
 - **WHEN** user navigates to `/team/add`
-- **THEN** the page renders identically to before the refactor
+- **THEN** the page renders identically to before the rename
 
 #### Scenario: AddNewMember passes onSubmit handler
 - **WHEN** user navigates to `/team/add` and submits a valid form
