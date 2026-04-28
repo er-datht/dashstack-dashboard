@@ -25,5 +25,7 @@
   "fieldRequired": "この項目は必須です",
   "invalidEmail": "有効なメールアドレスを入力してください",
   "memberAdded": "メンバーが追加されました",
-  "addNewMemberTitle": "新しいメンバーを追加"
+  "addNewMemberTitle": "新しいメンバーを追加",
+  "save": "保存",
+  "memberUpdated": "メンバーが正常に更新されました"
 }

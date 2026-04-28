@@ -1,9 +1,9 @@
-import AddPersonForm from "../../../components/AddPersonForm";
+import PersonForm from "../../../components/PersonForm";
 import { ROUTES } from "../../../routes/routes";
 
 export default function AddNewContact(): React.JSX.Element {
   return (
-    <AddPersonForm
+    <PersonForm
       namespace="contact"
       titleKey="addNewContact"
       successKey="contactAdded"

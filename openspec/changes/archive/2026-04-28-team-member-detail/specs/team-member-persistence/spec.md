@@ -1,10 +1,4 @@
-# Capability: team-member-persistence
-
-## Purpose
-
-Persistence layer for team members using localStorage, enabling user-added members to survive page reloads and appear alongside mock data in the team grid.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: New team members are persisted to localStorage
 When a new team member is successfully added via the PersonForm, the system SHALL construct a `TeamMember` object from the form data and persist it to localStorage under the key `'team-members'`. The `TeamMember` SHALL have `name` constructed as `"FirstName LastName"`, `firstName` and `lastName` stored separately, `email` from the form, `phone`, `dateOfBirth`, `gender` from the form (may be empty strings), `avatar` from the photo preview blob URL (or `undefined` if no photo), `id` generated via `Date.now().toString()`, and `createdAt`/`updatedAt` set to the current ISO timestamp.
@@ -21,23 +15,7 @@ When a new team member is successfully added via the PersonForm, the system SHAL
 - **WHEN** user submits without uploading a photo
 - **THEN** the new member's `avatar` field is `undefined`
 
-### Requirement: New members appear at the top of the team list
-When a new member is added, the system SHALL prepend the member to the beginning of the team members array so that the new member appears first in the grid.
-
-#### Scenario: New member appears first
-- **WHEN** user adds a new team member and navigates back to the Team page
-- **THEN** the new member's card is the first card in the grid
-
-### Requirement: Team data initializes from mock data on first load
-On the first load (no existing localStorage data), the system SHALL initialize the team members array from the existing `mockTeamMembers` data and persist it to localStorage.
-
-#### Scenario: First load uses mock data
-- **WHEN** no `'team-members'` key exists in localStorage
-- **THEN** the team list displays the 12 mock members and saves them to localStorage
-
-#### Scenario: Subsequent loads use localStorage
-- **WHEN** `'team-members'` key exists in localStorage with 13 members
-- **THEN** the team list displays all 13 members from localStorage
+## ADDED Requirements
 
 ### Requirement: Editing a member updates localStorage
 When a member is edited via the MemberDetail page and the form is submitted, the system SHALL find the member by `id` in the `'team-members'` localStorage array, update all fields (firstName, lastName, name, email, phone, dateOfBirth, gender, avatar), set `updatedAt` to the current ISO timestamp, and persist the updated array back to localStorage.

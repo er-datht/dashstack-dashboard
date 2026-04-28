@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { Camera, X, Loader2, ChevronDown, Check } from "lucide-react";
+import { Camera, X, Loader2, ChevronDown, ChevronRight, Check } from "lucide-react";
 import { cn } from "../../utils/cn";
 import DatePickerInput from "../DatePickerInput";
 import { DOB_MIN_DATE, TODAY_DATE } from "../../constants/common";
@@ -25,12 +25,14 @@ export type PersonFormData = {
   photoPreview: string | null;
 };
 
-type AddPersonFormProps = {
+type PersonFormProps = {
   namespace: string;
   titleKey: string;
   successKey: string;
   backRoute: string;
   onSubmit?: (data: PersonFormData) => void;
+  initialValues?: Partial<PersonFormData>;
+  submitKey?: string;
 };
 
 type FormErrors = {
@@ -40,23 +42,25 @@ type FormErrors = {
   emailInvalid?: boolean;
 };
 
-export default function AddPersonForm({
+export default function PersonForm({
   namespace,
   titleKey,
   successKey,
   backRoute,
   onSubmit,
-}: AddPersonFormProps): React.JSX.Element {
+  initialValues,
+  submitKey,
+}: PersonFormProps): React.JSX.Element {
   const { t } = useTranslation(namespace);
   const navigate = useNavigate();
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [gender, setGender] = useState("");
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState(initialValues?.firstName ?? "");
+  const [lastName, setLastName] = useState(initialValues?.lastName ?? "");
+  const [email, setEmail] = useState(initialValues?.email ?? "");
+  const [phone, setPhone] = useState(initialValues?.phone ?? "");
+  const [dateOfBirth, setDateOfBirth] = useState(initialValues?.dateOfBirth ?? "");
+  const [gender, setGender] = useState(initialValues?.gender ?? "");
+  const [photoPreview, setPhotoPreview] = useState<string | null>(initialValues?.photoPreview ?? null);
   const [isSaving, setIsSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
@@ -206,6 +210,19 @@ export default function AddPersonForm({
         </div>
       )}
 
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-1.5 text-sm mb-4" aria-label="Breadcrumb">
+        <button
+          type="button"
+          onClick={() => navigate(backRoute)}
+          className="text-secondary hover:text-primary transition-colors cursor-pointer"
+        >
+          {t("title")}
+        </button>
+        <ChevronRight className="w-4 h-4 text-secondary" />
+        <span className="text-primary font-medium">{t(titleKey)}</span>
+      </nav>
+
       {/* Page heading */}
       <h1 className="text-primary font-bold text-[32px] mb-6">{t(titleKey)}</h1>
 
@@ -240,6 +257,9 @@ export default function AddPersonForm({
                 src={photoPreview}
                 alt={t("photoPreview")}
                 className="w-full h-full object-cover"
+                onError={() => {
+                  setPhotoPreview(null);
+                }}
               />
             ) : (
               <Camera className="w-8 h-8 text-secondary" />
@@ -516,7 +536,7 @@ export default function AddPersonForm({
             )}
           >
             {isSaving && <Loader2 className="w-5 h-5 animate-spin" />}
-            {t("addNow")}
+            {t(submitKey ?? "addNow")}
           </button>
         </div>
       </div>

@@ -12,4 +12,9 @@ export type TeamMember = {
   avatar?: string;
   createdAt: string;
   updatedAt: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  dateOfBirth?: string;
+  gender?: string;
 };

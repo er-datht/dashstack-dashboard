@@ -25,5 +25,7 @@
   "fieldRequired": "This field is required",
   "invalidEmail": "Please enter a valid email address",
   "memberAdded": "Member added successfully",
-  "addNewMemberTitle": "Add New Member"
+  "addNewMemberTitle": "Add New Member",
+  "save": "Save",
+  "memberUpdated": "Member updated successfully"
 }

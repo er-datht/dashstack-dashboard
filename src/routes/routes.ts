@@ -17,6 +17,7 @@ export const ROUTES = {
   UI_ELEMENT: "/ui-element",
   TEAM: "/team",
   ADD_TEAM: "/team/add",
+  TEAM_DETAIL: "/team/:id",
   TABLE: "/table",
   SETTINGS: "/settings",
 } as const;

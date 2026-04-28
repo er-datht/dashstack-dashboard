@@ -1,5 +1,4 @@
-import AddPersonForm from "../../../components/AddPersonForm";
-import type { PersonFormData } from "../../../components/AddPersonForm";
+import PersonForm, { type PersonFormData } from "../../../components/PersonForm";
 import { useLocalStorage } from "../../../hooks/useLocalStorage";
 import { mockTeamMembers } from "../teamData";
 import type { TeamMember } from "../../../types/team";
@@ -15,7 +14,12 @@ export default function AddNewMember(): React.JSX.Element {
     const newMember: TeamMember = {
       id: Date.now().toString(),
       name: data.firstName + " " + data.lastName,
+      firstName: data.firstName,
+      lastName: data.lastName,
       email: data.email,
+      phone: data.phone,
+      dateOfBirth: data.dateOfBirth,
+      gender: data.gender,
       avatar: data.photoPreview ?? undefined,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -24,7 +28,7 @@ export default function AddNewMember(): React.JSX.Element {
   };
 
   return (
-    <AddPersonForm
+    <PersonForm
       namespace="team"
       titleKey="addNewMemberTitle"
       successKey="memberAdded"
