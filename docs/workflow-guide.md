@@ -27,7 +27,7 @@ How to use the OpenSpec workflow in this project with Claude Code.
 
 ### 1. Describe what you want
 
-Just say it naturally. Claude will read the relevant code and existing specs, then decide how much process the change needs.
+Just say it naturally. Claude will read existing specs first (`openspec/specs/`), then code only for details not in specs, and decide how much process the change needs.
 
 ```
 "add a search bar to the contacts page that filters by name and email"
@@ -38,7 +38,7 @@ Just say it naturally. Claude will read the relevant code and existing specs, th
 Every change goes through the same pipeline. Change size controls **how deep** each stage goes, never **whether** the stage runs.
 
 ```
-requirements-analyst              (clarify requirements with the user FIRST)
+requirements-analyst              (read specs FIRST, then clarify requirements with the user)
   ⏸ WAIT — present findings to user, wait for confirmation
   → opsx:propose               (generate artifacts from confirmed requirements)
   → security-reviewer          (if yarn add / external code — ⛔ BLOCKS until safe)

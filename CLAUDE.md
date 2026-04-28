@@ -121,7 +121,7 @@ The workflow follows four OpenSpec principles:
 - **Fluid not rigid** — Artifacts can be created in any order. Don't force a linear phase gate when a different sequence makes more sense for the change at hand.
 - **Iterative not waterfall** — Requirements change as understanding deepens. Revisit and revise artifacts at any point — a proposal written before reading the code may need to change after.
 - **Easy not complex** — Scale process to the change. Every change gets a proposal, but a one-line fix gets a one-line proposal — not the same ceremony as a new feature.
-- **Brownfield-first** — This is an existing codebase. Read the code, understand what's there, then specify _deltas_ — not green-field descriptions.
+- **Brownfield-first** — This is an existing codebase. Read existing specs first (`openspec/specs/`), then code only for details not in specs, understand what's there, then specify _deltas_ — not green-field descriptions.
 
 ### Right-Sizing the Process
 
@@ -129,7 +129,7 @@ Every change runs the same OpenSpec pipeline. Subagents are **mandatory at their
 
 **The pipeline (every change):**
 
-1. `requirements-analyst` — check the user's requirements, ask clarifying questions, and resolve all ambiguities **before** generating artifacts. Only proceed to step 2 when requirements are clear.
+1. `requirements-analyst` — **read existing OpenSpec specs first** (`openspec/specs/`) for the relevant domain before exploring the codebase, then check the user's requirements, ask clarifying questions, and resolve all ambiguities **before** generating artifacts. Specs are the source of truth for what's been built; only dive into code for details not covered by specs. Only proceed to step 2 when requirements are clear.
 2. `opsx:propose` — create proposal + design + specs + tasks (from clarified requirements)
 3. `security-reviewer` — run **before** any `yarn add` / external URL / web-sourced snippet in the change (skip only if the change adds no dependencies or external code). **⛔ BLOCKING: pause ALL other work until the security-reviewer reports safe. Do not proceed with unit-test-writer, opsx:apply, or any install/fetch commands until the verdict is ✅ allow.**
 4. `unit-test-writer` — write tests from specs **before** `opsx:apply` when the change produces testable units (components, hooks, utilities); skip only for pure config, routing, docs, or cosmetic styling changes
@@ -197,7 +197,7 @@ Each agent maps to a specific stage of the OpenSpec workflow. The agent is requi
 
 | Agent                       | OpenSpec Stage                                                       | Purpose                                                                                                                                            | Skip when                                                                                         |
 | --------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `requirements-analyst`      | **Before** `opsx:propose`                                            | Checks requirements, asks clarifying questions, resolves ambiguities so `opsx:propose` generates correct artifacts the first time                  | Never skip — even "obvious" requests have hidden assumptions                                      |
+| `requirements-analyst`      | **Before** `opsx:propose`                                            | **Reads existing specs first** (`openspec/specs/`), then checks requirements, asks clarifying questions, resolves ambiguities so `opsx:propose` generates correct artifacts the first time | Never skip — even "obvious" requests have hidden assumptions                                      |
 | `security-reviewer`         | Before `yarn add` / fetching external URLs / using web-searched code | **⛔ BLOCKING** — reviews packages, URLs, and external snippets for typosquatting, CVEs, malicious code. Pause all work until verdict is ✅ allow. | The change adds no dependencies and pulls in no external code                                     |
 | `unit-test-writer`          | Before `opsx:apply` (TDD)                                            | Writes tests from specs before implementation so tests drive the diff                                                                              | The change produces no testable units — pure config, routing constants, styling-only tweaks, docs |
 | `react-frontend-specialist` | During `opsx:apply`                                                  | Implements UI components, layouts, state, API integration, bug fixes, refactoring, accessibility                                                   | The change has no UI surface (e.g., pure config)                                                  |
@@ -206,7 +206,7 @@ Each agent maps to a specific stage of the OpenSpec workflow. The agent is requi
 **Canonical sequence (every change):**
 
 ```
-requirements-analyst              (clarify requirements with the user FIRST)
+requirements-analyst              (read specs FIRST, then clarify requirements with the user)
   → opsx:propose               (generate artifacts from clarified requirements)
   → security-reviewer          (if yarn add / external code — ⛔ BLOCKS until safe)
   → unit-test-writer           (if testable units; tests land first)

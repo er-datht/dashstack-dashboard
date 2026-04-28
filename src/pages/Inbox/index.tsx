@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   mockMessages,
@@ -6,8 +7,9 @@ import {
   inboxLabels,
 } from "./mockData";
 import type { EmailRecord } from "./mockData";
-import type { SentMessage, DraftMessage, BinnedMessage, ArchivedMessage } from "../../types/inbox";
+import type { SentMessage, DraftMessage, BinnedMessage, ArchivedMessage, DeliveredMessage, Message } from "../../types/inbox";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
+import { getStoredUser } from "../../services/auth";
 import InboxSidebar from "./InboxSidebar";
 import ChatView from "./ChatView";
 import MessageList from "./MessageList";
@@ -18,9 +20,15 @@ import type { InfoModalData } from "./InfoModal";
 const BIN_ELIGIBLE_FOLDERS = ["inbox", "starred", "sent", "important"];
 const ARCHIVE_ELIGIBLE_FOLDERS = ["inbox", "starred", "sent", "important", "draft"];
 
+const VALID_FOLDERS = ["inbox", "starred", "sent", "draft", "spam", "important", "bin", "archive"];
+
 export default function Inbox(): React.JSX.Element {
   const { t } = useTranslation("inbox");
-  const [activeFolder, setActiveFolderRaw] = useState("inbox");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeFolder, setActiveFolderRaw] = useState(() => {
+    const folder = searchParams.get("folder");
+    return folder && VALID_FOLDERS.includes(folder) ? folder : "inbox";
+  });
   const [activeLabel, setActiveLabel] = useState("primary");
   const [selectedRecord, setSelectedRecord] = useState<EmailRecord | null>(
     null
@@ -49,8 +57,15 @@ export default function Inbox(): React.JSX.Element {
     "inbox-archived-messages",
     []
   );
+  const [deliveredMessages, setDeliveredMessages] = useLocalStorage<DeliveredMessage[]>(
+    "inbox-delivered-messages",
+    []
+  );
 
-  const [labelOverrides, setLabelOverrides] = useState<Record<string, string>>(
+  const [conversationMessages, setConversationMessages] = useState<Message[]>([]);
+
+  const [labelOverrides, setLabelOverrides] = useLocalStorage<Record<string, string>>(
+    "inbox-label-overrides",
     {}
   );
 
@@ -65,6 +80,7 @@ export default function Inbox(): React.JSX.Element {
 
   const setActiveFolder = (folder: string) => {
     setActiveFolderRaw(folder);
+    setSearchParams(folder === "inbox" ? {} : { folder }, { replace: true });
     setShowCompose(false);
     setSelectedRecord(null);
     setEditingDraftId(null);
@@ -100,6 +116,66 @@ export default function Inbox(): React.JSX.Element {
     const timer = setTimeout(() => setToast(null), 2000);
     return () => clearTimeout(timer);
   }, [toast]);
+
+  // Initialize conversation messages when a record is selected.
+  // Intentionally depends only on selectedRecord?.id — we re-initialize only
+  // when a different record is selected, not when sentMessages updates (which
+  // would discard newly sent chat messages).
+  useEffect(() => {
+    if (!selectedRecord) {
+      setConversationMessages([]);
+      return;
+    }
+    const sentMsg = sentMessages.find((m) => m.id === selectedRecord.id);
+    const deliveredMsg = deliveredMessages.find((m) => m.id === selectedRecord.id);
+    if (sentMsg) {
+      setConversationMessages([
+        {
+          id: sentMsg.id,
+          senderId: "user-1",
+          senderName: "You",
+          recipientId: "recipient",
+          subject: sentMsg.subject,
+          body: sentMsg.body,
+          isRead: true,
+          isStarred: false,
+          hasAttachments: false,
+          createdAt: sentMsg.sentAt,
+          folder: "sent",
+        },
+      ]);
+    } else if (deliveredMsg) {
+      // Load the full conversation thread between current user and this sender
+      const loggedInUser = getStoredUser();
+      const partnerEmail = deliveredMsg.senderEmail === loggedInUser?.email
+        ? deliveredMsg.recipientEmail
+        : deliveredMsg.senderEmail;
+      const thread = deliveredMessages
+        .filter(
+          (m) =>
+            (m.senderEmail === loggedInUser?.email && m.recipientEmail === partnerEmail) ||
+            (m.senderEmail === partnerEmail && m.recipientEmail === loggedInUser?.email)
+        )
+        .sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime())
+        .map((m): Message => ({
+          id: m.id,
+          senderId: m.senderEmail,
+          senderName: m.senderEmail === loggedInUser?.email ? "You" : m.senderName,
+          recipientId: m.recipientEmail,
+          subject: m.subject,
+          body: m.body,
+          isRead: true,
+          isStarred: false,
+          hasAttachments: false,
+          createdAt: m.sentAt,
+          folder: m.senderEmail === loggedInUser?.email ? "sent" : "inbox",
+        }));
+      setConversationMessages(thread);
+    } else {
+      setConversationMessages([...mockMessages]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRecord?.id]);
 
   const handleDraftClick = (record: EmailRecord) => {
     const draft = draftMessages.find((d) => d.id === record.id);
@@ -137,11 +213,30 @@ export default function Inbox(): React.JSX.Element {
     setDraftInitialData(null);
   };
 
+  const deliverMessage = (recipientEmail: string, subject: string, body: string) => {
+    const currentUser = getStoredUser();
+    if (!currentUser) return;
+
+    const delivered: DeliveredMessage = {
+      id: crypto.randomUUID(),
+      senderEmail: currentUser.email,
+      senderName: currentUser.name,
+      recipientEmail,
+      subject,
+      body,
+      sentAt: new Date().toISOString(),
+    };
+    setDeliveredMessages((prev) => [...prev, delivered]);
+  };
+
   const handleComposeSend = (message: {
     recipientEmail: string;
     subject: string;
     body: string;
   }) => {
+    // Capture the draft's label before removing it
+    const draftLabel = editingDraftId ? labelOverrides[editingDraftId] : undefined;
+
     // If sending a draft, remove it from drafts
     if (editingDraftId) {
       setDraftMessages((prev) =>
@@ -153,15 +248,43 @@ export default function Inbox(): React.JSX.Element {
 
     const sentMessage: SentMessage = {
       id: crypto.randomUUID(),
+      senderEmail: getStoredUser()?.email,
       recipientEmail: message.recipientEmail,
       subject: message.subject,
       body: message.body,
       sentAt: new Date().toISOString(),
     };
     setSentMessages((prev) => [...prev, sentMessage]);
+
+    // Carry over label from draft to sent message
+    if (draftLabel) {
+      setLabelOverrides((prev) => ({ ...prev, [sentMessage.id]: draftLabel }));
+    }
+    deliverMessage(message.recipientEmail, message.subject, message.body);
     setToast(t("compose.messageSent"));
     setShowCompose(false);
     setActiveFolder("sent");
+  };
+
+  const handleChatSend = (text: string) => {
+    const newMessage: Message = {
+      id: crypto.randomUUID(),
+      senderId: "user-1",
+      senderName: "You",
+      recipientId: selectedRecord?.id ?? "recipient",
+      subject: selectedRecord?.subject ?? "",
+      body: text,
+      isRead: true,
+      isStarred: false,
+      hasAttachments: false,
+      createdAt: new Date().toISOString(),
+      folder: "sent",
+    };
+    setConversationMessages((prev) => [...prev, newMessage]);
+
+    if (selectedRecord?.senderEmail) {
+      deliverMessage(selectedRecord.senderEmail, selectedRecord.subject, text);
+    }
   };
 
   const handleSaveDraft = (
@@ -189,6 +312,7 @@ export default function Inbox(): React.JSX.Element {
       const newId = crypto.randomUUID();
       const newDraft: DraftMessage = {
         id: newId,
+        senderEmail: getStoredUser()?.email,
         recipientEmail: data.recipientEmail,
         subject: data.subject,
         body: data.body,
@@ -210,8 +334,17 @@ export default function Inbox(): React.JSX.Element {
     setDraftMessages((prev) => prev.filter((d) => d.id !== id));
   };
 
+  // Filter sent/draft messages to only show the current user's items
+  const currentUserEmail = getStoredUser()?.email;
+  const userSentMessages = sentMessages.filter(
+    (m) => !m.senderEmail || m.senderEmail === currentUserEmail
+  );
+  const userDraftMessages = draftMessages.filter(
+    (d) => !d.senderEmail || d.senderEmail === currentUserEmail
+  );
+
   // Convert sent messages to EmailRecord format for the MessageList
-  const sentEmailRecords: EmailRecord[] = sentMessages.map((msg) => ({
+  const sentEmailRecords: EmailRecord[] = userSentMessages.map((msg) => ({
     id: msg.id,
     senderName: t("compose.me"),
     labelId: labelOverrides[msg.id] || "",
@@ -223,7 +356,7 @@ export default function Inbox(): React.JSX.Element {
   }));
 
   // Convert draft messages to EmailRecord format for the MessageList
-  const draftEmailRecords: EmailRecord[] = draftMessages.map((draft) => ({
+  const draftEmailRecords: EmailRecord[] = userDraftMessages.map((draft) => ({
     id: draft.id,
     senderName: t("compose.me"),
     labelId: labelOverrides[draft.id] || "",
@@ -547,6 +680,24 @@ export default function Inbox(): React.JSX.Element {
     ]);
   };
 
+  // Convert received delivered messages to EmailRecord format for the inbox
+  const currentUser = getStoredUser();
+  const receivedEmailRecords: EmailRecord[] = currentUser
+    ? deliveredMessages
+        .filter((m) => m.recipientEmail === currentUser.email)
+        .map((m) => ({
+          id: m.id,
+          senderName: m.senderName,
+          senderEmail: m.senderEmail,
+          labelId: labelOverrides[m.id] || "",
+          subject: m.subject,
+          time: new Date(m.sentAt).toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+          }),
+        }))
+    : [];
+
   // Determine which records to show based on active folder
   const getDisplayRecords = (): EmailRecord[] => {
     if (activeFolder === "archive") {
@@ -578,7 +729,10 @@ export default function Inbox(): React.JSX.Element {
         (r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id)
       );
     }
-    return mockEmailRecords.filter((r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id));
+    const inboxMockRecords = mockEmailRecords
+      .filter((r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id))
+      .map((r) => (labelOverrides[r.id] ? { ...r, labelId: labelOverrides[r.id] } : r));
+    return [...receivedEmailRecords, ...inboxMockRecords];
   };
   const displayRecords = getDisplayRecords();
 
@@ -610,27 +764,10 @@ export default function Inbox(): React.JSX.Element {
 
     if (selectedRecord) {
       const sentMsg = sentMessages.find((m) => m.id === selectedRecord.id);
-      const chatMessages = sentMsg
-        ? [
-            {
-              id: sentMsg.id,
-              senderId: "user-1" as const,
-              senderName: "You",
-              recipientId: "recipient" as const,
-              subject: sentMsg.subject,
-              body: sentMsg.body,
-              isRead: true,
-              isStarred: false,
-              hasAttachments: false,
-              createdAt: sentMsg.sentAt,
-              folder: "sent" as const,
-            },
-          ]
-        : mockMessages;
 
       return (
         <ChatView
-          messages={chatMessages}
+          messages={conversationMessages}
           contactName={
             sentMsg ? sentMsg.recipientEmail : selectedRecord.senderName
           }
@@ -651,6 +788,7 @@ export default function Inbox(): React.JSX.Element {
             }
           } : undefined}
           onShowInfo={handleChatShowInfo}
+          onSendMessage={handleChatSend}
         />
       );
     }
@@ -694,8 +832,8 @@ export default function Inbox(): React.JSX.Element {
           onCompose={handleCompose}
           folderCountOverrides={{
             starred: starredCount,
-            sent: sentMessages.length,
-            draft: draftMessages.length,
+            sent: userSentMessages.length,
+            draft: userDraftMessages.length,
             bin: binnedMessages.length,
             archive: archivedMessages.length,
           }}

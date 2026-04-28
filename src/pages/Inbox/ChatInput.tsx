@@ -1,15 +1,26 @@
+import { useState } from "react";
 import { Mic, Paperclip, Image, Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../utils/cn";
 
 type ChatInputProps = {
   onShowToast: (message: string) => void;
+  onSend: (text: string) => void;
 };
 
 export default function ChatInput({
   onShowToast,
+  onSend,
 }: ChatInputProps): React.JSX.Element {
   const { t } = useTranslation("inbox");
+  const [inputValue, setInputValue] = useState("");
+
+  const handleSend = () => {
+    const trimmed = inputValue.trim();
+    if (!trimmed) return;
+    onSend(trimmed);
+    setInputValue("");
+  };
 
   return (
     <div className="px-5 py-4 border-t border-default">
@@ -18,11 +29,13 @@ export default function ChatInput({
         <div className="flex-1 flex items-center gap-2 bg-surface-secondary rounded-lg px-4 py-3">
           <input
             type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
             placeholder={t("chat.placeholder")}
             className="flex-1 bg-transparent text-sm text-primary outline-none! focus-visible:outline-none! border-none shadow-none ring-0"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                onShowToast(t("chat.comingSoon"));
+                handleSend();
               }
             }}
           />
@@ -48,7 +61,7 @@ export default function ChatInput({
         {/* Send Button */}
         <button
           type="button"
-          onClick={() => onShowToast(t("chat.comingSoon"))}
+          onClick={handleSend}
           className={cn(
             "flex items-center gap-2 px-5 py-3 rounded-lg",
             "bg-primary text-on-primary text-sm font-medium",

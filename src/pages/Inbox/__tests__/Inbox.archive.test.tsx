@@ -1,5 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import Inbox from '../index'
+
+function renderInbox() {
+  return render(<MemoryRouter><Inbox /></MemoryRouter>)
+}
 
 /**
  * Integration tests for the inbox-archive-message change.
@@ -23,14 +28,14 @@ beforeEach(() => {
 
 describe('Inbox -- archive folder sidebar', () => {
   it('renders the Archive folder tab in the sidebar', () => {
-    render(<Inbox />)
+    renderInbox()
 
     // The Archive folder should appear in the sidebar
     expect(screen.getByText('folders.archive')).toBeInTheDocument()
   })
 
   it('displays archive count of 0 when no messages are archived', () => {
-    render(<Inbox />)
+    renderInbox()
 
     const archiveFolderButton = screen.getByText('folders.archive').closest('button')!
     expect(archiveFolderButton).toBeInTheDocument()
@@ -40,7 +45,7 @@ describe('Inbox -- archive folder sidebar', () => {
 
 describe('Inbox -- archive a message from inbox', () => {
   it('removes the archived message from the inbox list', () => {
-    render(<Inbox />)
+    renderInbox()
 
     // Note the first sender name visible in the inbox list
     const archiveButtons = screen.getAllByRole('button', { name: 'list.archive' })
@@ -58,7 +63,7 @@ describe('Inbox -- archive a message from inbox', () => {
   })
 
   it('increments the archive folder count by 1 after archiving a message', () => {
-    render(<Inbox />)
+    renderInbox()
 
     const archiveFolderButton = screen.getByText('folders.archive').closest('button')!
     expect(archiveFolderButton).toHaveTextContent('0')
@@ -72,7 +77,7 @@ describe('Inbox -- archive a message from inbox', () => {
   })
 
   it('shows a "Message archived" toast after archiving', () => {
-    render(<Inbox />)
+    renderInbox()
 
     const archiveButtons = screen.getAllByRole('button', { name: 'list.archive' })
     fireEvent.click(archiveButtons[0])
@@ -84,7 +89,7 @@ describe('Inbox -- archive a message from inbox', () => {
 
 describe('Inbox -- archive folder displays archived messages', () => {
   it('shows archived messages when switching to the Archive folder', () => {
-    render(<Inbox />)
+    renderInbox()
 
     // Archive a message from inbox
     const archiveButtons = screen.getAllByRole('button', { name: 'list.archive' })
@@ -99,7 +104,7 @@ describe('Inbox -- archive folder displays archived messages', () => {
   })
 
   it('shows empty list when archive folder has no messages', () => {
-    render(<Inbox />)
+    renderInbox()
 
     // Switch to Archive folder without archiving anything
     const archiveFolderButton = screen.getByText('folders.archive').closest('button')!
@@ -113,7 +118,7 @@ describe('Inbox -- archive folder displays archived messages', () => {
 
 describe('Inbox -- unarchive (restore) from archive folder', () => {
   it('restores an archived message back to its source folder', () => {
-    render(<Inbox />)
+    renderInbox()
 
     // Archive the first inbox message
     const archiveButtons = screen.getAllByRole('button', { name: 'list.archive' })
@@ -146,7 +151,7 @@ describe('Inbox -- unarchive (restore) from archive folder', () => {
   })
 
   it('decrements the archive count after unarchiving', () => {
-    render(<Inbox />)
+    renderInbox()
 
     // Archive a message
     const archiveButtons = screen.getAllByRole('button', { name: 'list.archive' })
@@ -165,7 +170,7 @@ describe('Inbox -- unarchive (restore) from archive folder', () => {
   })
 
   it('shows a "Message unarchived" toast after restoring', () => {
-    render(<Inbox />)
+    renderInbox()
 
     // Archive and then restore
     const archiveButtons = screen.getAllByRole('button', { name: 'list.archive' })
@@ -183,7 +188,7 @@ describe('Inbox -- unarchive (restore) from archive folder', () => {
 
 describe('Inbox -- archived messages excluded from starred folder', () => {
   it('excludes archived starred messages from the Starred folder view', () => {
-    render(<Inbox />)
+    renderInbox()
 
     // Find a starred message by looking for filled star buttons
     const starButtons = screen.getAllByRole('button', { name: 'list.star' })
@@ -220,7 +225,7 @@ describe('Inbox -- archived messages excluded from starred folder', () => {
 
 describe('Inbox -- bulk archive from toolbar', () => {
   it('archives multiple selected messages via toolbar archive button', () => {
-    render(<Inbox />)
+    renderInbox()
 
     const archiveFolderButton = screen.getByText('folders.archive').closest('button')!
     expect(archiveFolderButton).toHaveTextContent('0')
@@ -241,7 +246,7 @@ describe('Inbox -- bulk archive from toolbar', () => {
 
 describe('Inbox -- archive from chat header', () => {
   it('archives the message and returns to list when archive is clicked in ChatHeader', () => {
-    render(<Inbox />)
+    renderInbox()
 
     // Verify we start on MessageList (search input visible)
     expect(screen.getByPlaceholderText('list.search')).toBeInTheDocument()
@@ -273,7 +278,7 @@ describe('Inbox -- archive from chat header', () => {
 
 describe('Inbox -- restore sent message from archive', () => {
   it('restores a sent message back to the sent folder', () => {
-    render(<Inbox />)
+    renderInbox()
 
     // Open compose, send a message to create a sent record
     const composeButton = screen.getByText('composeBtn')
@@ -317,7 +322,7 @@ describe('Inbox -- restore sent message from archive', () => {
 
 describe('Inbox -- starred state preserved through archive/unarchive', () => {
   it('retains star status after archive and unarchive round-trip', () => {
-    render(<Inbox />)
+    renderInbox()
 
     // Ethan Rodriguez (rec-1) is starred in mock data
     // Verify star is filled (text-warning class)
@@ -351,7 +356,7 @@ describe('Inbox -- starred state preserved through archive/unarchive', () => {
 
 describe('Inbox -- bulk unarchive from toolbar', () => {
   it('unarchives multiple selected messages via toolbar unarchive button', () => {
-    render(<Inbox />)
+    renderInbox()
 
     // Archive first two messages from inbox
     const archiveButtons = screen.getAllByRole('button', { name: 'list.archive' })
@@ -381,7 +386,7 @@ describe('Inbox -- bulk unarchive from toolbar', () => {
   })
 
   it('shows "No messages selected" toast when toolbar unarchive is clicked with no selection', () => {
-    render(<Inbox />)
+    renderInbox()
 
     // Archive a message first
     const archiveButtons = screen.getAllByRole('button', { name: 'list.archive' })
@@ -401,7 +406,7 @@ describe('Inbox -- bulk unarchive from toolbar', () => {
 
 describe('Inbox -- clicking archived message opens ChatView', () => {
   it('opens ChatView when clicking a message row in the Archive folder', () => {
-    render(<Inbox />)
+    renderInbox()
 
     // Archive a message from inbox
     const archiveButtons = screen.getAllByRole('button', { name: 'list.archive' })
