@@ -4,6 +4,8 @@ export const mockContacts: Contact[] = [
   {
     id: "1",
     name: "Natali Craig",
+    firstName: "Natali",
+    lastName: "Craig",
     email: "natali.craig@example.com",
     avatar: "https://randomuser.me/api/portraits/women/1.jpg",
     createdAt: "2025-11-10T08:30:00Z",
@@ -12,6 +14,8 @@ export const mockContacts: Contact[] = [
   {
     id: "2",
     name: "Drew Cano",
+    firstName: "Drew",
+    lastName: "Cano",
     email: "drew.cano@example.com",
     avatar: "https://randomuser.me/api/portraits/men/2.jpg",
     createdAt: "2025-10-05T14:20:00Z",
@@ -20,6 +24,8 @@ export const mockContacts: Contact[] = [
   {
     id: "3",
     name: "Andi Lane",
+    firstName: "Andi",
+    lastName: "Lane",
     email: "andi.lane@example.com",
     avatar: "https://randomuser.me/api/portraits/women/3.jpg",
     createdAt: "2025-09-22T11:45:00Z",
@@ -28,6 +34,8 @@ export const mockContacts: Contact[] = [
   {
     id: "4",
     name: "Koray Okumus",
+    firstName: "Koray",
+    lastName: "Okumus",
     email: "koray.okumus@example.com",
     avatar: "https://randomuser.me/api/portraits/men/4.jpg",
     createdAt: "2025-08-18T07:10:00Z",
@@ -36,6 +44,8 @@ export const mockContacts: Contact[] = [
   {
     id: "5",
     name: "Kate Morrison",
+    firstName: "Kate",
+    lastName: "Morrison",
     email: "kate.morrison@example.com",
     avatar: "https://randomuser.me/api/portraits/women/5.jpg",
     createdAt: "2025-07-30T09:55:00Z",
@@ -44,6 +54,8 @@ export const mockContacts: Contact[] = [
   {
     id: "6",
     name: "Melisa Ruiz",
+    firstName: "Melisa",
+    lastName: "Ruiz",
     email: "melisa.ruiz@example.com",
     avatar: "https://randomuser.me/api/portraits/women/6.jpg",
     createdAt: "2025-07-15T16:30:00Z",
@@ -52,6 +64,8 @@ export const mockContacts: Contact[] = [
   {
     id: "7",
     name: "Orlando Diggs",
+    firstName: "Orlando",
+    lastName: "Diggs",
     email: "orlando.diggs@example.com",
     avatar: "https://randomuser.me/api/portraits/men/7.jpg",
     createdAt: "2025-06-28T12:00:00Z",
@@ -60,6 +74,8 @@ export const mockContacts: Contact[] = [
   {
     id: "8",
     name: "Lana Steiner",
+    firstName: "Lana",
+    lastName: "Steiner",
     email: "lana.steiner@example.com",
     avatar: "https://randomuser.me/api/portraits/women/8.jpg",
     createdAt: "2025-06-10T10:25:00Z",
@@ -68,6 +84,8 @@ export const mockContacts: Contact[] = [
   {
     id: "9",
     name: "Demi Wilkinson",
+    firstName: "Demi",
+    lastName: "Wilkinson",
     email: "demi.wilkinson@example.com",
     avatar: "https://randomuser.me/api/portraits/women/9.jpg",
     createdAt: "2025-05-20T08:15:00Z",
@@ -76,6 +94,8 @@ export const mockContacts: Contact[] = [
   {
     id: "10",
     name: "Candice Wu",
+    firstName: "Candice",
+    lastName: "Wu",
     email: "candice.wu@example.com",
     avatar: "https://randomuser.me/api/portraits/women/10.jpg",
     createdAt: "2025-05-05T13:40:00Z",
@@ -84,6 +104,8 @@ export const mockContacts: Contact[] = [
   {
     id: "11",
     name: "Alex Rivera",
+    firstName: "Alex",
+    lastName: "Rivera",
     email: "alex.rivera@example.com",
     avatar: "https://randomuser.me/api/portraits/men/11.jpg",
     createdAt: "2025-04-18T15:50:00Z",
@@ -92,6 +114,8 @@ export const mockContacts: Contact[] = [
   {
     id: "12",
     name: "Aliah Lane",
+    firstName: "Aliah",
+    lastName: "Lane",
     email: "aliah.lane@example.com",
     avatar: "https://randomuser.me/api/portraits/women/12.jpg",
     createdAt: "2025-04-02T09:30:00Z",
@@ -100,6 +124,8 @@ export const mockContacts: Contact[] = [
   {
     id: "13",
     name: "Marcus Chen",
+    firstName: "Marcus",
+    lastName: "Chen",
     email: "marcus.chen@example.com",
     avatar: "https://randomuser.me/api/portraits/men/13.jpg",
     createdAt: "2025-03-15T11:20:00Z",
@@ -108,6 +134,8 @@ export const mockContacts: Contact[] = [
   {
     id: "14",
     name: "Sienna Hewitt",
+    firstName: "Sienna",
+    lastName: "Hewitt",
     email: "sienna.hewitt@example.com",
     avatar: "https://randomuser.me/api/portraits/women/14.jpg",
     createdAt: "2025-03-01T14:00:00Z",
@@ -116,6 +144,8 @@ export const mockContacts: Contact[] = [
   {
     id: "15",
     name: "Jordan Baker",
+    firstName: "Jordan",
+    lastName: "Baker",
     email: "jordan.baker@example.com",
     avatar: "https://randomuser.me/api/portraits/men/15.jpg",
     createdAt: "2025-02-14T10:10:00Z",
@@ -124,6 +154,8 @@ export const mockContacts: Contact[] = [
   {
     id: "16",
     name: "Priya Sharma",
+    firstName: "Priya",
+    lastName: "Sharma",
     email: "priya.sharma@example.com",
     avatar: "https://randomuser.me/api/portraits/women/16.jpg",
     createdAt: "2025-01-28T07:45:00Z",
@@ -132,6 +164,8 @@ export const mockContacts: Contact[] = [
   {
     id: "17",
     name: "Ethan Nguyen",
+    firstName: "Ethan",
+    lastName: "Nguyen",
     email: "ethan.nguyen@example.com",
     avatar: "https://randomuser.me/api/portraits/men/17.jpg",
     createdAt: "2025-01-10T16:35:00Z",
@@ -140,6 +174,8 @@ export const mockContacts: Contact[] = [
   {
     id: "18",
     name: "Sofia Petrov",
+    firstName: "Sofia",
+    lastName: "Petrov",
     email: "sofia.petrov@example.com",
     avatar: "https://randomuser.me/api/portraits/women/18.jpg",
     createdAt: "2024-12-20T12:15:00Z",

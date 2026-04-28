@@ -14,9 +14,19 @@ function createMockContacts(count: number): ContactType[] {
   }))
 }
 
-// Mock the contactData module to return a controlled dataset
+// Mock contactData — still needed as the fallback/initial value for useLocalStorage
 vi.mock('../contactData', () => ({
   mockContacts: createMockContacts(18),
+}))
+
+// Mock useLocalStorage to return our controlled dataset
+// After implementation, Contact/index.tsx will call useLocalStorage<Contact[]>("contacts", mockContacts)
+const mockSetContacts = vi.fn()
+const mockUseLocalStorage = vi.fn(
+  (_key: string, fallback: ContactType[]) => [fallback, mockSetContacts] as const
+)
+vi.mock('../../../hooks/useLocalStorage', () => ({
+  useLocalStorage: (...args: [string, ContactType[]]) => mockUseLocalStorage(...args),
 }))
 
 // Mock react-router-dom so ContactCard's and Contact's useNavigate resolves
@@ -26,6 +36,15 @@ vi.mock('react-router-dom', () => ({
 }))
 
 describe('Contact', () => {
+  beforeEach(() => {
+    mockSetContacts.mockClear()
+    mockUseLocalStorage.mockClear()
+    // Reset to default behavior — return fallback as stored value
+    mockUseLocalStorage.mockImplementation(
+      (_key: string, fallback: ContactType[]) => [fallback, mockSetContacts] as const
+    )
+  })
+
   describe('rendering', () => {
     it('renders the page title with translation key', () => {
       render(<Contact />)
@@ -124,6 +143,33 @@ describe('Contact', () => {
       fireEvent.click(addButton)
 
       expect(mockNavigate).toHaveBeenCalledWith('/contact/add')
+    })
+  })
+
+  describe('localStorage data source', () => {
+    it('reads contacts from useLocalStorage with "contacts" key', () => {
+      render(<Contact />)
+
+      // Verify useLocalStorage was called with the correct key and fallback
+      expect(mockUseLocalStorage).toHaveBeenCalledWith('contacts', expect.any(Array))
+    })
+
+    it('renders user-added contacts from localStorage alongside mock data', () => {
+      const userAddedContact: ContactType = {
+        id: '999',
+        name: 'New User',
+        email: 'newuser@example.com',
+        createdAt: '2026-04-28T00:00:00Z',
+        updatedAt: '2026-04-28T00:00:00Z',
+      }
+
+      const allContacts = [userAddedContact, ...createMockContacts(5)]
+      mockUseLocalStorage.mockReturnValueOnce([allContacts, mockSetContacts])
+
+      render(<Contact />)
+
+      // The user-added contact should appear (it's first, within the initial 6)
+      expect(screen.getByText('New User')).toBeInTheDocument()
     })
   })
 })
