@@ -5,6 +5,8 @@ import { UsersRound } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { ROUTES } from "../../routes/routes";
 import { mockTeamMembers } from "./teamData";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
+import type { TeamMember } from "../../types/team";
 import TeamCard from "./TeamCard";
 
 const MEMBERS_PER_PAGE = 6;
@@ -12,6 +14,7 @@ const MEMBERS_PER_PAGE = 6;
 export default function Team(): React.JSX.Element {
   const { t } = useTranslation("team");
   const navigate = useNavigate();
+  const [teamMembers] = useLocalStorage<TeamMember[]>("team-members", mockTeamMembers);
   const [visibleCount, setVisibleCount] = useState(MEMBERS_PER_PAGE);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -29,8 +32,8 @@ export default function Team(): React.JSX.Element {
     setVisibleCount((prev) => prev + MEMBERS_PER_PAGE);
   };
 
-  const visibleMembers = mockTeamMembers.slice(0, visibleCount);
-  const hasMore = visibleCount < mockTeamMembers.length;
+  const visibleMembers = teamMembers.slice(0, visibleCount);
+  const hasMore = visibleCount < teamMembers.length;
 
   return (
     <div className="p-6">
