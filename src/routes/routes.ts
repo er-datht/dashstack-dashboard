@@ -13,6 +13,7 @@ export const ROUTES = {
   TODO: "/todo",
   CONTACT: "/contact",
   ADD_CONTACT: "/contact/add",
+  CONTACT_DETAIL: "/contact/:id",
   INVOICE: "/invoice",
   UI_ELEMENT: "/ui-element",
   TEAM: "/team",

@@ -20,6 +20,7 @@ const Calendar = lazy(() => import("../pages/Calendar"));
 const Todo = lazy(() => import("../pages/Todo"));
 const Contact = lazy(() => import("../pages/Contact"));
 const AddNewContact = lazy(() => import("../pages/Contact/AddNewContact"));
+const ContactDetail = lazy(() => import("../pages/Contact/ContactDetail"));
 const Invoice = lazy(() => import("../pages/Invoice"));
 const UiElement = lazy(() => import("../pages/UiElement"));
 const Team = lazy(() => import("../pages/Team"));
@@ -68,6 +69,7 @@ export default function AppRoutes() {
             <Route path="todo" element={<Todo />} />
             <Route path="contact" element={<Contact />} />
             <Route path="contact/add" element={<AddNewContact />} />
+            <Route path="contact/:id" element={<ContactDetail />} />
             <Route path="invoice" element={<Invoice />} />
             <Route path="ui-element" element={<UiElement />} />
             <Route path="team" element={<Team />} />
