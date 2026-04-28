@@ -159,10 +159,18 @@ export default function Sidebar({
   }, [navSections, bottomItems]);
 
   // Derive active item from current route
+  // Uses startsWith matching so sub-routes (e.g. /team/:id, /contact/add) keep the parent nav item active
   const activeItemId = useMemo(() => {
     const currentPath = location.pathname;
-    const activeItem = allNavItems.find((item) => item.route === currentPath);
-    return activeItem?.id || "dashboard";
+    // First try exact match
+    const exactMatch = allNavItems.find((item) => item.route === currentPath);
+    if (exactMatch) return exactMatch.id;
+    // Then try prefix match — find the longest matching route to avoid false positives
+    // (e.g. "/" matching everything). Exclude "/" and "/dashboard" from prefix matching.
+    const prefixMatch = allNavItems
+      .filter((item) => item.route && item.route !== "/" && item.route !== "/dashboard" && currentPath.startsWith(item.route + "/"))
+      .sort((a, b) => (b.route?.length || 0) - (a.route?.length || 0))[0];
+    return prefixMatch?.id || "dashboard";
   }, [location.pathname, allNavItems]);
 
   const handleItemClick = useCallback(
