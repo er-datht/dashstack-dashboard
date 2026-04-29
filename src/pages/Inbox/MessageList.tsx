@@ -10,6 +10,8 @@ import {
   ChevronRight,
   RotateCcw,
   Tag,
+  ShieldCheck,
+  AlertTriangle,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "react-tooltip";
@@ -34,6 +36,10 @@ type MessageListProps = {
   onBulkArchive?: (ids: string[]) => void;
   onUnarchive?: (id: string) => void;
   onBulkUnarchive?: (ids: string[]) => void;
+  onNotSpam?: (id: string) => void;
+  onBulkNotSpam?: (ids: string[]) => void;
+  onMoveToSpam?: (id: string) => void;
+  onBulkMoveToSpam?: (ids: string[]) => void;
   onShowInfo?: (records: EmailRecord[]) => void;
 };
 
@@ -53,6 +59,10 @@ export default function MessageList({
   onBulkArchive,
   onUnarchive,
   onBulkUnarchive,
+  onNotSpam,
+  onBulkNotSpam,
+  onMoveToSpam,
+  onBulkMoveToSpam,
   onShowInfo,
 }: MessageListProps): React.JSX.Element {
   const { t } = useTranslation("inbox");
@@ -165,101 +175,146 @@ export default function MessageList({
           </div>
         </div>
         <div className="flex items-center border border-default rounded-lg overflow-hidden">
-          {[
-            activeFolder === "archive"
-              ? {
-                  Icon: RotateCcw,
-                  label: t("chat.unarchive", "Unarchive"),
-                  key: "unarchive" as const,
-                }
-              : onBulkArchive
+          {(() => {
+            const archiveOrDownloadButton =
+              activeFolder === "archive"
                 ? {
-                    Icon: Archive,
-                    label: t("chat.archive", "Archive"),
-                    key: "archive" as const,
+                    Icon: RotateCcw,
+                    label: t("chat.unarchive", "Unarchive"),
+                    key: "unarchive" as const,
                   }
-                : {
-                    Icon: Download,
-                    label: t("chat.download", "Download"),
-                    key: "download" as const,
-                  },
-            { Icon: Info, label: t("chat.info", "Info"), key: "info" as const },
-            {
+                : onBulkNotSpam
+                  ? {
+                      Icon: ShieldCheck,
+                      label: t("list.notSpam"),
+                      key: "bulkNotSpam" as const,
+                    }
+                  : onBulkArchive
+                    ? {
+                        Icon: Archive,
+                        label: t("chat.archive", "Archive"),
+                        key: "archive" as const,
+                      }
+                    : {
+                        Icon: Download,
+                        label: t("chat.download", "Download"),
+                        key: "download" as const,
+                      };
+            const infoButton = { Icon: Info, label: t("chat.info", "Info"), key: "info" as const };
+            const trashButton = {
               Icon: Trash2,
               label: t("list.delete", "Delete"),
               key: "delete" as const,
-            },
-          ].map(({ Icon, label, key }, index) => (
-            <button
-              key={key}
-              type="button"
-              aria-label={label}
-              data-tooltip-id="inbox-tooltip"
-              data-tooltip-content={label}
-              onClick={() => {
-                if (key === "archive") {
-                  if (!onBulkArchive) {
-                    onShowToast(t("chat.comingSoon"));
+            };
+            const buttons = [
+              archiveOrDownloadButton,
+              ...(onBulkNotSpam && onBulkArchive ? [{
+                Icon: Archive,
+                label: t("chat.archive", "Archive"),
+                key: "archive" as const,
+              }] : []),
+              infoButton,
+              ...(onBulkMoveToSpam ? [{
+                Icon: AlertTriangle,
+                label: t("list.moveToSpam"),
+                key: "spam" as const,
+              }] : []),
+              trashButton,
+            ];
+            return buttons.map(({ Icon, label, key }, index) => (
+              <button
+                key={key}
+                type="button"
+                aria-label={label}
+                data-tooltip-id="inbox-tooltip"
+                data-tooltip-content={label}
+                onClick={() => {
+                  if (key === "bulkNotSpam") {
+                    if (selectedIds.size === 0) {
+                      onShowToast(t("list.noSelection"));
+                      return;
+                    }
+                    onBulkNotSpam!(Array.from(selectedIds));
+                    setSelectedIds(new Set());
                     return;
                   }
-                  if (selectedIds.size === 0) {
-                    onShowToast(t("list.noSelection"));
+                  if (key === "archive") {
+                    if (!onBulkArchive) {
+                      onShowToast(t("chat.comingSoon"));
+                      return;
+                    }
+                    if (selectedIds.size === 0) {
+                      onShowToast(t("list.noSelection"));
+                      return;
+                    }
+                    onBulkArchive([...selectedIds]);
+                    setSelectedIds(new Set());
                     return;
                   }
-                  onBulkArchive([...selectedIds]);
-                  setSelectedIds(new Set());
-                  return;
-                }
-                if (key === "unarchive") {
-                  if (!onBulkUnarchive) {
-                    onShowToast(t("chat.comingSoon"));
+                  if (key === "unarchive") {
+                    if (!onBulkUnarchive) {
+                      onShowToast(t("chat.comingSoon"));
+                      return;
+                    }
+                    if (selectedIds.size === 0) {
+                      onShowToast(t("list.noSelection"));
+                      return;
+                    }
+                    onBulkUnarchive([...selectedIds]);
+                    setSelectedIds(new Set());
                     return;
                   }
-                  if (selectedIds.size === 0) {
-                    onShowToast(t("list.noSelection"));
+                  if (key === "spam") {
+                    if (!onBulkMoveToSpam) {
+                      onShowToast(t("chat.comingSoon"));
+                      return;
+                    }
+                    if (selectedIds.size === 0) {
+                      onShowToast(t("list.noSelection"));
+                      return;
+                    }
+                    onBulkMoveToSpam(Array.from(selectedIds));
+                    setSelectedIds(new Set());
                     return;
                   }
-                  onBulkUnarchive([...selectedIds]);
-                  setSelectedIds(new Set());
-                  return;
-                }
-                if (key === "delete") {
-                  if (!onBulkDelete) {
-                    onShowToast(t("chat.comingSoon"));
+                  if (key === "delete") {
+                    if (!onBulkDelete) {
+                      onShowToast(t("chat.comingSoon"));
+                      return;
+                    }
+                    if (selectedIds.size === 0) {
+                      onShowToast(t("list.noSelection"));
+                      return;
+                    }
+                    onBulkDelete([...selectedIds]);
+                    setSelectedIds(new Set());
                     return;
                   }
-                  if (selectedIds.size === 0) {
-                    onShowToast(t("list.noSelection"));
+                  if (key === "info") {
+                    if (selectedIds.size === 0) {
+                      onShowToast(t("list.noSelection"));
+                      return;
+                    }
+                    if (onShowInfo) {
+                      const selectedRecords = records.filter((r) =>
+                        selectedIds.has(r.id)
+                      );
+                      onShowInfo(selectedRecords);
+                    }
                     return;
                   }
-                  onBulkDelete([...selectedIds]);
-                  setSelectedIds(new Set());
-                  return;
-                }
-                if (key === "info") {
-                  if (selectedIds.size === 0) {
-                    onShowToast(t("list.noSelection"));
-                    return;
-                  }
-                  if (onShowInfo) {
-                    const selectedRecords = records.filter((r) =>
-                      selectedIds.has(r.id)
-                    );
-                    onShowInfo(selectedRecords);
-                  }
-                  return;
-                }
-                onShowToast(t("chat.comingSoon"));
-              }}
-              className={cn(
-                "p-2 text-secondary hover:text-primary hover:bg-surface-secondary",
-                "transition-colors cursor-pointer",
-                index < 2 && "border-r border-default",
-              )}
-            >
-              <Icon className="w-4 h-4" />
-            </button>
-          ))}
+                  onShowToast(t("chat.comingSoon"));
+                }}
+                className={cn(
+                  "p-2 text-secondary hover:text-primary hover:bg-surface-secondary",
+                  "transition-colors cursor-pointer",
+                  index < buttons.length - 1 && "border-r border-default",
+                )}
+              >
+                <Icon className="w-4 h-4" />
+              </button>
+            ));
+          })()}
         </div>
       </div>
 
@@ -412,6 +467,26 @@ export default function MessageList({
                     </button>
                   )}
 
+                {/* Move to Spam button — visible on spam-eligible folders */}
+                {activeFolder !== "bin" &&
+                  activeFolder !== "archive" &&
+                  activeFolder !== "spam" &&
+                  onMoveToSpam && (
+                    <button
+                      type="button"
+                      aria-label={t("list.moveToSpam")}
+                      data-tooltip-id="inbox-tooltip"
+                      data-tooltip-content={t("list.moveToSpam")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMoveToSpam(record.id);
+                      }}
+                      className="p-1.5 text-secondary hover:text-[var(--color-warning)] hover:bg-surface-secondary rounded-md transition-colors cursor-pointer"
+                    >
+                      <AlertTriangle className="w-4 h-4" />
+                    </button>
+                  )}
+
                 {/* Delete button — parent controls which handler (or undefined) via onDelete */}
                 {activeFolder !== "bin" &&
                   activeFolder !== "archive" &&
@@ -462,6 +537,23 @@ export default function MessageList({
                     className="p-1.5 text-secondary hover:text-[var(--color-success)] hover:bg-surface-secondary rounded-md transition-colors cursor-pointer"
                   >
                     <RotateCcw className="w-4 h-4" />
+                  </button>
+                )}
+
+                {/* Not Spam button for spam folder */}
+                {activeFolder === "spam" && onNotSpam && (
+                  <button
+                    type="button"
+                    aria-label={t("list.notSpam")}
+                    data-tooltip-id="inbox-tooltip"
+                    data-tooltip-content={t("list.notSpam")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onNotSpam(record.id);
+                    }}
+                    className="p-1.5 text-secondary hover:text-[var(--color-success)] hover:bg-surface-secondary rounded-md transition-colors cursor-pointer"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
                   </button>
                 )}
               </div>

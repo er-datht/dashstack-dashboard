@@ -51,7 +51,11 @@
     "archive": "アーカイブ",
     "archived": "メッセージをアーカイブしました",
     "unarchive": "アーカイブ解除",
-    "unarchived": "メッセージのアーカイブを解除しました"
+    "unarchived": "メッセージのアーカイブを解除しました",
+    "notSpam": "スパムではない",
+    "markedNotSpam": "メッセージをスパムではないとマークしました",
+    "moveToSpam": "スパムに移動",
+    "movedToSpam": "メッセージをスパムに移動しました"
   },
   "chat": {
     "send": "送信",

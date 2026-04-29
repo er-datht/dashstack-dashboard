@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, Archive, Info, Trash2, Tag } from "lucide-react";
+import { ChevronLeft, ShieldCheck, Archive, Info, Trash2, Tag } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "react-tooltip";
 import { cn } from "../../utils/cn";
@@ -13,6 +13,7 @@ type ChatHeaderProps = {
   onShowToast: (message: string) => void;
   onBack: () => void;
   onArchive?: () => void;
+  onNotSpam?: () => void;
   onShowInfo?: () => void;
 };
 
@@ -24,6 +25,7 @@ export default function ChatHeader({
   onShowToast,
   onBack,
   onArchive,
+  onNotSpam,
   onShowInfo,
 }: ChatHeaderProps): React.JSX.Element {
   const { t } = useTranslation("inbox");
@@ -133,37 +135,45 @@ export default function ChatHeader({
 
       {/* Right: Action Buttons */}
       <div className="flex items-center border border-default rounded-lg overflow-hidden">
-        {([
-          { Icon: Archive, label: t("list.archive", "Archive"), key: "archive" },
-          { Icon: Info, label: t("chat.info", "Info"), key: "info" },
-          { Icon: Trash2, label: t("chat.delete", "Delete"), key: "delete" },
-        ] as const).map(({ Icon, label, key }, index) => (
-          <button
-            key={key}
-            type="button"
-            aria-label={label}
-            data-tooltip-id="chat-header-tooltip"
-            data-tooltip-content={label}
-            onClick={() => {
-              if (key === "archive" && onArchive) {
-                onArchive();
-                return;
-              }
-              if (key === "info" && onShowInfo) {
-                onShowInfo();
-                return;
-              }
-              onShowToast(t("chat.comingSoon"));
-            }}
-            className={cn(
-              "p-2 text-secondary hover:text-primary hover:bg-surface-secondary",
-              "transition-colors cursor-pointer",
-              index < 2 && "border-r border-default"
-            )}
-          >
-            <Icon className="w-4 h-4" />
-          </button>
-        ))}
+        {(() => {
+          const buttons = [
+            ...(onNotSpam ? [{ Icon: ShieldCheck, label: t("list.notSpam"), key: "notSpam" }] : []),
+            { Icon: Archive, label: t("list.archive", "Archive"), key: "archive" },
+            { Icon: Info, label: t("chat.info", "Info"), key: "info" },
+            { Icon: Trash2, label: t("chat.delete", "Delete"), key: "delete" },
+          ] as const;
+          return buttons.map(({ Icon, label, key }, index) => (
+            <button
+              key={key}
+              type="button"
+              aria-label={label}
+              data-tooltip-id="chat-header-tooltip"
+              data-tooltip-content={label}
+              onClick={() => {
+                if (key === "notSpam" && onNotSpam) {
+                  onNotSpam();
+                  return;
+                }
+                if (key === "archive" && onArchive) {
+                  onArchive();
+                  return;
+                }
+                if (key === "info" && onShowInfo) {
+                  onShowInfo();
+                  return;
+                }
+                onShowToast(t("chat.comingSoon"));
+              }}
+              className={cn(
+                "p-2 text-secondary hover:text-primary hover:bg-surface-secondary",
+                "transition-colors cursor-pointer",
+                index < buttons.length - 1 && "border-r border-default"
+              )}
+            >
+              <Icon className="w-4 h-4" />
+            </button>
+          ));
+        })()}
       </div>
 
       <Tooltip id="chat-header-tooltip" place="top" />

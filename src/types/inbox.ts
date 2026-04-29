@@ -80,6 +80,18 @@ export type ArchivedMessage = {
   savedAt?: string;
 };
 
+export type SpammedMessage = {
+  id: string;
+  senderName: string;
+  labelId: string;
+  subject: string;
+  time: string;
+  sourceFolder: "inbox" | "sent" | "starred";
+  recipientEmail?: string;
+  body?: string;
+  sentAt?: string;
+};
+
 export type DeliveredMessage = {
   id: string;
   senderEmail: string;

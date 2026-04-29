@@ -285,7 +285,7 @@ When the **Existing specs** list below grows unwieldy, reorganize it by domain r
 
 **Team** — 3-col card grid, avatar photos, Add New Member form page, shared AddPersonForm component extracted from Contact/Team
 
-**Inbox** — two-panel layout, folder sidebar, message list with search/pagination, chat view, label dropdown, star-toggle with Starred folder, bin folder (soft-delete/restore/bulk-delete), select-all checkbox, compose view (removed redundant Cancel and Save as Draft buttons)
+**Inbox** — two-panel layout, folder sidebar, message list with search/pagination, chat view, label dropdown, star-toggle with Starred folder, bin folder (soft-delete/restore/bulk-delete), select-all checkbox, compose view (removed redundant Cancel and Save as Draft buttons), spam folder (14 pre-seeded mock spam, per-row/bulk Not Spam restore, move-to-spam from inbox/starred/sent, SpammedMessage type with source folder restore, dual-path Not Spam handler, dynamic inbox/spam sidebar counts, ChatView Not Spam + Archive buttons on spam)
 
 **Invoice** — sender/recipient header, items table, total, Print/Send buttons
 
