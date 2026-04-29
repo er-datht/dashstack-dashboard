@@ -54,31 +54,27 @@ The left panel SHALL display a "+ Create New label" button below the labels.
 - **THEN** a "Coming soon" toast notification is displayed
 
 ### Requirement: Message list header
-The message list view SHALL display a top bar with a select-all checkbox on the far left, a search input (rounded, placeholder "Search") to its right, and grouped action buttons with segmented borders on the right. The first toolbar button is context-sensitive: on archive-eligible folders (`inbox`, `starred`, `sent`, `important`, `draft`) it displays an `Archive` icon for bulk archive; on the `archive` folder it displays a `RotateCcw` (Unarchive) icon for bulk unarchive; on non-eligible folders (`spam`, `bin`) it displays a `Download` icon as a neutral placeholder with "Coming soon" behavior. The toolbar info button SHALL open the info modal showing metadata for the selected message(s); if no messages are selected, it SHALL show a "No messages selected" toast. The toolbar trash button SHALL perform bulk delete-to-bin on eligible folders. For other folders or when no messages are selected in an eligible folder, buttons SHALL show appropriate toasts.
+The message list view SHALL display a top bar with a select-all checkbox on the far left, a search input (rounded, placeholder "Search") to its right, and grouped action buttons with segmented borders on the right. The first toolbar button is context-sensitive: on archive-eligible folders (`inbox`, `starred`, `sent`, `important`, `draft`) it displays an `Archive` icon for bulk archive; on the `archive` folder it displays a `RotateCcw` (Unarchive) icon for bulk unarchive; on non-eligible folders (`spam`, `bin`) it displays a `Download` icon as a neutral placeholder with "Coming soon" behavior. The toolbar info button SHALL open the info modal. On spam-eligible folders (`inbox`, `starred`, `sent`), the toolbar SHALL include an `AlertTriangle` spam button between the info button and the trash button for bulk move-to-spam. The toolbar trash button SHALL perform bulk delete-to-bin on eligible folders.
 
-#### Scenario: Top bar renders with select-all checkbox
-- **WHEN** the message list view is displayed
-- **THEN** the top bar shows a select-all checkbox, then the search input, then the action buttons (context-sensitive first button, info, trash)
+#### Scenario: Toolbar shows spam button on inbox folder
+- **WHEN** user is viewing the Inbox folder
+- **THEN** the toolbar displays 4 buttons: Archive, Info, Spam (AlertTriangle), Trash2
 
-#### Scenario: Toolbar info opens modal with selected messages
-- **WHEN** user checks one or more message checkboxes and clicks the toolbar info button
-- **THEN** the info modal opens displaying metadata for the selected message(s)
+#### Scenario: Toolbar shows spam button on sent folder
+- **WHEN** user is viewing the Sent folder
+- **THEN** the toolbar displays 4 buttons: Archive, Info, Spam (AlertTriangle), Trash2
 
-#### Scenario: Toolbar info with no selection
-- **WHEN** user clicks the toolbar info button with no checkboxes selected
-- **THEN** a "No messages selected" toast is displayed
+#### Scenario: Toolbar does not show spam button on important folder
+- **WHEN** user is viewing the Important folder
+- **THEN** the toolbar displays 3 buttons: Archive, Info, Trash2 (no spam button)
 
-#### Scenario: Toolbar trash bulk deletes selected messages
-- **WHEN** user checks message checkboxes and clicks the toolbar trash button in an eligible folder
-- **THEN** all selected messages are moved to the bin and the selection is cleared
+#### Scenario: Toolbar does not show spam button on draft folder
+- **WHEN** user is viewing the Draft folder
+- **THEN** the toolbar displays 3 buttons: Archive, Info, Trash2 (no spam button)
 
-#### Scenario: Toolbar trash with no selection in eligible folder
-- **WHEN** user clicks the toolbar trash button with no checkboxes selected in an eligible folder
-- **THEN** a "No messages selected" toast is displayed
-
-#### Scenario: Toolbar trash on non-eligible folder
-- **WHEN** user clicks the toolbar trash button in a non-eligible folder (draft, spam, bin, archive)
-- **THEN** a "Coming soon" toast is displayed
+#### Scenario: Toolbar does not show spam button on spam folder
+- **WHEN** user is viewing the Spam folder
+- **THEN** the toolbar displays 3 buttons: Download, Info, Trash2 (no spam button)
 
 ### Requirement: Message list search
 The search input SHALL filter email records in real time by matching the query against sender name or message subject (case-insensitive). Filtering SHALL reset pagination to the first page. Clearing the search input SHALL restore the full list.
@@ -96,27 +92,23 @@ The search input SHALL filter email records in real time by matching the query a
 - **THEN** all email records are displayed again
 
 ### Requirement: Message list rows
-The message list SHALL display email records as table-like rows separated by bottom borders. Each row SHALL contain, left to right: a checkbox (unchecked, bordered square), a star icon (outlined), the sender name (medium weight, truncated to ~168px), a color-coded label badge (Primary/Social/Work/Friends) OR an add-label `Tag` icon button when `labelId` is empty, the message subject/preview (truncated, regular weight), and a timestamp on the far right. When the active folder is `"draft"`, each row SHALL additionally display an Archive icon button followed by a trash icon button for deleting the draft. When the active folder is one of `"inbox"`, `"starred"`, `"sent"`, `"important"`, each row SHALL additionally display an Archive icon button followed by a Trash2 icon button. When the active folder is `"bin"` or `"archive"`, each row SHALL display a RotateCcw restore icon button instead.
+The message list SHALL display email records as table-like rows separated by bottom borders. Each row SHALL contain, left to right: a checkbox (unchecked, bordered square), a star icon (outlined), the sender name (medium weight, truncated to ~168px), a color-coded label badge (Primary/Social/Work/Friends) OR an add-label `Tag` icon button when `labelId` is empty, the message subject/preview (truncated, regular weight), and a timestamp on the far right. When the active folder is `"draft"`, each row SHALL additionally display an Archive icon button followed by a trash icon button for deleting the draft. When the active folder is one of `"inbox"`, `"starred"`, `"sent"`, each row SHALL additionally display an Archive icon button, followed by an AlertTriangle spam icon button, followed by a Trash2 icon button. When the active folder is `"important"`, each row SHALL display an Archive icon button followed by a Trash2 icon button (no spam button). When the active folder is `"bin"` or `"archive"`, each row SHALL display a RotateCcw restore icon button instead. When the active folder is `"spam"`, each row SHALL display a ShieldCheck "Not Spam" icon button instead.
 
-#### Scenario: Message list renders on page load
-- **WHEN** user navigates to `/inbox`
-- **THEN** the right panel shows a scrollable list of email record rows, each with checkbox, star, sender name, label badge or add-label button, message preview, archive button, delete button, and time
-
-#### Scenario: Select a conversation
-- **WHEN** user clicks an email record row in a non-draft folder
-- **THEN** the right panel switches to the chat view showing messages for that conversation
-
-#### Scenario: Select a draft row
-- **WHEN** user clicks an email record row in the Draft folder
-- **THEN** the right panel switches to ComposeView pre-filled with the draft's data
-
-#### Scenario: Draft row displays archive and trash icons
-- **WHEN** the Draft folder is active
-- **THEN** each row shows an Archive icon button followed by a trash icon button on the right side (before the timestamp)
-
-#### Scenario: Inbox row displays archive and delete-to-bin icons
+#### Scenario: Inbox row displays archive, spam, and delete-to-bin icons
 - **WHEN** the Inbox folder is active
-- **THEN** each row shows an Archive button followed by a Trash2 delete button on the right side
+- **THEN** each row shows an Archive button, then an AlertTriangle spam button, then a Trash2 delete button
+
+#### Scenario: Sent row displays archive, spam, and delete-to-bin icons
+- **WHEN** the Sent folder is active
+- **THEN** each row shows an Archive button, then an AlertTriangle spam button, then a Trash2 delete button
+
+#### Scenario: Starred row displays archive, spam, and delete-to-bin icons
+- **WHEN** the Starred folder is active
+- **THEN** each row shows an Archive button, then an AlertTriangle spam button, then a Trash2 delete button
+
+#### Scenario: Important row does not display spam icon
+- **WHEN** the Important folder is active
+- **THEN** each row shows an Archive button and a Trash2 delete button (no spam button)
 
 #### Scenario: Bin row displays restore icon
 - **WHEN** the Bin folder is active
@@ -125,6 +117,10 @@ The message list SHALL display email records as table-like rows separated by bot
 #### Scenario: Archive row displays restore icon
 - **WHEN** the Archive folder is active
 - **THEN** each row shows a RotateCcw restore button on the right side
+
+#### Scenario: Spam row displays Not Spam icon
+- **WHEN** the Spam folder is active
+- **THEN** each row shows a ShieldCheck "Not Spam" button on the right side
 
 ### Requirement: Add-label button on unlabelled message rows
 When a message row has no label assigned (empty `labelId`), the label badge area SHALL render a clickable `Tag` icon button instead of being empty. The button SHALL use `text-secondary` color with `hover:text-primary` transition, sized `w-4 h-4`, and have an `aria-label` sourced from the i18n key `inbox:list.addLabel`.
@@ -331,39 +327,15 @@ Each message list row's star button SHALL toggle that record's starred state. St
 - **THEN** the chat view is not opened and the row is not selected
 
 ### Requirement: Starred folder filtering
-When the `Starred` folder tab is active, the message list SHALL display only records whose current starred state is true AND which are NOT in the bin AND which are NOT in the archive, drawn from ALL record sources (inbox, sent, and draft). All other folder tabs SHALL display their folder-specific records (unchanged behavior). Switching folders SHALL reset pagination to page 1.
+When the `Starred` folder tab is active, the message list SHALL display only records whose current starred state is true AND which are NOT in the bin AND which are NOT in the archive AND which are NOT in `spammedMessages`, drawn from ALL record sources (inbox, sent, draft, and restored-from-spam). All other folder tabs SHALL display their folder-specific records (unchanged behavior). Switching folders SHALL reset pagination to page 1.
 
-#### Scenario: Starred folder shows only starred records
-- **WHEN** user clicks the `Starred` folder tab
-- **THEN** only records currently marked as starred and not in the bin or archive are visible in the message list, including starred records from inbox, sent, and draft sources
-
-#### Scenario: Archived starred message excluded from Starred folder
-- **WHEN** user archives a starred message
+#### Scenario: Spammed starred message excluded from Starred folder
+- **WHEN** user moves a starred message to spam
 - **THEN** the message does not appear in the Starred folder view
 
-#### Scenario: Starred sent message appears in Starred folder
-- **WHEN** user stars a sent message and navigates to the `Starred` folder tab
-- **THEN** that sent message appears in the starred message list
-
-#### Scenario: Starred draft message appears in Starred folder
-- **WHEN** user stars a draft message and navigates to the `Starred` folder tab
-- **THEN** that draft message appears in the starred message list
-
-#### Scenario: Unstarring from within the Starred folder
-- **WHEN** user is on the `Starred` folder tab and clicks the filled star on a visible row
-- **THEN** that row is removed from the visible list and the remaining starred records stay visible
-
-#### Scenario: Switching away from Starred restores folder-specific list
-- **WHEN** user is on the `Starred` folder tab and clicks the `Inbox` folder tab
-- **THEN** only inbox records are visible (not sent or draft records)
-
-#### Scenario: Folder switch resets pagination
-- **WHEN** user is on page 2 of the `Inbox` folder and clicks the `Starred` folder tab
-- **THEN** pagination shows page 1 of the filtered starred results
-
-#### Scenario: Binned starred message excluded from Starred folder
-- **WHEN** user deletes a starred message to bin
-- **THEN** that message does not appear in the Starred folder view
+#### Scenario: Restored starred message reappears in Starred folder
+- **WHEN** user moves a starred message to spam, then marks it "Not Spam"
+- **THEN** the message reappears in the Starred folder view with its star intact
 
 ### Requirement: Live starred folder count
 The `Starred` folder tab in the left sidebar SHALL display a count equal to the current number of records whose starred state is true. The count SHALL update immediately when a record is starred or unstarred.

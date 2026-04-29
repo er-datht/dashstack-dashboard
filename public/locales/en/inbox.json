@@ -51,7 +51,11 @@
     "archive": "Archive",
     "archived": "Message archived",
     "unarchive": "Unarchive",
-    "unarchived": "Message unarchived"
+    "unarchived": "Message unarchived",
+    "notSpam": "Not Spam",
+    "markedNotSpam": "Message marked as not spam",
+    "moveToSpam": "Move to spam",
+    "movedToSpam": "Message moved to spam"
   },
   "chat": {
     "send": "Send",

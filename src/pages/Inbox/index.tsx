@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next";
 import {
   mockMessages,
   mockEmailRecords,
+  mockSpamRecords,
   inboxLabels,
 } from "./mockData";
 import type { EmailRecord } from "./mockData";
-import type { SentMessage, DraftMessage, BinnedMessage, ArchivedMessage, DeliveredMessage, Message } from "../../types/inbox";
+import type { SentMessage, DraftMessage, BinnedMessage, ArchivedMessage, SpammedMessage, DeliveredMessage, Message } from "../../types/inbox";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { getStoredUser } from "../../services/auth";
 import InboxSidebar from "./InboxSidebar";
@@ -19,6 +20,7 @@ import type { InfoModalData } from "./InfoModal";
 
 const BIN_ELIGIBLE_FOLDERS = ["inbox", "starred", "sent", "important"];
 const ARCHIVE_ELIGIBLE_FOLDERS = ["inbox", "starred", "sent", "important", "draft"];
+const SPAM_ELIGIBLE_FOLDERS = ["inbox", "starred", "sent"];
 
 const VALID_FOLDERS = ["inbox", "starred", "sent", "draft", "spam", "important", "bin", "archive"];
 
@@ -61,6 +63,18 @@ export default function Inbox(): React.JSX.Element {
     "inbox-delivered-messages",
     []
   );
+  const [restoredSpamIds, setRestoredSpamIds] = useLocalStorage<string[]>(
+    "inbox-restored-spam-ids",
+    []
+  );
+  const [restoredFromSpam, setRestoredFromSpam] = useLocalStorage<EmailRecord[]>(
+    "inbox-restored-from-spam",
+    []
+  );
+  const [spammedMessages, setSpammedMessages] = useLocalStorage<SpammedMessage[]>(
+    "inbox-spammed-messages",
+    []
+  );
 
   const [conversationMessages, setConversationMessages] = useState<Message[]>([]);
 
@@ -77,6 +91,8 @@ export default function Inbox(): React.JSX.Element {
 
   const binnedIdSet = new Set(binnedMessages.map((m) => m.id));
   const archivedIdSet = new Set(archivedMessages.map((m) => m.id));
+  const spammedIdSet = new Set(spammedMessages.map((m) => m.id));
+  const restoredSpamIdSet = new Set(restoredSpamIds);
 
   const setActiveFolder = (folder: string) => {
     setActiveFolderRaw(folder);
@@ -107,7 +123,7 @@ export default function Inbox(): React.JSX.Element {
   };
 
   const starredCount = Object.keys(starredIds).filter(
-    (id) => starredIds[id] && !binnedIdSet.has(id) && !archivedIdSet.has(id)
+    (id) => starredIds[id] && !binnedIdSet.has(id) && !archivedIdSet.has(id) && !spammedIdSet.has(id)
   ).length;
 
   // Auto-dismiss toast after 2 seconds
@@ -453,6 +469,107 @@ export default function Inbox(): React.JSX.Element {
     };
   };
 
+  const buildSpammedMessage = (id: string): { spammed: SpammedMessage; isSent: boolean } | null => {
+    if (spammedIdSet.has(id) || binnedIdSet.has(id) || archivedIdSet.has(id)) return null;
+
+    let sourceFolder = activeFolder;
+    if (activeFolder === "starred") {
+      if (mockEmailRecords.some((r) => r.id === id)) {
+        sourceFolder = "inbox";
+      } else if (sentMessages.some((m) => m.id === id)) {
+        sourceFolder = "sent";
+      } else if (restoredFromSpam.some((r) => r.id === id)) {
+        sourceFolder = "inbox";
+      }
+    }
+
+    const record =
+      mockEmailRecords.find((r) => r.id === id) ||
+      sentEmailRecords.find((r) => r.id === id) ||
+      restoredFromSpam.find((r) => r.id === id);
+    if (!record) return null;
+
+    const sentMsg = sourceFolder === "sent" ? sentMessages.find((m) => m.id === id) : undefined;
+
+    return {
+      spammed: {
+        id: record.id,
+        senderName: record.senderName,
+        labelId: record.labelId,
+        subject: record.subject,
+        time: record.time,
+        sourceFolder: sourceFolder as SpammedMessage["sourceFolder"],
+        ...(sentMsg && {
+          recipientEmail: sentMsg.recipientEmail,
+          body: sentMsg.body,
+          sentAt: sentMsg.sentAt,
+        }),
+      },
+      isSent: sourceFolder === "sent",
+    };
+  };
+
+  const handleMoveToSpam = (id: string) => {
+    const result = buildSpammedMessage(id);
+    if (!result) return;
+
+    setSpammedMessages((prev) => {
+      if (prev.some((m) => m.id === id)) return prev;
+      return [...prev, result.spammed];
+    });
+
+    if (result.isSent) {
+      setSentMessages((prev) => prev.filter((m) => m.id !== id));
+    }
+
+    // If the message was restored from spam, remove it from the restored lists
+    if (restoredFromSpam.some((r) => r.id === id)) {
+      setRestoredFromSpam((prev) => prev.filter((r) => r.id !== id));
+      setRestoredSpamIds((prev) => prev.filter((rid) => rid !== id));
+    }
+
+    setToast(t("list.movedToSpam"));
+  };
+
+  const handleBulkMoveToSpam = (ids: string[]) => {
+    const results = ids
+      .map((id) => buildSpammedMessage(id))
+      .filter((r): r is NonNullable<typeof r> => r !== null);
+
+    if (results.length === 0) return;
+
+    const sentIdsToRemove = new Set(
+      results.filter((r) => r.isSent).map((r) => r.spammed.id)
+    );
+
+    setSpammedMessages((prev) => {
+      const existingIds = new Set(prev.map((m) => m.id));
+      const newItems = results
+        .filter((r) => !existingIds.has(r.spammed.id))
+        .map((r) => r.spammed);
+      if (newItems.length === 0) return prev;
+      return [...prev, ...newItems];
+    });
+
+    if (sentIdsToRemove.size > 0) {
+      setSentMessages((prev) =>
+        prev.filter((m) => !sentIdsToRemove.has(m.id))
+      );
+    }
+
+    // Remove any restored-from-spam records that are being re-spammed
+    const restoredIdsToRemove = results
+      .filter((r) => restoredFromSpam.some((rf) => rf.id === r.spammed.id))
+      .map((r) => r.spammed.id);
+    if (restoredIdsToRemove.length > 0) {
+      const removeSet = new Set(restoredIdsToRemove);
+      setRestoredFromSpam((prev) => prev.filter((r) => !removeSet.has(r.id)));
+      setRestoredSpamIds((prev) => prev.filter((rid) => !removeSet.has(rid)));
+    }
+
+    setToast(t("list.movedToSpam"));
+  };
+
   const handleDeleteToBin = (id: string) => {
     const result = buildBinnedMessage(id);
     if (!result) return;
@@ -643,6 +760,45 @@ export default function Inbox(): React.JSX.Element {
     setToast(t("list.unarchived"));
   };
 
+  const handleNotSpam = (id: string) => {
+    // Path 1: User-spammed message — restore to source folder
+    const spammed = spammedMessages.find((m) => m.id === id);
+    if (spammed) {
+      setSpammedMessages((prev) => prev.filter((m) => m.id !== id));
+
+      if (spammed.sourceFolder === "sent") {
+        const restoredSent: SentMessage = {
+          id: spammed.id,
+          recipientEmail: spammed.recipientEmail ?? "",
+          subject: spammed.subject,
+          body: spammed.body ?? "",
+          sentAt: spammed.sentAt ?? new Date().toISOString(),
+        };
+        setSentMessages((prev) => [...prev, restoredSent]);
+      }
+
+      setToast(t("list.markedNotSpam"));
+      return;
+    }
+
+    // Path 2: Pre-seeded mock spam — restore to inbox
+    const record = mockSpamRecords.find((r) => r.id === id);
+    if (!record) return;
+    setRestoredSpamIds((prev) => {
+      if (prev.includes(id)) return prev;
+      return [...prev, id];
+    });
+    setRestoredFromSpam((prev) => {
+      if (prev.some((r) => r.id === id)) return prev;
+      return [...prev, record];
+    });
+    setToast(t("list.markedNotSpam"));
+  };
+
+  const handleBulkNotSpam = (ids: string[]) => {
+    ids.forEach((id) => handleNotSpam(id));
+  };
+
   const handleMessageListShowInfo = (selectedRecords: EmailRecord[]) => {
     if (selectedRecords.length === 0) return;
     setInfoModalItems(
@@ -698,6 +854,15 @@ export default function Inbox(): React.JSX.Element {
         }))
     : [];
 
+  // Inbox-specific filtered arrays (used for both display and sidebar count)
+  const inboxMockRecords = mockEmailRecords
+    .filter((r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id) && !spammedIdSet.has(r.id))
+    .map((r) => (labelOverrides[r.id] ? { ...r, labelId: labelOverrides[r.id] } : r));
+  const activeRestoredFromSpam = restoredFromSpam.filter(
+    (r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id) && !spammedIdSet.has(r.id)
+  );
+  const inboxCount = receivedEmailRecords.length + activeRestoredFromSpam.length + inboxMockRecords.length;
+
   // Determine which records to show based on active folder
   const getDisplayRecords = (): EmailRecord[] => {
     if (activeFolder === "archive") {
@@ -719,20 +884,28 @@ export default function Inbox(): React.JSX.Element {
       }));
     }
     if (activeFolder === "sent") {
-      return sentEmailRecords.filter((r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id));
+      return sentEmailRecords.filter((r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id) && !spammedIdSet.has(r.id));
     }
     if (activeFolder === "draft") {
       return draftEmailRecords.filter((r) => !archivedIdSet.has(r.id));
     }
+    if (activeFolder === "spam") {
+      const mockSpam = mockSpamRecords.filter((r) => !restoredSpamIdSet.has(r.id));
+      const userSpam: EmailRecord[] = spammedMessages.map((m) => ({
+        id: m.id,
+        senderName: m.senderName,
+        labelId: m.labelId,
+        subject: m.subject,
+        time: m.time,
+      }));
+      return [...userSpam, ...mockSpam];
+    }
     if (activeFolder === "starred") {
-      return [...mockEmailRecords, ...sentEmailRecords, ...draftEmailRecords].filter(
-        (r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id)
+      return [...mockEmailRecords, ...sentEmailRecords, ...draftEmailRecords, ...restoredFromSpam].filter(
+        (r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id) && !spammedIdSet.has(r.id)
       );
     }
-    const inboxMockRecords = mockEmailRecords
-      .filter((r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id))
-      .map((r) => (labelOverrides[r.id] ? { ...r, labelId: labelOverrides[r.id] } : r));
-    return [...receivedEmailRecords, ...inboxMockRecords];
+    return [...receivedEmailRecords, ...activeRestoredFromSpam, ...inboxMockRecords];
   };
   const displayRecords = getDisplayRecords();
 
@@ -781,9 +954,15 @@ export default function Inbox(): React.JSX.Element {
           }}
           onShowToast={setToast}
           onBack={() => setSelectedRecord(null)}
-          onArchive={ARCHIVE_ELIGIBLE_FOLDERS.includes(activeFolder) ? () => {
+          onArchive={ARCHIVE_ELIGIBLE_FOLDERS.includes(activeFolder) || activeFolder === "spam" ? () => {
             if (selectedRecord) {
               handleArchiveMessage(selectedRecord.id);
+              setSelectedRecord(null);
+            }
+          } : undefined}
+          onNotSpam={activeFolder === "spam" ? () => {
+            if (selectedRecord) {
+              handleNotSpam(selectedRecord.id);
               setSelectedRecord(null);
             }
           } : undefined}
@@ -807,9 +986,13 @@ export default function Inbox(): React.JSX.Element {
         onBulkDelete={bulkDeleteHandler}
         onAssignLabel={handleLabelAssign}
         onArchive={ARCHIVE_ELIGIBLE_FOLDERS.includes(activeFolder) ? handleArchiveMessage : undefined}
-        onBulkArchive={ARCHIVE_ELIGIBLE_FOLDERS.includes(activeFolder) ? handleBulkArchive : undefined}
+        onBulkArchive={ARCHIVE_ELIGIBLE_FOLDERS.includes(activeFolder) || activeFolder === "spam" ? handleBulkArchive : undefined}
         onUnarchive={activeFolder === "archive" ? handleUnarchiveMessage : undefined}
         onBulkUnarchive={activeFolder === "archive" ? handleBulkUnarchive : undefined}
+        onNotSpam={activeFolder === "spam" ? handleNotSpam : undefined}
+        onBulkNotSpam={activeFolder === "spam" ? handleBulkNotSpam : undefined}
+        onMoveToSpam={SPAM_ELIGIBLE_FOLDERS.includes(activeFolder) ? handleMoveToSpam : undefined}
+        onBulkMoveToSpam={SPAM_ELIGIBLE_FOLDERS.includes(activeFolder) ? handleBulkMoveToSpam : undefined}
         onShowInfo={handleMessageListShowInfo}
       />
     );
@@ -831,9 +1014,11 @@ export default function Inbox(): React.JSX.Element {
           onShowToast={setToast}
           onCompose={handleCompose}
           folderCountOverrides={{
+            inbox: inboxCount,
             starred: starredCount,
             sent: userSentMessages.length,
             draft: userDraftMessages.length,
+            spam: (mockSpamRecords.length - restoredSpamIds.length) + spammedMessages.length,
             bin: binnedMessages.length,
             archive: archivedMessages.length,
           }}
