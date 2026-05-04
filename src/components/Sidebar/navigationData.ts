@@ -109,10 +109,10 @@ export const getNavSections = (t: TFunction): NavSection[] => [
         route: ROUTES.INVOICE,
       },
       {
-        id: "ui-element",
-        label: t("navigation:uiElement", "UI Element"),
+        id: "ui-elements",
+        label: t("navigation:uiElements", "UI Elements"),
         icon: Layers,
-        route: ROUTES.UI_ELEMENT,
+        route: ROUTES.UI_ELEMENTS,
       },
       {
         id: "team",

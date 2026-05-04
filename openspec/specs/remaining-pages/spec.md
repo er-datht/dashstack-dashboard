@@ -67,7 +67,7 @@ The Settings page SHALL provide application settings management.
 - **THEN** the settings page renders within the DashboardLayout
 
 ### Requirement: Remaining content pages
-The following pages SHALL exist as routable pages within DashboardLayout: Orders, Calendar, Contact, Inbox, Invoice, Pricing, Team, Table, and UiElement.
+The following pages SHALL exist as routable pages within DashboardLayout: Orders, Calendar, Contact, Inbox, Invoice, Pricing, Team, Table, and UiElements.
 
 #### Scenario: Page routing
 - **WHEN** a user navigates to any of the remaining pages

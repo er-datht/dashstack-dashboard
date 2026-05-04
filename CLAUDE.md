@@ -90,7 +90,7 @@ Domain services follow pattern: `src/services/{domain}.ts` → maps API DTOs to 
 
 ### Internationalization
 
-i18next + react-i18next. Config at **project root** `i18n.ts` (not in `src/`). Translation files at `public/locales/{en|jp}/{namespace}.json`. Registered namespaces in `i18n.ts`: common, navigation, auth, dashboard, products, orders, settings, todo, theme, errors, messages, calendar, contact, team, invoice, inbox. Additional locale files exist for: pricing, favorites (loaded on-demand by components). All UI text should use the `t()` function.
+i18next + react-i18next. Config at **project root** `i18n.ts` (not in `src/`). Translation files at `public/locales/{en|jp}/{namespace}.json`. Registered namespaces in `i18n.ts`: common, navigation, auth, dashboard, products, orders, settings, todo, theme, errors, messages, calendar, contact, team, invoice, inbox, uiElements. Additional locale files exist for: pricing, favorites (loaded on-demand by components). All UI text should use the `t()` function.
 
 ### Notable Libraries
 
@@ -291,9 +291,11 @@ When the **Existing specs** list below grows unwieldy, reorganize it by domain r
 
 **Settings** — general settings form (logo upload with drag & drop, 5-field form, validation, save with toast), required field asterisks across pages
 
+**UI Elements** — charts gallery page at `/ui-elements` (Layers icon header, Filter By Charts dropdown, 3 sections × 4 chart variants each: Bar / Pie / Donut), per-theme palettes, plural rename (`UI_ELEMENT` → `UI_ELEMENTS`), `uiElements` i18n namespace, custom `ChartTooltip`; chart-shells refactor extracts shared `BarShell`, `PieShell` (optional `innerRadius`), and `ChartSection` so each variant collapses to a config-only declaration
+
 **TopNav** — user profile dropdown menu, language switcher dropdown, notification dropdown, 3-way dropdown coordination, toast system
 
-**i18n** — Korean language added then removed (net: en/jp only)
+**i18n** — Korean language added then removed (net: en/jp only); `uiElements` namespace added (17 registered total)
 
 **Shared UI** — TableCommon, StatusBadge, Buttons, product management (Products, Favorites, ProductStock, WishlistContext)
 

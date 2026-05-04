@@ -15,7 +15,7 @@ export const ROUTES = {
   ADD_CONTACT: "/contact/add",
   CONTACT_DETAIL: "/contact/:id",
   INVOICE: "/invoice",
-  UI_ELEMENT: "/ui-element",
+  UI_ELEMENTS: "/ui-elements",
   TEAM: "/team",
   ADD_TEAM: "/team/add",
   TEAM_DETAIL: "/team/:id",

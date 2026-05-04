@@ -1,0 +1,17 @@
+{
+  "title": "UI Elements",
+  "filter": {
+    "label": "Filter By",
+    "options": {
+      "all": "Charts",
+      "bar": "Bar Chart",
+      "pie": "Pie Chart",
+      "donut": "Donut Chart"
+    }
+  },
+  "sections": {
+    "bar": "Bar Chart",
+    "pie": "Pie Chart",
+    "donut": "Donut Chart"
+  }
+}
