@@ -38,6 +38,7 @@ i18n
       "team",
       "invoice",
       "inbox",
+      "uiElements",
     ],
     defaultNS: "common",
 

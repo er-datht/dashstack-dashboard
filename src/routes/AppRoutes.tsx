@@ -22,7 +22,7 @@ const Contact = lazy(() => import("../pages/Contact"));
 const AddNewContact = lazy(() => import("../pages/Contact/AddNewContact"));
 const ContactDetail = lazy(() => import("../pages/Contact/ContactDetail"));
 const Invoice = lazy(() => import("../pages/Invoice"));
-const UiElement = lazy(() => import("../pages/UiElement"));
+const UiElements = lazy(() => import("../pages/UiElements"));
 const Team = lazy(() => import("../pages/Team"));
 const AddNewMember = lazy(() => import("../pages/Team/AddNewMember"));
 const MemberDetail = lazy(() => import("../pages/Team/MemberDetail"));
@@ -71,7 +71,7 @@ export default function AppRoutes() {
             <Route path="contact/add" element={<AddNewContact />} />
             <Route path="contact/:id" element={<ContactDetail />} />
             <Route path="invoice" element={<Invoice />} />
-            <Route path="ui-element" element={<UiElement />} />
+            <Route path="ui-elements" element={<UiElements />} />
             <Route path="team" element={<Team />} />
             <Route path="team/add" element={<AddNewMember />} />
             <Route path="team/:id" element={<MemberDetail />} />
