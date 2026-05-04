@@ -2,9 +2,7 @@
 
 ## Purpose
 Defines the i18next configuration: HttpBackend + LanguageDetector, supported languages (en/jp), registered namespaces, persistence, and the project-root config location.
-
 ## Requirements
-
 ### Requirement: i18next with HttpBackend and LanguageDetector
 The i18n system SHALL use i18next with react-i18next bindings, i18next-http-backend for loading translation files, and i18next-browser-languagedetector for automatic language detection.
 
@@ -24,15 +22,19 @@ The i18n system SHALL support exactly two languages: English (`en`) as the defau
 - **THEN** it MUST be one of `"en"` or `"jp"`
 
 ### Requirement: Namespace-based translation organization
-Translations SHALL be organized into namespaces. The following 11 namespaces SHALL be registered at initialization: common, navigation, auth, dashboard, products, orders, settings, todo, theme, errors, messages. Additional namespaces (favorites, pricing) SHALL be loaded on-demand by components that need them.
+Translations SHALL be organized into namespaces. The following 17 namespaces SHALL be registered at initialization: common, navigation, auth, dashboard, products, orders, settings, todo, theme, errors, messages, calendar, contact, team, invoice, inbox, uiElements. Additional namespaces (favorites, pricing) SHALL be loaded on-demand by components that need them.
 
 #### Scenario: Namespace loading at init
 - **WHEN** the application starts
-- **THEN** the 11 registered namespaces are available for use
+- **THEN** the 17 registered namespaces are available for use, including `uiElements`
 
 #### Scenario: On-demand namespace loading
 - **WHEN** a component needs the "favorites" or "pricing" namespace
 - **THEN** it loads the namespace on-demand using `useTranslation('favorites')`
+
+#### Scenario: uiElements namespace available on UI Elements page
+- **WHEN** the UI Elements page renders and calls `useTranslation('uiElements')`
+- **THEN** the namespace is already loaded and translation lookups succeed without an extra HTTP fetch
 
 ### Requirement: Language detection and persistence
 The language detector SHALL check sources in order: localStorage (key `"i18nextLng"`) → browser navigator language → HTML lang attribute. The selected language SHALL be cached in localStorage.
@@ -58,3 +60,4 @@ All user-visible text in the application SHALL use the `t()` function from react
 #### Scenario: Translatable component text
 - **WHEN** a component displays text to the user
 - **THEN** it uses `t('namespace:key')` or `t('key')` with a namespace from `useTranslation`
+
