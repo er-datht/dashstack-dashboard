@@ -12,6 +12,7 @@ import {
   Tag,
   ShieldCheck,
   AlertTriangle,
+  Bookmark,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "react-tooltip";
@@ -40,6 +41,9 @@ type MessageListProps = {
   onBulkNotSpam?: (ids: string[]) => void;
   onMoveToSpam?: (id: string) => void;
   onBulkMoveToSpam?: (ids: string[]) => void;
+  importantIds?: Record<string, boolean>;
+  onToggleImportant?: (id: string) => void;
+  onBulkToggleImportant?: (ids: string[]) => void;
   onShowInfo?: (records: EmailRecord[]) => void;
 };
 
@@ -63,6 +67,9 @@ export default function MessageList({
   onBulkNotSpam,
   onMoveToSpam,
   onBulkMoveToSpam,
+  importantIds,
+  onToggleImportant,
+  onBulkToggleImportant,
   onShowInfo,
 }: MessageListProps): React.JSX.Element {
   const { t } = useTranslation("inbox");
@@ -103,11 +110,18 @@ export default function MessageList({
     };
   }, [openLabelDropdownId]);
 
-  // Folder filter: if "starred", show only starred records
-  const folderRecords =
-    activeFolder === "starred"
-      ? records.filter((r) => starredIds[r.id])
-      : records;
+  // Folder filter: if "starred", show only starred records.
+  // If "important", show only flagged records.
+  const getFolderRecords = (): EmailRecord[] => {
+    if (activeFolder === "starred") {
+      return records.filter((r) => starredIds[r.id]);
+    }
+    if (activeFolder === "important") {
+      return records.filter((r) => importantIds?.[r.id]);
+    }
+    return records;
+  };
+  const folderRecords = getFolderRecords();
 
   // Search filter (scoped to folder-filtered records)
   const filteredRecords = searchQuery
@@ -206,13 +220,26 @@ export default function MessageList({
               label: t("list.delete", "Delete"),
               key: "delete" as const,
             };
+            const isImportantFolder = activeFolder === "important";
+            const importantButton = onBulkToggleImportant
+              ? {
+                  Icon: Bookmark,
+                  label: isImportantFolder
+                    ? t("list.bulkUnmarkImportant")
+                    : t("list.bulkMarkImportant"),
+                  key: "bulkImportant" as const,
+                  filled: isImportantFolder,
+                }
+              : null;
             const buttons = [
+              ...(isImportantFolder && importantButton ? [importantButton] : []),
               archiveOrDownloadButton,
               ...(onBulkNotSpam && onBulkArchive ? [{
                 Icon: Archive,
                 label: t("chat.archive", "Archive"),
                 key: "archive" as const,
               }] : []),
+              ...(!isImportantFolder && importantButton ? [importantButton] : []),
               infoButton,
               ...(onBulkMoveToSpam ? [{
                 Icon: AlertTriangle,
@@ -221,99 +248,119 @@ export default function MessageList({
               }] : []),
               trashButton,
             ];
-            return buttons.map(({ Icon, label, key }, index) => (
-              <button
-                key={key}
-                type="button"
-                aria-label={label}
-                data-tooltip-id="inbox-tooltip"
-                data-tooltip-content={label}
-                onClick={() => {
-                  if (key === "bulkNotSpam") {
-                    if (selectedIds.size === 0) {
-                      onShowToast(t("list.noSelection"));
+            return buttons.map((btn, index) => {
+              const { Icon, label, key } = btn;
+              const filled = "filled" in btn && btn.filled;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  aria-label={label}
+                  data-tooltip-id="inbox-tooltip"
+                  data-tooltip-content={label}
+                  onClick={() => {
+                    if (key === "bulkNotSpam") {
+                      if (selectedIds.size === 0) {
+                        onShowToast(t("list.noSelection"));
+                        return;
+                      }
+                      onBulkNotSpam!(Array.from(selectedIds));
+                      setSelectedIds(new Set());
                       return;
                     }
-                    onBulkNotSpam!(Array.from(selectedIds));
-                    setSelectedIds(new Set());
-                    return;
-                  }
-                  if (key === "archive") {
-                    if (!onBulkArchive) {
-                      onShowToast(t("chat.comingSoon"));
+                    if (key === "archive") {
+                      if (!onBulkArchive) {
+                        onShowToast(t("chat.comingSoon"));
+                        return;
+                      }
+                      if (selectedIds.size === 0) {
+                        onShowToast(t("list.noSelection"));
+                        return;
+                      }
+                      onBulkArchive([...selectedIds]);
+                      setSelectedIds(new Set());
                       return;
                     }
-                    if (selectedIds.size === 0) {
-                      onShowToast(t("list.noSelection"));
+                    if (key === "unarchive") {
+                      if (!onBulkUnarchive) {
+                        onShowToast(t("chat.comingSoon"));
+                        return;
+                      }
+                      if (selectedIds.size === 0) {
+                        onShowToast(t("list.noSelection"));
+                        return;
+                      }
+                      onBulkUnarchive([...selectedIds]);
+                      setSelectedIds(new Set());
                       return;
                     }
-                    onBulkArchive([...selectedIds]);
-                    setSelectedIds(new Set());
-                    return;
-                  }
-                  if (key === "unarchive") {
-                    if (!onBulkUnarchive) {
-                      onShowToast(t("chat.comingSoon"));
+                    if (key === "spam") {
+                      if (!onBulkMoveToSpam) {
+                        onShowToast(t("chat.comingSoon"));
+                        return;
+                      }
+                      if (selectedIds.size === 0) {
+                        onShowToast(t("list.noSelection"));
+                        return;
+                      }
+                      onBulkMoveToSpam(Array.from(selectedIds));
+                      setSelectedIds(new Set());
                       return;
                     }
-                    if (selectedIds.size === 0) {
-                      onShowToast(t("list.noSelection"));
+                    if (key === "bulkImportant") {
+                      if (!onBulkToggleImportant) {
+                        onShowToast(t("chat.comingSoon"));
+                        return;
+                      }
+                      if (selectedIds.size === 0) {
+                        onShowToast(t("list.noSelection"));
+                        return;
+                      }
+                      onBulkToggleImportant(Array.from(selectedIds));
+                      setSelectedIds(new Set());
                       return;
                     }
-                    onBulkUnarchive([...selectedIds]);
-                    setSelectedIds(new Set());
-                    return;
-                  }
-                  if (key === "spam") {
-                    if (!onBulkMoveToSpam) {
-                      onShowToast(t("chat.comingSoon"));
+                    if (key === "delete") {
+                      if (!onBulkDelete) {
+                        onShowToast(t("chat.comingSoon"));
+                        return;
+                      }
+                      if (selectedIds.size === 0) {
+                        onShowToast(t("list.noSelection"));
+                        return;
+                      }
+                      onBulkDelete([...selectedIds]);
+                      setSelectedIds(new Set());
                       return;
                     }
-                    if (selectedIds.size === 0) {
-                      onShowToast(t("list.noSelection"));
+                    if (key === "info") {
+                      if (selectedIds.size === 0) {
+                        onShowToast(t("list.noSelection"));
+                        return;
+                      }
+                      if (onShowInfo) {
+                        const selectedRecords = records.filter((r) =>
+                          selectedIds.has(r.id)
+                        );
+                        onShowInfo(selectedRecords);
+                      }
                       return;
                     }
-                    onBulkMoveToSpam(Array.from(selectedIds));
-                    setSelectedIds(new Set());
-                    return;
-                  }
-                  if (key === "delete") {
-                    if (!onBulkDelete) {
-                      onShowToast(t("chat.comingSoon"));
-                      return;
-                    }
-                    if (selectedIds.size === 0) {
-                      onShowToast(t("list.noSelection"));
-                      return;
-                    }
-                    onBulkDelete([...selectedIds]);
-                    setSelectedIds(new Set());
-                    return;
-                  }
-                  if (key === "info") {
-                    if (selectedIds.size === 0) {
-                      onShowToast(t("list.noSelection"));
-                      return;
-                    }
-                    if (onShowInfo) {
-                      const selectedRecords = records.filter((r) =>
-                        selectedIds.has(r.id)
-                      );
-                      onShowInfo(selectedRecords);
-                    }
-                    return;
-                  }
-                  onShowToast(t("chat.comingSoon"));
-                }}
-                className={cn(
-                  "p-2 text-secondary hover:text-primary hover:bg-surface-secondary",
-                  "transition-colors cursor-pointer",
-                  index < buttons.length - 1 && "border-r border-default",
-                )}
-              >
-                <Icon className="w-4 h-4" />
-              </button>
-            ));
+                    onShowToast(t("chat.comingSoon"));
+                  }}
+                  className={cn(
+                    "p-2 text-secondary hover:text-primary hover:bg-surface-secondary",
+                    "transition-colors cursor-pointer",
+                    index < buttons.length - 1 && "border-r border-default",
+                  )}
+                >
+                  <Icon
+                    className="w-4 h-4"
+                    fill={filled ? "currentColor" : "none"}
+                  />
+                </button>
+              );
+            });
           })()}
         </div>
       </div>
@@ -448,6 +495,39 @@ export default function MessageList({
 
               {/* Action buttons group */}
               <div className="flex items-center gap-4 flex-shrink-0">
+                {/* Important toggle — visible on inbox / starred / sent / important */}
+                {onToggleImportant && (
+                  <button
+                    type="button"
+                    aria-label={
+                      importantIds?.[record.id]
+                        ? t("list.unmarkImportant")
+                        : t("list.markImportant")
+                    }
+                    data-tooltip-id="inbox-tooltip"
+                    data-tooltip-content={
+                      importantIds?.[record.id]
+                        ? t("list.unmarkImportant")
+                        : t("list.markImportant")
+                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleImportant(record.id);
+                    }}
+                    className={cn(
+                      "p-1.5 rounded-md transition-colors cursor-pointer hover:bg-surface-secondary",
+                      importantIds?.[record.id]
+                        ? "text-[var(--color-primary)]"
+                        : "text-secondary hover:text-primary",
+                    )}
+                  >
+                    <Bookmark
+                      className="w-4 h-4"
+                      fill={importantIds?.[record.id] ? "currentColor" : "none"}
+                    />
+                  </button>
+                )}
+
                 {/* Archive button — visible on archive-eligible folders */}
                 {activeFolder !== "bin" &&
                   activeFolder !== "archive" &&

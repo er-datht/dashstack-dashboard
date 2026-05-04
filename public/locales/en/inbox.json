@@ -55,7 +55,13 @@
     "notSpam": "Not Spam",
     "markedNotSpam": "Message marked as not spam",
     "moveToSpam": "Move to spam",
-    "movedToSpam": "Message moved to spam"
+    "movedToSpam": "Message moved to spam",
+    "markImportant": "Mark as Important",
+    "unmarkImportant": "Unmark Important",
+    "markedImportant": "Marked as Important",
+    "unmarkedImportant": "Unmarked Important",
+    "bulkMarkImportant": "Mark selected as Important",
+    "bulkUnmarkImportant": "Unmark selected from Important"
   },
   "chat": {
     "send": "Send",
@@ -70,7 +76,9 @@
     "attachment": "Attach",
     "image": "Image",
     "archive": "Archive",
-    "unarchive": "Unarchive"
+    "unarchive": "Unarchive",
+    "markImportant": "Mark as Important",
+    "unmarkImportant": "Unmark Important"
   },
   "info": {
     "title": "Message Info",

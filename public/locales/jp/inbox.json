@@ -55,7 +55,13 @@
     "notSpam": "スパムではない",
     "markedNotSpam": "メッセージをスパムではないとマークしました",
     "moveToSpam": "スパムに移動",
-    "movedToSpam": "メッセージをスパムに移動しました"
+    "movedToSpam": "メッセージをスパムに移動しました",
+    "markImportant": "重要としてマーク",
+    "unmarkImportant": "重要マークを解除",
+    "markedImportant": "重要としてマークしました",
+    "unmarkedImportant": "重要マークを解除しました",
+    "bulkMarkImportant": "選択したメッセージを重要としてマーク",
+    "bulkUnmarkImportant": "選択したメッセージの重要マークを解除"
   },
   "chat": {
     "send": "送信",
@@ -70,7 +76,9 @@
     "attachment": "添付",
     "image": "画像",
     "archive": "アーカイブ",
-    "unarchive": "アーカイブ解除"
+    "unarchive": "アーカイブ解除",
+    "markImportant": "重要としてマーク",
+    "unmarkImportant": "重要マークを解除"
   },
   "info": {
     "title": "メッセージ情報",

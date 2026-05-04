@@ -67,6 +67,11 @@ describe('MessageList -- archive button visibility', () => {
                 ? { 'rec-1': true, 'rec-2': true, 'rec-3': true }
                 : {}
             }
+            importantIds={
+              folder === 'important'
+                ? { 'rec-1': true, 'rec-2': true, 'rec-3': true }
+                : {}
+            }
           />
         )
 
