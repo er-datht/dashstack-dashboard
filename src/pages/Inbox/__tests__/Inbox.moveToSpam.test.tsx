@@ -684,11 +684,9 @@ describe('MessageList -- per-row "Move to Spam" button', () => {
       expect(deleteButtons.length).toBeGreaterThan(0)
 
       // Archive should come before Spam in DOM order
-      // eslint-disable-next-line no-bitwise
       expect(archiveButtons[0].compareDocumentPosition(spamButtons[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
 
       // Spam should come before Delete in DOM order
-      // eslint-disable-next-line no-bitwise
       expect(spamButtons[0].compareDocumentPosition(deleteButtons[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     })
   })

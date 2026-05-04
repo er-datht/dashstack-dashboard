@@ -120,7 +120,6 @@ describe('MessageList -- archive button visibility', () => {
     // the compared node follows the reference node in the document.
     const archiveFirst = archiveButtons[0]
     const deleteFirst = deleteButtons[0]
-    // eslint-disable-next-line no-bitwise
     expect(archiveFirst.compareDocumentPosition(deleteFirst) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 })

@@ -1,6 +1,6 @@
 ## 1. Type & Mock Data
 
-- [x] 1.1 In `src/types/inbox.ts`, add optional `isImportant?: boolean` to the `EmailRecord` type
+- [x] 1.1 In `src/pages/Inbox/mockData.ts` (where `EmailRecord` is defined — the original task said `src/types/inbox.ts` but the type lives in `mockData.ts`), add optional `isImportant?: boolean` to the `EmailRecord` type
 - [x] 1.2 In `src/pages/Inbox/mockData.ts`, drop the `count: 18` placeholder on the Important folder entry (use `count: 0` if the type requires it; the override will replace it)
 - [x] 1.3 In `src/pages/Inbox/mockData.ts`, mark exactly 5 of the 13 `mockEmailRecords` with `isImportant: true` — pick a mix of senders/labels (e.g., one Primary, one Work, one Social, one Friends, one no-label)
 

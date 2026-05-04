@@ -961,7 +961,13 @@ export default function Inbox(): React.JSX.Element {
       return [...userSpam, ...mockSpam];
     }
     if (activeFolder === "starred") {
-      return [...mockEmailRecords, ...sentEmailRecords, ...draftEmailRecords, ...restoredFromSpam].filter(
+      return [
+        ...mockEmailRecords,
+        ...sentEmailRecords,
+        ...draftEmailRecords,
+        ...restoredFromSpam,
+        ...receivedEmailRecords,
+      ].filter(
         (r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id) && !spammedIdSet.has(r.id)
       );
     }
