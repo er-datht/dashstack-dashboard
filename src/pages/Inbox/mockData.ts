@@ -30,11 +30,14 @@ export const inboxFolders: InboxFolder[] = [
   { id: "sent", nameKey: "folders.sent", icon: Send, count: 24532 },
   { id: "draft", nameKey: "folders.draft", icon: PenLine, count: 9 },
   { id: "spam", nameKey: "folders.spam", icon: AlertTriangle, count: 14 },
+  // Sentinel: actual count is supplied via folderCountOverrides.important in
+  // index.tsx and is the authoritative value. The 0 here is unreachable but
+  // required because InboxFolder.count is non-optional.
   {
     id: "important",
     nameKey: "folders.important",
     icon: MessageSquare,
-    count: 18,
+    count: 0,
   },
   { id: "bin", nameKey: "folders.bin", icon: Trash2, count: 9 },
   { id: "archive", nameKey: "folders.archive", icon: Archive, count: 0 },
@@ -97,6 +100,7 @@ export type EmailRecord = {
   subject: string;
   time: string;
   isStarred?: boolean;
+  isImportant?: boolean;
 };
 
 export const mockEmailRecords: EmailRecord[] = [
@@ -116,6 +120,7 @@ export const mockEmailRecords: EmailRecord[] = [
     labelId: "primary",
     subject: "Our Bachelor of Commerce program is ACBSP-accredited.",
     time: "8:38 AM",
+    isImportant: true,
   },
   {
     id: "rec-3",
@@ -151,6 +156,7 @@ export const mockEmailRecords: EmailRecord[] = [
     subject:
       "Join us as we delve into the fascinating field of Product Strategy.",
     time: "8:15 AM",
+    isImportant: true,
   },
   {
     id: "rec-7",
@@ -176,6 +182,7 @@ export const mockEmailRecords: EmailRecord[] = [
     labelId: "work",
     subject: "Uncover the secrets of successful Product Management with us.",
     time: "3:45 PM",
+    isImportant: true,
   },
   {
     id: "rec-10",
@@ -192,6 +199,7 @@ export const mockEmailRecords: EmailRecord[] = [
     labelId: "friends",
     subject: "Join us on the exciting path of Product Development.",
     time: "2:00 PM",
+    isImportant: true,
   },
   {
     id: "rec-12",
@@ -208,6 +216,7 @@ export const mockEmailRecords: EmailRecord[] = [
     labelId: "friends",
     subject: "Dive deep into our Artificial Intelligence specialization.",
     time: "10:50 PM",
+    isImportant: true,
   },
 ];
 

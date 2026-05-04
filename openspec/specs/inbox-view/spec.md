@@ -21,7 +21,7 @@ The left panel SHALL display a full-width blue "+ Compose" button at the top. Cl
 - **THEN** ComposeView opens in the right panel with empty form fields
 
 ### Requirement: Email folder tabs
-The left panel SHALL display a "My Email" section with folder tabs: Inbox (dynamic), Starred (dynamic), Sent (dynamic), Draft (dynamic), Spam (14), Important (18), Bin (dynamic), Archive (dynamic). Each folder shows an icon, name, and count. The Draft folder count SHALL reflect the actual number of saved drafts in localStorage. The Bin folder count SHALL reflect the actual number of binned messages in localStorage. The Archive folder count SHALL reflect the actual number of archived messages in localStorage.
+The left panel SHALL display a "My Email" section with folder tabs: Inbox (dynamic), Starred (dynamic), Sent (dynamic), Draft (dynamic), Spam (14), Important (dynamic), Bin (dynamic), Archive (dynamic). Each folder shows an icon, name, and count. The Draft folder count SHALL reflect the actual number of saved drafts in localStorage. The Bin folder count SHALL reflect the actual number of binned messages in localStorage. The Archive folder count SHALL reflect the actual number of archived messages in localStorage. The Important folder count SHALL reflect the number of records flagged as important in `importantIds` (excluding binned, archived, and spammed).
 
 #### Scenario: Default active folder
 - **WHEN** the Inbox page loads
@@ -38,6 +38,10 @@ The left panel SHALL display a "My Email" section with folder tabs: Inbox (dynam
 #### Scenario: Archive count is dynamic
 - **WHEN** the Inbox page loads with no archived messages
 - **THEN** the Archive folder tab displays count 0
+
+#### Scenario: Important count is dynamic
+- **WHEN** the Inbox page loads on first run with 5 mock-seeded important records
+- **THEN** the Important folder tab displays count 5
 
 ### Requirement: Label list
 The left panel SHALL display a "Label" section with four labels: Primary (green), Social (blue), Work (orange), Friends (purple). Each label has a color-coded square icon and name.

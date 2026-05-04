@@ -16,6 +16,8 @@ type ChatViewProps = {
   onBack: () => void;
   onArchive?: () => void;
   onNotSpam?: () => void;
+  isImportant?: boolean;
+  onToggleImportant?: () => void;
   onShowInfo?: () => void;
   onSendMessage: (text: string) => void;
 };
@@ -35,6 +37,8 @@ export default function ChatView({
   onBack,
   onArchive,
   onNotSpam,
+  isImportant,
+  onToggleImportant,
   onShowInfo,
   onSendMessage,
 }: ChatViewProps): React.JSX.Element {
@@ -58,6 +62,8 @@ export default function ChatView({
         onBack={onBack}
         onArchive={onArchive}
         onNotSpam={onNotSpam}
+        isImportant={isImportant}
+        onToggleImportant={onToggleImportant}
         onShowInfo={onShowInfo}
       />
 

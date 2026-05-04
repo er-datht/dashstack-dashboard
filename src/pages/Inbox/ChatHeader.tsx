@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, ShieldCheck, Archive, Info, Trash2, Tag } from "lucide-react";
+import { ChevronLeft, ShieldCheck, Archive, Info, Trash2, Tag, Bookmark } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "react-tooltip";
 import { cn } from "../../utils/cn";
@@ -14,6 +14,8 @@ type ChatHeaderProps = {
   onBack: () => void;
   onArchive?: () => void;
   onNotSpam?: () => void;
+  isImportant?: boolean;
+  onToggleImportant?: () => void;
   onShowInfo?: () => void;
 };
 
@@ -26,6 +28,8 @@ export default function ChatHeader({
   onBack,
   onArchive,
   onNotSpam,
+  isImportant,
+  onToggleImportant,
   onShowInfo,
 }: ChatHeaderProps): React.JSX.Element {
   const { t } = useTranslation("inbox");
@@ -136,43 +140,69 @@ export default function ChatHeader({
       {/* Right: Action Buttons */}
       <div className="flex items-center border border-default rounded-lg overflow-hidden">
         {(() => {
+          const importantButton = onToggleImportant
+            ? {
+                Icon: Bookmark,
+                label: isImportant
+                  ? t("chat.unmarkImportant")
+                  : t("chat.markImportant"),
+                key: "important" as const,
+                filled: !!isImportant,
+              }
+            : null;
           const buttons = [
-            ...(onNotSpam ? [{ Icon: ShieldCheck, label: t("list.notSpam"), key: "notSpam" }] : []),
-            { Icon: Archive, label: t("list.archive", "Archive"), key: "archive" },
-            { Icon: Info, label: t("chat.info", "Info"), key: "info" },
-            { Icon: Trash2, label: t("chat.delete", "Delete"), key: "delete" },
-          ] as const;
-          return buttons.map(({ Icon, label, key }, index) => (
-            <button
-              key={key}
-              type="button"
-              aria-label={label}
-              data-tooltip-id="chat-header-tooltip"
-              data-tooltip-content={label}
-              onClick={() => {
-                if (key === "notSpam" && onNotSpam) {
-                  onNotSpam();
-                  return;
-                }
-                if (key === "archive" && onArchive) {
-                  onArchive();
-                  return;
-                }
-                if (key === "info" && onShowInfo) {
-                  onShowInfo();
-                  return;
-                }
-                onShowToast(t("chat.comingSoon"));
-              }}
-              className={cn(
-                "p-2 text-secondary hover:text-primary hover:bg-surface-secondary",
-                "transition-colors cursor-pointer",
-                index < buttons.length - 1 && "border-r border-default"
-              )}
-            >
-              <Icon className="w-4 h-4" />
-            </button>
-          ));
+            ...(onNotSpam
+              ? [{ Icon: ShieldCheck, label: t("list.notSpam"), key: "notSpam" as const }]
+              : []),
+            { Icon: Archive, label: t("list.archive", "Archive"), key: "archive" as const },
+            ...(importantButton ? [importantButton] : []),
+            { Icon: Info, label: t("chat.info", "Info"), key: "info" as const },
+            { Icon: Trash2, label: t("chat.delete", "Delete"), key: "delete" as const },
+          ];
+          return buttons.map((btn, index) => {
+            const { Icon, label, key } = btn;
+            const filled = "filled" in btn && btn.filled;
+            return (
+              <button
+                key={key}
+                type="button"
+                aria-label={label}
+                data-tooltip-id="chat-header-tooltip"
+                data-tooltip-content={label}
+                onClick={() => {
+                  if (key === "notSpam" && onNotSpam) {
+                    onNotSpam();
+                    return;
+                  }
+                  if (key === "archive" && onArchive) {
+                    onArchive();
+                    return;
+                  }
+                  if (key === "important" && onToggleImportant) {
+                    onToggleImportant();
+                    return;
+                  }
+                  if (key === "info" && onShowInfo) {
+                    onShowInfo();
+                    return;
+                  }
+                  onShowToast(t("chat.comingSoon"));
+                }}
+                className={cn(
+                  "p-2 transition-colors cursor-pointer hover:bg-surface-secondary",
+                  key === "important" && filled
+                    ? "text-[var(--color-primary)]"
+                    : "text-secondary hover:text-primary",
+                  index < buttons.length - 1 && "border-r border-default"
+                )}
+              >
+                <Icon
+                  className="w-4 h-4"
+                  fill={filled ? "currentColor" : "none"}
+                />
+              </button>
+            );
+          });
         })()}
       </div>
 

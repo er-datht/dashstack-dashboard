@@ -21,6 +21,7 @@ import type { InfoModalData } from "./InfoModal";
 const BIN_ELIGIBLE_FOLDERS = ["inbox", "starred", "sent", "important"];
 const ARCHIVE_ELIGIBLE_FOLDERS = ["inbox", "starred", "sent", "important", "draft"];
 const SPAM_ELIGIBLE_FOLDERS = ["inbox", "starred", "sent"];
+const IMPORTANT_ELIGIBLE_FOLDERS = ["inbox", "starred", "sent", "important"];
 
 const VALID_FOLDERS = ["inbox", "starred", "sent", "draft", "spam", "important", "bin", "archive"];
 
@@ -124,6 +125,51 @@ export default function Inbox(): React.JSX.Element {
 
   const starredCount = Object.keys(starredIds).filter(
     (id) => starredIds[id] && !binnedIdSet.has(id) && !archivedIdSet.has(id) && !spammedIdSet.has(id)
+  ).length;
+
+  // Important state: keyed by record id, persisted in localStorage so the
+  // user's flagged set survives page reloads. Seeded on first mount from the
+  // mockEmailRecords entries marked `isImportant: true`.
+  const [importantIds, setImportantIds] = useLocalStorage<Record<string, boolean>>(
+    "inbox-important-ids",
+    Object.fromEntries(
+      mockEmailRecords.filter((r) => r.isImportant).map((r) => [r.id, true])
+    )
+  );
+
+  const toggleImportant = (id: string) => {
+    const wasFlagged = !!importantIds[id];
+    setImportantIds((prev) => {
+      const next = { ...prev };
+      if (next[id]) delete next[id];
+      else next[id] = true;
+      return next;
+    });
+    setToast(t(wasFlagged ? "list.unmarkedImportant" : "list.markedImportant"));
+  };
+
+  const toggleImportantBulk = (ids: string[], flag: boolean) => {
+    if (ids.length === 0) return;
+    setImportantIds((prev) => {
+      const next = { ...prev };
+      ids.forEach((id) => {
+        if (flag) {
+          next[id] = true;
+        } else {
+          delete next[id];
+        }
+      });
+      return next;
+    });
+    setToast(flag ? t("list.markedImportant") : t("list.unmarkedImportant"));
+  };
+
+  const importantCount = Object.keys(importantIds).filter(
+    (id) =>
+      importantIds[id] &&
+      !binnedIdSet.has(id) &&
+      !archivedIdSet.has(id) &&
+      !spammedIdSet.has(id)
   ).length;
 
   // Auto-dismiss toast after 2 seconds
@@ -388,17 +434,24 @@ export default function Inbox(): React.JSX.Element {
     if (binnedIdSet.has(id)) return null;
 
     let sourceFolder = activeFolder;
-    if (activeFolder === "starred") {
+    if (activeFolder === "starred" || activeFolder === "important") {
       if (mockEmailRecords.some((r) => r.id === id)) {
         sourceFolder = "inbox";
       } else if (sentMessages.some((m) => m.id === id)) {
         sourceFolder = "sent";
+      } else if (
+        restoredFromSpam.some((r) => r.id === id) ||
+        receivedEmailRecords.some((r) => r.id === id)
+      ) {
+        sourceFolder = "inbox";
       }
     }
 
     const record =
       mockEmailRecords.find((r) => r.id === id) ||
-      sentEmailRecords.find((r) => r.id === id);
+      sentEmailRecords.find((r) => r.id === id) ||
+      restoredFromSpam.find((r) => r.id === id) ||
+      receivedEmailRecords.find((r) => r.id === id);
     if (!record) return null;
 
     const sentMsg = sourceFolder === "sent" ? sentMessages.find((m) => m.id === id) : undefined;
@@ -426,20 +479,27 @@ export default function Inbox(): React.JSX.Element {
     if (archivedIdSet.has(id)) return null;
 
     let sourceFolder = activeFolder;
-    if (activeFolder === "starred") {
+    if (activeFolder === "starred" || activeFolder === "important") {
       if (mockEmailRecords.some((r) => r.id === id)) {
         sourceFolder = "inbox";
       } else if (sentMessages.some((m) => m.id === id)) {
         sourceFolder = "sent";
       } else if (draftMessages.some((m) => m.id === id)) {
         sourceFolder = "draft";
+      } else if (
+        restoredFromSpam.some((r) => r.id === id) ||
+        receivedEmailRecords.some((r) => r.id === id)
+      ) {
+        sourceFolder = "inbox";
       }
     }
 
     const record =
       mockEmailRecords.find((r) => r.id === id) ||
       sentEmailRecords.find((r) => r.id === id) ||
-      draftEmailRecords.find((r) => r.id === id);
+      draftEmailRecords.find((r) => r.id === id) ||
+      restoredFromSpam.find((r) => r.id === id) ||
+      receivedEmailRecords.find((r) => r.id === id);
     if (!record) return null;
 
     const sentMsg = sourceFolder === "sent" ? sentMessages.find((m) => m.id === id) : undefined;
@@ -901,8 +961,26 @@ export default function Inbox(): React.JSX.Element {
       return [...userSpam, ...mockSpam];
     }
     if (activeFolder === "starred") {
-      return [...mockEmailRecords, ...sentEmailRecords, ...draftEmailRecords, ...restoredFromSpam].filter(
+      return [
+        ...mockEmailRecords,
+        ...sentEmailRecords,
+        ...draftEmailRecords,
+        ...restoredFromSpam,
+        ...receivedEmailRecords,
+      ].filter(
         (r) => !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id) && !spammedIdSet.has(r.id)
+      );
+    }
+    if (activeFolder === "important") {
+      return [
+        ...mockEmailRecords,
+        ...sentEmailRecords,
+        ...draftEmailRecords,
+        ...restoredFromSpam,
+        ...receivedEmailRecords,
+      ].filter(
+        (r) =>
+          !binnedIdSet.has(r.id) && !archivedIdSet.has(r.id) && !spammedIdSet.has(r.id)
       );
     }
     return [...receivedEmailRecords, ...activeRestoredFromSpam, ...inboxMockRecords];
@@ -937,6 +1015,8 @@ export default function Inbox(): React.JSX.Element {
 
     if (selectedRecord) {
       const sentMsg = sentMessages.find((m) => m.id === selectedRecord.id);
+      const isImportantEligible =
+        IMPORTANT_ELIGIBLE_FOLDERS.includes(activeFolder);
 
       return (
         <ChatView
@@ -966,11 +1046,21 @@ export default function Inbox(): React.JSX.Element {
               setSelectedRecord(null);
             }
           } : undefined}
+          isImportant={
+            isImportantEligible ? !!importantIds[selectedRecord.id] : undefined
+          }
+          onToggleImportant={
+            isImportantEligible
+              ? () => toggleImportant(selectedRecord.id)
+              : undefined
+          }
           onShowInfo={handleChatShowInfo}
           onSendMessage={handleChatSend}
         />
       );
     }
+
+    const importantEligible = IMPORTANT_ELIGIBLE_FOLDERS.includes(activeFolder);
 
     return (
       <MessageList
@@ -993,6 +1083,14 @@ export default function Inbox(): React.JSX.Element {
         onBulkNotSpam={activeFolder === "spam" ? handleBulkNotSpam : undefined}
         onMoveToSpam={SPAM_ELIGIBLE_FOLDERS.includes(activeFolder) ? handleMoveToSpam : undefined}
         onBulkMoveToSpam={SPAM_ELIGIBLE_FOLDERS.includes(activeFolder) ? handleBulkMoveToSpam : undefined}
+        importantIds={importantIds}
+        onToggleImportant={importantEligible ? toggleImportant : undefined}
+        onBulkToggleImportant={
+          importantEligible
+            ? (ids: string[]) =>
+                toggleImportantBulk(ids, activeFolder !== "important")
+            : undefined
+        }
         onShowInfo={handleMessageListShowInfo}
       />
     );
@@ -1019,6 +1117,7 @@ export default function Inbox(): React.JSX.Element {
             sent: userSentMessages.length,
             draft: userDraftMessages.length,
             spam: (mockSpamRecords.length - restoredSpamIds.length) + spammedMessages.length,
+            important: importantCount,
             bin: binnedMessages.length,
             archive: archivedMessages.length,
           }}
