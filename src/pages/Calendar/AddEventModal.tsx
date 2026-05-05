@@ -343,11 +343,14 @@ export default function AddEventModal({
         aria-modal="true"
         aria-labelledby="add-event-modal-title"
       >
-        <h2 id="add-event-modal-title" className="font-bold text-xl text-primary">
-          {editEvent ? t("modal.editTitle") : t("modal.title")}
-        </h2>
+        <div className={styles.modalHeader}>
+          <h2 id="add-event-modal-title" className="font-bold text-xl text-primary">
+            {editEvent ? t("modal.editTitle") : t("modal.title")}
+          </h2>
+        </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className={styles.modalForm}>
+          <div className={styles.modalBody}>
           {/* Image Upload Area -- above Event Title */}
           <div>
             <label className={styles.modalLabel}>
@@ -594,8 +597,10 @@ export default function AddEventModal({
             )}
           </div>
 
+          </div>
+
           {/* Buttons */}
-          <div className="flex justify-end gap-3">
+          <div className={styles.modalFooter}>
             {editEvent && onDelete && (
               <button
                 type="button"
