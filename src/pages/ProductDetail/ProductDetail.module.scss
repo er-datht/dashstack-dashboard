@@ -363,6 +363,8 @@
 
   &:hover {
     background-color: var(--color-primary-700);
+    // Restated to defeat the global `a:hover` recolor on specificity.
+    color: var(--color-white);
   }
 }
 
