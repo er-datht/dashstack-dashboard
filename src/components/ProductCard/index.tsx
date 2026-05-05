@@ -209,7 +209,7 @@ export default function ProductCard({
       <Link
         to={`/products/${product.id}/edit`}
         onClick={handleEditClick}
-        className="inline-flex items-center justify-center px-3 py-2 rounded-md bg-primary text-on-primary border border-primary hover-bg-primary-dark transition-colors duration-200 text-sm font-medium"
+        className="inline-flex items-center justify-center px-3 py-2 rounded-md bg-primary !text-on-primary border border-primary hover-bg-primary-dark transition-colors duration-200 text-sm font-medium"
       >
         {t("products.editProduct")}
       </Link>
