@@ -1,16 +1,4 @@
-## Purpose
-
-Add/Edit Event modal form requirements specific to event creation and editing.
-
-## Requirements
-
-### Requirement: Event Title required field asterisk
-The Event Title label in the Add/Edit Event modal SHALL display a red asterisk (`*`) indicator using theme-aware `text-error` styling to visually distinguish it as a required field. Other optional field labels (Upload Image, Start Date, End Date, Start Time, End Time, Location, Organizer, Guests) SHALL NOT display an asterisk.
-
-#### Scenario: Event Title shows asterisk indicator
-- **WHEN** the Add Event or Edit Event modal opens
-- **THEN** the Event Title label SHALL display a red asterisk (`*`) after the label text
-- **AND** all other field labels SHALL NOT display an asterisk
+## ADDED Requirements
 
 ### Requirement: AddEventModal viewport-bound height with sticky header/footer
 The AddEventModal card SHALL bound its height to the viewport at `max-height: 90vh` so its content never exceeds the visible viewport. The card SHALL render as a flex column with three regions: a non-scrolling header containing the modal title, a scrollable body containing all form fields, and a non-scrolling footer containing the action buttons (Cancel, Save, and — when editing — Delete). The header SHALL display a 1px theme-aware bottom divider; the footer SHALL display a 1px theme-aware top divider. The footer SHALL remain inside the `<form>` element so the Save button retains native submit behavior. All existing modal behavior — focus trap, Escape-to-close, body-scroll lock, image upload, participants input, validation, theme awareness across light/dark/forest — SHALL remain unchanged.
