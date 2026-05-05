@@ -281,7 +281,7 @@ When the **Existing specs** list below grows unwieldy, reorganize it by domain r
 
 **Dashboard** — dashboard composition, recharts widgets, DealDetailsTable
 
-**Calendar** — month/day/week views with time grids, add/edit/delete events, confirmation modal, image upload, participants input, popover viewport clamping, guest avatar row, today highlight, paginated event sidebar
+**Calendar** — month/day/week views with time grids, add/edit/delete events, confirmation modal, image upload, participants input, popover viewport clamping, guest avatar row, today highlight, paginated event sidebar, AddEventModal viewport-bound height (`max-height: 90vh`) with sticky header + sticky footer (theme-aware `var(--color-border)` dividers) and scrollable body so action buttons stay reachable on short viewports
 
 **Todo** — per-card row layout, starred yellow background, completed row styling (checkbox, strikethrough, star/delete on every row), forest-theme warning-light override
 
