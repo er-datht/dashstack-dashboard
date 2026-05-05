@@ -4,6 +4,7 @@ export const ROUTES = {
   ROOT: "/",
   DASHBOARD: "/dashboard",
   PRODUCTS: "/products",
+  PRODUCT_DETAIL: "/products/:id",
   FAVORITES: "/favorites",
   INBOX: "/inbox",
   ORDERS: "/orders",

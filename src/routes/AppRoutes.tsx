@@ -11,6 +11,7 @@ const ProtectedDashboardLayout = withAuth(DashboardLayout);
 const Dashboard = lazy(() => import("../pages/Dashboard"));
 const Products = lazy(() => import("../pages/Products"));
 const EditProduct = lazy(() => import("../pages/EditProduct"));
+const ProductDetail = lazy(() => import("../pages/ProductDetail"));
 const Favorites = lazy(() => import("../pages/Favorites"));
 const Inbox = lazy(() => import("../pages/Inbox"));
 const Orders = lazy(() => import("../pages/Orders"));
@@ -60,6 +61,7 @@ export default function AppRoutes() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="products" element={<Products />} />
             <Route path="products/:id/edit" element={<EditProduct />} />
+            <Route path="products/:id" element={<ProductDetail />} />
             <Route path="favorites" element={<Favorites />} />
             <Route path="inbox" element={<Inbox />} />
             <Route path="orders" element={<Orders />} />

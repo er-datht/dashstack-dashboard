@@ -72,7 +72,46 @@
     "getStarted": "始める",
     "loading": "製品を読み込んでいます...",
     "error": "製品の読み込みに失敗しました。後でもう一度お試しください。",
-    "favorites": "お気に入り"
+    "favorites": "お気に入り",
+    "detail": {
+      "specifications": "仕様",
+      "about": "この製品について",
+      "loading": "製品を読み込んでいます...",
+      "breadcrumb": {
+        "label": "パンくずリスト",
+        "products": "製品"
+      },
+      "gallery": {
+        "nextImage": "次の画像",
+        "previousImage": "前の画像",
+        "imageAlt": "{{name}} - 画像 {{index}}",
+        "goToImage": "画像 {{index}} へ移動"
+      },
+      "actions": {
+        "edit": "製品を編集",
+        "addToWishlist": "ウィッシュリストに追加",
+        "removeFromWishlist": "ウィッシュリストから削除"
+      },
+      "specs": {
+        "sku": "SKU",
+        "category": "カテゴリー",
+        "stock": "在庫",
+        "stockUnits": "個",
+        "rating": "評価",
+        "reviews": "レビュー数",
+        "stockStatus": {
+          "active": "在庫あり",
+          "inactive": "非アクティブ",
+          "out_of_stock": "在庫切れ",
+          "discontinued": "販売終了"
+        }
+      },
+      "notFound": {
+        "title": "製品が見つかりません",
+        "description": "お探しの製品は存在しないか、削除された可能性があります。",
+        "back": "製品一覧へ戻る"
+      }
+    }
   },
   "favorites": {
     "emptyTitle": "お気に入りがありません",
