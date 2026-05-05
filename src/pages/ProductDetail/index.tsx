@@ -254,6 +254,24 @@ export default function ProductDetail(): React.JSX.Element {
               ))}
             </div>
           )}
+
+          <button
+            type="button"
+            className={styles.galleryWishlistOverlay}
+            onClick={() => toggleWishlist(product.id)}
+            aria-label={wishlistLabel}
+            title={wishlistLabel}
+          >
+            <Heart
+              className="w-4 h-4"
+              style={{
+                color: wishlisted
+                  ? "var(--color-error-500)"
+                  : "var(--color-gray-400)",
+              }}
+              fill={wishlisted ? "currentColor" : "none"}
+            />
+          </button>
         </div>
 
         <div className={styles.infoColumn}>
@@ -270,24 +288,6 @@ export default function ProductDetail(): React.JSX.Element {
           )}
 
           <div className={styles.actionBar}>
-            <button
-              type="button"
-              className={styles.actionButton}
-              onClick={() => toggleWishlist(product.id)}
-              aria-label={wishlistLabel}
-            >
-              <Heart
-                className="w-4 h-4"
-                style={{
-                  color: wishlisted
-                    ? "var(--color-error-500)"
-                    : "var(--color-gray-400)",
-                }}
-                fill={wishlisted ? "currentColor" : "none"}
-              />
-              {wishlistLabel}
-            </button>
-
             <Link
               to={`/products/${product.id}/edit`}
               className={classnames(

@@ -434,6 +434,32 @@ describe('ProductDetail page', () => {
       const wishlistButton = screen.getByRole('button', {
         name: 'products.detail.actions.addToWishlist',
       })
+
+      // SPEC: spec.md "Action bar" requires the wishlist button to expose its
+      // label via both `aria-label` and `title` (icon-only button — title is
+      // the hover-tooltip affordance for sighted mouse users).
+      expect(wishlistButton).toHaveAttribute(
+        'title',
+        'products.detail.actions.addToWishlist'
+      )
+
+      // SPEC: scenario "Wishlist button has no visible text" — the button
+      // renders only the Heart icon, never the i18n key as visible text.
+      expect(wishlistButton).not.toHaveTextContent(
+        'products.detail.actions.addToWishlist'
+      )
+      expect(wishlistButton).not.toHaveTextContent(
+        'products.detail.actions.removeFromWishlist'
+      )
+
+      // SPEC: spec.md "Hero section with gallery and info" — the wishlist overlay
+      // is a descendant of the gallery container, NOT the action bar.
+      expect(wishlistButton.closest('[class*="galleryContainer"]')).not.toBeNull()
+
+      // SPEC: spec.md "Action bar" scenario "Action bar contains no Wishlist
+      // control" — the action bar holds only the Edit link.
+      expect(wishlistButton.closest('[class*="actionBar"]')).toBeNull()
+
       fireEvent.click(wishlistButton)
 
       expect(mockToggleWishlist).toHaveBeenCalledWith('1')
@@ -444,11 +470,26 @@ describe('ProductDetail page', () => {
 
       render(<ProductDetail />)
 
-      expect(
-        screen.getByRole('button', {
-          name: 'products.detail.actions.removeFromWishlist',
-        })
-      ).toBeInTheDocument()
+      const wishlistButton = screen.getByRole('button', {
+        name: 'products.detail.actions.removeFromWishlist',
+      })
+      expect(wishlistButton).toBeInTheDocument()
+
+      // SPEC: spec.md "Action bar" requires the wishlist button to expose its
+      // label via both `aria-label` and `title` in the wishlisted state.
+      expect(wishlistButton).toHaveAttribute(
+        'title',
+        'products.detail.actions.removeFromWishlist'
+      )
+
+      // SPEC: scenario "Wishlist button has no visible text" — the button
+      // renders only the Heart icon, never the i18n key as visible text.
+      expect(wishlistButton).not.toHaveTextContent(
+        'products.detail.actions.removeFromWishlist'
+      )
+      expect(wishlistButton).not.toHaveTextContent(
+        'products.detail.actions.addToWishlist'
+      )
     })
   })
 })
