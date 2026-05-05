@@ -72,7 +72,46 @@
     "getStarted": "Get Started",
     "loading": "Loading products...",
     "error": "Failed to load products. Please try again later.",
-    "favorites": "Favorites"
+    "favorites": "Favorites",
+    "detail": {
+      "specifications": "Specifications",
+      "about": "About this product",
+      "loading": "Loading product...",
+      "breadcrumb": {
+        "label": "Breadcrumb",
+        "products": "Products"
+      },
+      "gallery": {
+        "nextImage": "Next image",
+        "previousImage": "Previous image",
+        "imageAlt": "{{name}} - Image {{index}}",
+        "goToImage": "Go to image {{index}}"
+      },
+      "actions": {
+        "edit": "Edit Product",
+        "addToWishlist": "Add to Wishlist",
+        "removeFromWishlist": "Remove from Wishlist"
+      },
+      "specs": {
+        "sku": "SKU",
+        "category": "Category",
+        "stock": "Stock",
+        "stockUnits": "units",
+        "rating": "Rating",
+        "reviews": "Reviews",
+        "stockStatus": {
+          "active": "In Stock",
+          "inactive": "Inactive",
+          "out_of_stock": "Out of Stock",
+          "discontinued": "Discontinued"
+        }
+      },
+      "notFound": {
+        "title": "Product not found",
+        "description": "The product you're looking for doesn't exist or may have been removed.",
+        "back": "Back to Products"
+      }
+    }
   },
   "favorites": {
     "emptyTitle": "No Favorites Yet",

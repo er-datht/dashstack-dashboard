@@ -129,6 +129,7 @@ Every change runs the same OpenSpec pipeline. Subagents are **mandatory at their
 
 **The pipeline (every change):**
 
+0. `opsx:explore` (**optional**) — read-only thinking partner that runs **before** `requirements-analyst` when scope is fuzzy, design is open-ended (no Figma, no anchoring spec), or the user says "brainstorm / think / explore". Produces no artifacts; the output (decisions, sketches, open threads) becomes input for step 1. Skip when the request is concrete and bounded (e.g., "rename X to Y", "fix bug in Z").
 1. `requirements-analyst` — **read existing OpenSpec specs first** (`openspec/specs/`) for the relevant domain before exploring the codebase, then check the user's requirements, ask clarifying questions, and resolve all ambiguities **before** generating artifacts. Specs are the source of truth for what's been built; only dive into code for details not covered by specs. Only proceed to step 2 when requirements are clear.
 2. `opsx:propose` — create proposal + design + specs + tasks (from clarified requirements)
 3. `security-reviewer` — run **before** any `yarn add` / external URL / web-sourced snippet in the change (skip only if the change adds no dependencies or external code). **⛔ BLOCKING: pause ALL other work until the security-reviewer reports safe. Do not proceed with unit-test-writer, opsx:apply, or any install/fetch commands until the verdict is ✅ allow.**
@@ -195,24 +196,27 @@ Always use `opsx:propose` before implementing any change. The proposal scales to
 
 Each agent maps to a specific stage of the OpenSpec workflow. The agent is required at its stage unless its explicit "Skip when" condition is met.
 
-| Agent                       | OpenSpec Stage                                                       | Purpose                                                                                                                                            | Skip when                                                                                         |
-| --------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+> **Note:** `opsx:explore` is a **skill**, not a subagent — it runs in the main conversation as a thinking partner _before_ the pipeline starts. Use it when scope or design is open-ended; skip when the request is concrete. Its output (decisions, sketches, open threads) feeds `requirements-analyst`.
+
+| Agent                       | OpenSpec Stage                                                       | Purpose                                                                                                                                                                                    | Skip when                                                                                         |
+| --------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
 | `requirements-analyst`      | **Before** `opsx:propose`                                            | **Reads existing specs first** (`openspec/specs/`), then checks requirements, asks clarifying questions, resolves ambiguities so `opsx:propose` generates correct artifacts the first time | Never skip — even "obvious" requests have hidden assumptions                                      |
-| `security-reviewer`         | Before `yarn add` / fetching external URLs / using web-searched code | **⛔ BLOCKING** — reviews packages, URLs, and external snippets for typosquatting, CVEs, malicious code. Pause all work until verdict is ✅ allow. | The change adds no dependencies and pulls in no external code                                     |
-| `unit-test-writer`          | Before `opsx:apply` (TDD)                                            | Writes tests from specs before implementation so tests drive the diff                                                                              | The change produces no testable units — pure config, routing constants, styling-only tweaks, docs |
-| `react-frontend-specialist` | During `opsx:apply`                                                  | Implements UI components, layouts, state, API integration, bug fixes, refactoring, accessibility                                                   | The change has no UI surface (e.g., pure config)                                                  |
-| `code-reviewer`             | After `opsx:apply`, before `opsx:verify`                             | Reviews the diff for quality, correctness, security, and best practices                                                                            | Never skip                                                                                        |
+| `security-reviewer`         | Before `yarn add` / fetching external URLs / using web-searched code | **⛔ BLOCKING** — reviews packages, URLs, and external snippets for typosquatting, CVEs, malicious code. Pause all work until verdict is ✅ allow.                                         | The change adds no dependencies and pulls in no external code                                     |
+| `unit-test-writer`          | Before `opsx:apply` (TDD)                                            | Writes tests from specs before implementation so tests drive the diff                                                                                                                      | The change produces no testable units — pure config, routing constants, styling-only tweaks, docs |
+| `react-frontend-specialist` | During `opsx:apply`                                                  | Implements UI components, layouts, state, API integration, bug fixes, refactoring, accessibility                                                                                           | The change has no UI surface (e.g., pure config)                                                  |
+| `code-reviewer`             | After `opsx:apply`, before `opsx:verify`                             | Reviews the diff for quality, correctness, security, and best practices                                                                                                                    | Never skip                                                                                        |
 
 **Canonical sequence (every change):**
 
 ```
-requirements-analyst              (read specs FIRST, then clarify requirements with the user)
-  → opsx:propose               (generate artifacts from clarified requirements)
-  → security-reviewer          (if yarn add / external code — ⛔ BLOCKS until safe)
-  → unit-test-writer           (if testable units; tests land first)
+[opsx:explore]                    (OPTIONAL — when scope/design is open-ended; read-only, no artifacts)
+  → requirements-analyst         (read specs FIRST, then clarify requirements with the user)
+  → opsx:propose                 (generate artifacts from clarified requirements)
+  → security-reviewer            (if yarn add / external code — ⛔ BLOCKS until safe)
+  → unit-test-writer             (if testable units; tests land first)
   ⏸ WAIT — present findings, wait for user to trigger apply
   → opsx:apply via react-frontend-specialist   (user-triggered only)
-  → code-reviewer              (address findings before continuing)
+  → code-reviewer                (address findings before continuing)
   → opsx:verify
   → opsx:archive
 ```
@@ -297,7 +301,9 @@ When the **Existing specs** list below grows unwieldy, reorganize it by domain r
 
 **i18n** — Korean language added then removed (net: en/jp only); `uiElements` namespace added (17 registered total)
 
-**Shared UI** — TableCommon, StatusBadge, Buttons, product management (Products, Favorites, ProductStock, WishlistContext)
+**Products** — Products listing card grid with promotional banner carousel, ProductCard with `<Link>`-wrapped body for card-click navigation (heart + Edit are non-propagating sibling controls), ProductDetail read-only page at `/products/:id` (breadcrumb / hero gallery / specs section / about section / not-found empty state), Edit control rendered as `<Link>` for native open-in-new-tab, Wishlist toggle with icon + label, ProductStock admin page, Favorites filtered listing, WishlistContext (Set in memory, Array in localStorage), `useProduct(id)` React Query hook, extended `Product` type with optional detail fields (description / longDescription / category / sku / stock / status), `dashboard.products.detail.*` i18n keys (en + jp) including shared gallery a11y keys
+
+**Shared UI** — TableCommon, StatusBadge, Buttons
 
 ## Common Gotchas
 

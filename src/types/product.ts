@@ -2,6 +2,8 @@
  * Product Type Definitions
  */
 
+import type { ProductStatus } from "./products";
+
 export type Product = {
   id: string;
   name: string;
@@ -10,6 +12,12 @@ export type Product = {
   rating: number;
   reviewCount: number;
   images?: string[];
+  description?: string;
+  longDescription?: string;
+  category?: string;
+  sku?: string;
+  stock?: number;
+  status?: ProductStatus;
 };
 
 export type PromotionalBanner = {
