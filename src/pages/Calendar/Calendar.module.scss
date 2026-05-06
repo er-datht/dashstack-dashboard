@@ -62,6 +62,26 @@
     var(--color-primary-50, rgba(90, 141, 255, 0.05)) 4px,
     var(--color-primary-50, rgba(90, 141, 255, 0.05)) 8px
   );
+
+  [data-theme="dark"] & {
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 4px,
+      rgba(255, 255, 255, 0.04) 4px,
+      rgba(255, 255, 255, 0.04) 8px
+    );
+  }
+
+  [data-theme="forest"] & {
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 4px,
+      rgba(255, 255, 255, 0.04) 4px,
+      rgba(255, 255, 255, 0.04) 8px
+    );
+  }
 }
 
 .eventBar {
@@ -801,7 +821,6 @@
   background: transparent;
   padding: 0;
   font: inherit;
-  color: inherit;
 
   &:hover {
     opacity: 0.7;
