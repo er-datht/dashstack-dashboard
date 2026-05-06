@@ -1,5 +1,9 @@
-## ADDED Requirements
+# calendar-week-view Specification
 
+## Purpose
+
+Defines the behavioral requirements for the Week view of the calendar: 7-column time grid, day-column headers with today highlight, header date-range label and week navigation, proportional timed event blocks per day column, pinned all-day row with multi-day spanning, current-time indicator scoped to today's column, auto-scroll on the current week, click-to-create-event interactions, and overlapping-events layout.
+## Requirements
 ### Requirement: Week view renders a 7-column time grid
 The WeekView component SHALL render a grid with a left hour-gutter column and 7 day columns (SUN through SAT). Each day column SHALL contain a 24-hour time grid identical in structure to the Day view. The grid SHALL be vertically scrollable.
 
@@ -99,3 +103,77 @@ Clicking an empty time slot in a day column SHALL open the AddEventModal pre-fil
 #### Scenario: Click event block to show popover
 - **WHEN** the user clicks a timed event block in any day column
 - **THEN** the EventDetailPopover opens showing that event's details
+
+### Requirement: Per-day event overlay does not block slot clicks
+Each per-day event overlay in the Week view time grid (the absolutely-positioned wrapper, one per day column, that contains rendered timed event blocks and the current-time indicator for that column) SHALL NOT intercept pointer events targeted at the underlying empty time slots in that column. Individual rendered event blocks within an overlay SHALL remain interactive (clickable), and the current-time indicator SHALL remain visually rendered without capturing clicks. The "Week view click interactions" requirement depends on this invariant; without it, slot clicks in any day column never reach their handlers.
+
+#### Scenario: Click reaches an empty slot in any day column
+- **WHEN** the user clicks an empty area in any of the seven day columns at a vertical position where no timed event block is rendered
+- **THEN** the click SHALL be received by the time-slot element corresponding to that day and hour
+- **AND** the AddEventModal SHALL open pre-filled with that day at the clicked hour (per "Click empty slot in day column")
+
+#### Scenario: Click on an event block in a day column stays interactive
+- **WHEN** the user clicks on a timed event block rendered inside any day column's overlay
+- **THEN** the EventDetailPopover SHALL open showing that event's details (per "Click event block to show popover")
+- **AND** the underlying slot's click handler SHALL NOT fire for the same click
+
+#### Scenario: Current-time indicator in today's column does not capture clicks
+- **WHEN** the Week view contains today and the user clicks the today column at the exact vertical position of the current-time indicator, with no event block rendered there
+- **THEN** the click SHALL pass through the indicator and reach the underlying time slot
+- **AND** the AddEventModal SHALL open for today at that slot's hour
+
+### Requirement: Timed event block titles wrap with line-clamp ellipsis derived from block height
+Inside a Week view timed event block (in any of the seven day columns), the event title SHALL wrap across multiple lines using normal text flow. The number of visible lines SHALL be derived from the block's rendered height (which itself is derived from the event's duration via `calculateEventPosition`), so that taller blocks display more lines and shorter blocks display fewer. When the wrapped title exceeds the visible line budget, the last visible line SHALL end with an ellipsis ("…") indicating that additional content is hidden. Single unbroken words longer than the block's content width SHALL break across lines rather than overflow horizontally. Block dimensions, per-column position math, overlapping-event splitting, color, and click behavior SHALL remain unchanged. The full title SHALL remain accessible via the EventDetailPopover when the block is clicked.
+
+#### Scenario: Short title fits on one line in a day column
+- **WHEN** an event's title fits within the day column's content width on a single line
+- **THEN** the title SHALL render on one line
+- **AND** no ellipsis indicator SHALL be shown
+
+#### Scenario: Multi-word title wraps across multiple lines in a tall block
+- **WHEN** an event with a multi-word title spans two or more hours in a day column, producing a block tall enough for several lines of 11px text
+- **THEN** the title SHALL wrap across multiple lines inside the block, up to the line budget for that block height
+- **AND** if the title fully fits within the line budget, no ellipsis SHALL be shown
+
+#### Scenario: Long title clamps with ellipsis on the last visible line
+- **WHEN** an event's wrapped title would require more lines than the block's height allows
+- **THEN** the title SHALL clamp at the maximum number of lines that fit
+- **AND** the last visible line SHALL end with a trailing ellipsis ("…")
+- **AND** the full title SHALL remain accessible via the EventDetailPopover when the block is clicked
+
+#### Scenario: Smallest block (30-minute minimum) shows at least one line
+- **WHEN** the event has the minimum height (a 30-minute block, or a sub-30-minute event raised to the 30-minute minimum)
+- **THEN** at least one line of the title SHALL render
+- **AND** if the title is longer than that one line, that line SHALL end with an ellipsis
+
+#### Scenario: Overlapping events still wrap inside their narrowed column
+- **WHEN** two or more events overlap in time and are rendered side-by-side at fractional widths (per `groupOverlappingEvents`)
+- **THEN** each block's title SHALL wrap to fit the narrower column rather than overflow horizontally
+- **AND** the same height-derived line-clamp + ellipsis behavior SHALL apply within each narrowed block
+
+#### Scenario: Single unbroken long word wraps rather than overflows
+- **WHEN** an event title contains a single word longer than the block's content width (e.g., a URL or no-space string)
+- **THEN** the word SHALL break across lines so it does not overflow horizontally
+
+### Requirement: Week view all-day event bars truncate long titles with an ellipsis indicator
+Each all-day event bar rendered in the Week view's pinned all-day row SHALL display its title on a single line. When the title exceeds the bar's content width — including bars that span multiple days, where the content width equals the spanned columns minus the bar's horizontal margin — the visible portion SHALL end with a trailing ellipsis ("…") to indicate that text has been truncated. The bar SHALL retain its existing fixed height, padding, left-edge color border, background color, text color, click behavior, and multi-day spanning behavior. The full event title SHALL remain accessible via the EventDetailPopover when the bar is clicked.
+
+#### Scenario: Short all-day title fits without truncation
+- **WHEN** an all-day event's title fits within the bar's content width on a single line
+- **THEN** the title SHALL render in full without an ellipsis indicator
+
+#### Scenario: Long all-day title is truncated with a trailing ellipsis
+- **WHEN** an all-day event's title is longer than the bar's content width can display on one line
+- **THEN** the rendered text SHALL end with "…" at the right edge
+- **AND** the bar's height SHALL remain unchanged
+- **AND** the full title SHALL remain accessible via the EventDetailPopover when the bar is clicked
+
+#### Scenario: Multi-day all-day bar truncates against its spanned width
+- **WHEN** an all-day event spans multiple days (e.g., Tuesday through Thursday) and its title would not fit within the spanned columns' combined content width
+- **THEN** the rendered text SHALL end with "…" at the right edge of the spanned bar
+- **AND** the bar's spanning behavior across columns SHALL remain unchanged
+
+#### Scenario: All-day title is vertically centered inside the bar
+- **WHEN** an all-day event bar is rendered in the Week view's pinned all-day row
+- **THEN** the title's text baseline SHALL be visually centered within the bar's height
+

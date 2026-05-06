@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import DayView from '../DayView'
 import type { CalendarEvent } from '../../../types/calendar'
 
@@ -155,6 +155,79 @@ describe('DayView', () => {
 
       const indicator = container.querySelector('[class*="timeIndicator"], [class*="currentTime"]')
       expect(indicator).not.toBeInTheDocument()
+    })
+  })
+
+  // SPEC: fix-calendar-time-slot-clicks — calendar-day-view "Time-grid event overlay
+  // does not block slot clicks". JSDOM does not enforce CSS pointer-events (see
+  // design.md Decision 3), so these tests lock the spec-level handler-wiring
+  // contract: slots fire onTimeSlotClick with the right Date, event blocks fire
+  // onEventClick (with position) and stop propagation so onTimeSlotClick does NOT
+  // also fire. Browser verification covers the CSS-layer regression class.
+  describe('slot click interactions', () => {
+    it('clicking a non-event hour slot fires onTimeSlotClick once with a Date matching the row hour and currentDate', () => {
+      const onTimeSlotClick = vi.fn()
+      const onEventClick = vi.fn()
+      const currentDate = new Date(2026, 3, 15) // April 15, 2026 (Wednesday)
+
+      render(
+        <DayView
+          currentDate={currentDate}
+          events={[]}
+          onTimeSlotClick={onTimeSlotClick}
+          onEventClick={onEventClick}
+        />
+      )
+
+      // DayView slot aria-label = `${label} ${t("timeSlot")}`. With the i18n mock
+      // returning keys as-is, t("timeSlot") === "timeSlot". Hour 14 label = "2 PM".
+      const slot = screen.getByRole('button', { name: '2 PM timeSlot' })
+      fireEvent.click(slot)
+
+      expect(onTimeSlotClick).toHaveBeenCalledTimes(1)
+      const clicked = onTimeSlotClick.mock.calls[0][0] as Date
+      expect(clicked).toBeInstanceOf(Date)
+      expect(clicked.getFullYear()).toBe(currentDate.getFullYear())
+      expect(clicked.getMonth()).toBe(currentDate.getMonth())
+      expect(clicked.getDate()).toBe(currentDate.getDate())
+      expect(clicked.getHours()).toBe(14)
+    })
+
+    it('clicking a rendered timed event block fires onEventClick (with position) and does not fire onTimeSlotClick', () => {
+      const onTimeSlotClick = vi.fn()
+      const onEventClick = vi.fn()
+      const currentDate = new Date(2026, 3, 15)
+
+      const timedEvent = makeEvent({
+        id: 'evt-timed-click',
+        title: 'Clickable Standup',
+        startDate: new Date(2026, 3, 15, 9, 0),
+        endDate: new Date(2026, 3, 15, 10, 0),
+        allDay: false,
+      } as Partial<CalendarEvent> & { startDate: Date })
+
+      render(
+        <DayView
+          currentDate={currentDate}
+          events={[timedEvent]}
+          onTimeSlotClick={onTimeSlotClick}
+          onEventClick={onEventClick}
+        />
+      )
+
+      const eventBlock = screen.getByText('Clickable Standup')
+      fireEvent.click(eventBlock)
+
+      expect(onEventClick).toHaveBeenCalledTimes(1)
+      const [calledEvent, position] = onEventClick.mock.calls[0]
+      expect(calledEvent).toBe(timedEvent)
+      expect(position).toEqual(
+        expect.objectContaining({
+          top: expect.any(Number),
+          left: expect.any(Number),
+        })
+      )
+      expect(onTimeSlotClick).not.toHaveBeenCalled()
     })
   })
 })
