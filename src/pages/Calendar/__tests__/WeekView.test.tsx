@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import WeekView from '../WeekView'
 import type { CalendarEvent } from '../../../types/calendar'
 
@@ -168,6 +168,85 @@ describe('WeekView', () => {
 
       const indicator = container.querySelector('[class*="timeIndicator"], [class*="currentTime"]')
       expect(indicator).not.toBeInTheDocument()
+    })
+  })
+
+  // SPEC: fix-calendar-time-slot-clicks — calendar-week-view "Per-day event overlay
+  // does not block slot clicks". JSDOM does not enforce CSS pointer-events (see
+  // design.md Decision 3), so these tests lock the spec-level handler-wiring
+  // contract: slots fire onTimeSlotClick with the right day/hour Date, and event
+  // blocks fire onEventClick while stopping propagation so onTimeSlotClick does
+  // NOT also fire. Browser verification covers the CSS-layer regression class.
+  describe('slot click interactions', () => {
+    it('clicking the Wednesday 2 PM slot fires onTimeSlotClick with a Date for Wed 14:00', () => {
+      const onTimeSlotClick = vi.fn()
+      const onEventClick = vi.fn()
+      // April 15, 2026 is a Wednesday (getDay() === 3)
+      const currentDate = new Date(2026, 3, 15)
+
+      render(
+        <WeekView
+          currentDate={currentDate}
+          events={[]}
+          onTimeSlotClick={onTimeSlotClick}
+          onEventClick={onEventClick}
+        />
+      )
+
+      // WeekView slot aria-label = `${t("dayNames.<key>")} ${label} ${t("timeSlot")}`.
+      // With the i18n mock returning keys as-is, day key "wed" produces
+      // "dayNames.wed", and hour 14 label = "2 PM".
+      const slot = screen.getByRole('button', {
+        name: 'dayNames.wed 2 PM timeSlot',
+      })
+      fireEvent.click(slot)
+
+      expect(onTimeSlotClick).toHaveBeenCalledTimes(1)
+      const clicked = onTimeSlotClick.mock.calls[0][0] as Date
+      expect(clicked).toBeInstanceOf(Date)
+      expect(clicked.getDay()).toBe(3) // Wednesday
+      expect(clicked.getHours()).toBe(14)
+      // Sanity-check the date matches the Wednesday of the rendered week.
+      expect(clicked.getFullYear()).toBe(2026)
+      expect(clicked.getMonth()).toBe(3) // April
+      expect(clicked.getDate()).toBe(15)
+    })
+
+    it('clicking a rendered Wednesday timed event block fires onEventClick and does not fire onTimeSlotClick', () => {
+      const onTimeSlotClick = vi.fn()
+      const onEventClick = vi.fn()
+      const currentDate = new Date(2026, 3, 15)
+
+      const wedEvent = makeEvent({
+        id: 'evt-wed-click',
+        title: 'Clickable Wed Meeting',
+        startDate: new Date(2026, 3, 15, 14, 0),
+        endDate: new Date(2026, 3, 15, 15, 0),
+        allDay: false,
+      } as Partial<CalendarEvent> & { startDate: Date })
+
+      render(
+        <WeekView
+          currentDate={currentDate}
+          events={[wedEvent]}
+          onTimeSlotClick={onTimeSlotClick}
+          onEventClick={onEventClick}
+        />
+      )
+
+      const eventBlock = screen.getByText('Clickable Wed Meeting')
+      fireEvent.click(eventBlock)
+
+      expect(onEventClick).toHaveBeenCalledTimes(1)
+      const [calledEvent, position] = onEventClick.mock.calls[0]
+      expect(calledEvent).toBe(wedEvent)
+      expect(position).toEqual(
+        expect.objectContaining({
+          top: expect.any(Number),
+          left: expect.any(Number),
+        })
+      )
+      expect(onTimeSlotClick).not.toHaveBeenCalled()
     })
   })
 })

@@ -5,6 +5,7 @@ import {
   getHourLabels,
   getEventsInTimeRange,
   calculateEventPosition,
+  calculateTitleLineClamp,
   groupOverlappingEvents,
   isSameDay,
 } from "./calendarUtils";
@@ -177,6 +178,7 @@ export default function DayView({
           <div className={styles.dayEventsColumn}>
             {groupedTimedEvents.map(({ event, column, totalColumns }) => {
               const pos = calculateEventPosition(event, dayStart);
+              const maxLines = calculateTitleLineClamp(pos.height);
               const width = 100 / totalColumns;
               const left = column * width;
 
@@ -196,7 +198,10 @@ export default function DayView({
                   onClick={(e) => handleEventBlockClick(event, e)}
                   title={event.title}
                 >
-                  <span className={styles.timedEventTitle}>
+                  <span
+                    className={styles.timedEventTitle}
+                    style={{ WebkitLineClamp: maxLines }}
+                  >
                     {event.title}
                   </span>
                 </div>

@@ -7,6 +7,7 @@ import {
   getEventsInTimeRange,
   getWeekRange,
   calculateEventPosition,
+  calculateTitleLineClamp,
   groupOverlappingEvents,
   isSameDay,
 } from "./calendarUtils";
@@ -295,6 +296,7 @@ export default function WeekView({
               >
                 {grouped.map(({ event, column, totalColumns }) => {
                   const pos = calculateEventPosition(event, dayStart);
+                  const maxLines = calculateTitleLineClamp(pos.height);
                   const width = 100 / totalColumns;
                   const leftPos = column * width;
 
@@ -314,7 +316,10 @@ export default function WeekView({
                       onClick={(e) => handleEventBlockClick(event, e)}
                       title={event.title}
                     >
-                      <span className={styles.timedEventTitle}>
+                      <span
+                        className={styles.timedEventTitle}
+                        style={{ WebkitLineClamp: maxLines }}
+                      >
                         {event.title}
                       </span>
                     </div>

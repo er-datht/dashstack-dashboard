@@ -4,6 +4,7 @@ import {
   calculateEventPosition,
   groupOverlappingEvents,
   getWeekRange,
+  calculateTitleLineClamp,
 } from '../calendarUtils'
 import type { CalendarEvent } from '../../../types/calendar'
 
@@ -364,5 +365,36 @@ describe('getWeekRange', () => {
     expect(range.end.getFullYear()).toBe(2026)
     expect(range.end.getMonth()).toBe(0) // January
     expect(range.end.getDate()).toBe(3)
+  })
+})
+
+describe('calculateTitleLineClamp', () => {
+  it('returns 1 line for a 30-minute minimum block (~30px tall)', () => {
+    // heightPercent 2.083 ≈ 30/1440 * 100 → blockHeightPx ≈ 30
+    // (30 - 4) / 14.3 = 1.818 → floor = 1
+    expect(calculateTitleLineClamp(2.083)).toBe(1)
+  })
+
+  it('returns 3 lines for a 60-minute block (~60px tall)', () => {
+    // heightPercent 4.166 ≈ 60/1440 * 100 → blockHeightPx ≈ 60
+    // (60 - 4) / 14.3 = 3.916 → floor = 3
+    expect(calculateTitleLineClamp(4.166)).toBe(3)
+  })
+
+  it('returns 8 lines for a 120-minute block (~120px tall)', () => {
+    // heightPercent 8.333 ≈ 120/1440 * 100 → blockHeightPx ≈ 120
+    // (120 - 4) / 14.3 = 8.111 → floor = 8
+    expect(calculateTitleLineClamp(8.333)).toBe(8)
+  })
+
+  it('returns 1 line for zero-height input (Math.max guard)', () => {
+    // (0 - 4) / 14.3 < 0 → Math.max(0, …) = 0 → floor = 0 → Math.max(1, …) = 1
+    expect(calculateTitleLineClamp(0)).toBe(1)
+  })
+
+  it('returns 100 lines for a full-day block (1440px tall)', () => {
+    // heightPercent 100 → blockHeightPx = 1440
+    // (1440 - 4) / 14.3 = 100.42 → floor = 100
+    expect(calculateTitleLineClamp(100)).toBe(100)
   })
 })

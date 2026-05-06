@@ -41,6 +41,30 @@ export function getHourLabels(): string[] {
   return labels;
 }
 
+// Constants tied to .timedEventTitle / .timedEventBlock styles in
+// src/pages/Calendar/Calendar.module.scss. If any of those styles change
+// (font-size, line-height, .timedEventBlock padding, .weekTimeGrid/.timeGrid
+// min-height), update these constants in lockstep.
+const TITLE_LINE_HEIGHT_PX = 14.3;        // 11px font-size × 1.3 line-height
+const BLOCK_VERTICAL_PADDING_PX = 4;       // 2px top + 2px bottom on .timedEventBlock
+const GRID_HEIGHT_PX = 1440;               // matches .weekTimeGrid / .timeGrid min-height (24 × 60px)
+
+/**
+ * Returns the number of title lines that fit inside a timed event block,
+ * given the block's height as a percentage of the day grid (the value
+ * returned by `calculateEventPosition().height`). The result is the value to
+ * pass to `-webkit-line-clamp` on `.timedEventTitle`.
+ *
+ * - At least 1 line is always returned (guards against zero-height inputs).
+ * - The math accounts for the .timedEventBlock vertical padding so the
+ *   ellipsis appears on the last visible line, not below the block edge.
+ */
+export function calculateTitleLineClamp(heightPercent: number): number {
+  const blockHeightPx = (heightPercent / 100) * GRID_HEIGHT_PX;
+  const innerHeightPx = Math.max(0, blockHeightPx - BLOCK_VERTICAL_PADDING_PX);
+  return Math.max(1, Math.floor(innerHeightPx / TITLE_LINE_HEIGHT_PX));
+}
+
 /**
  * Filters events that overlap with the given [start, end] date range.
  * An event overlaps if its time range intersects the query range.
