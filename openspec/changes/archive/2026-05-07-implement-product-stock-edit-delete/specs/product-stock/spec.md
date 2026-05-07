@@ -1,37 +1,9 @@
-# product-stock Specification
+## RENAMED Requirements
 
-## Purpose
-Defines the ProductStock page: search filter, table columns, ColorDots rendering, pagination, functional Edit/Delete action buttons (with confirmation modal, optimistic delete, success toast, page-clamp on last-row deletion, and localStorage persistence), and consumption of the shared `useProductStock` hook.
+- FROM: `### Requirement: Action stubs`
+- TO: `### Requirement: Action buttons are functional`
 
-## Requirements
-
-### Requirement: Product stock table with search
-The ProductStock page SHALL display a data table of product stock items with a search input that filters products by name.
-
-#### Scenario: Search filtering
-- **WHEN** a user types "shirt" in the search input
-- **THEN** only products with "shirt" in their name are displayed
-
-### Requirement: Product stock columns
-The ProductStock table SHALL display columns for: product Image, Name, Category, Price, Amount (stock count), and Available Colors.
-
-#### Scenario: Column rendering
-- **WHEN** the ProductStock page renders
-- **THEN** all 6 columns are visible with appropriate data
-
-### Requirement: ColorDots component
-The Available Colors column SHALL use a ColorDots component that displays up to 4 color circles, with a "+N" count indicator if there are more.
-
-#### Scenario: More than 4 colors
-- **WHEN** a product has 6 available colors
-- **THEN** 4 color dots are displayed plus a "+2" indicator
-
-### Requirement: Product stock pagination
-The ProductStock page SHALL paginate results with 10 items per page.
-
-#### Scenario: Pagination controls
-- **WHEN** there are more than 10 product stock items
-- **THEN** pagination controls appear allowing navigation between pages
+## MODIFIED Requirements
 
 ### Requirement: Action buttons are functional
 The ProductStock page SHALL display Edit and Delete action buttons for each row. The Edit button SHALL navigate the user to `/products/:id/edit` for the row's product id. The Delete button SHALL open a confirmation modal; on confirm, the row SHALL be removed via an optimistic delete using the `useProductStock` hook, a success toast using `t("deleteSuccess")` SHALL appear, and the change SHALL be persisted via the service's localStorage write-through.
@@ -55,6 +27,8 @@ The ProductStock page SHALL display Edit and Delete action buttons for each row.
 #### Scenario: Failed deletion rolls back
 - **WHEN** the user confirms deletion and the underlying mutation rejects
 - **THEN** the row reappears in the table and an error toast is displayed
+
+## ADDED Requirements
 
 ### Requirement: Page index clamps after deleting the last row on a page
 When a delete leaves the current page with no rows AND another page with rows still exists, the ProductStock page SHALL drop the current page index to the last non-empty page so the user is not left looking at an empty page.

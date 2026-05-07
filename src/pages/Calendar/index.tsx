@@ -7,7 +7,7 @@ import DayView from "./DayView";
 import WeekView from "./WeekView";
 import AddEventModal from "./AddEventModal";
 import EventDetailPopover from "./EventDetailPopover";
-import ConfirmModal from "./ConfirmModal";
+import ConfirmModal from "../../components/ConfirmModal";
 import { calendarEvents } from "../../data/calendarEvents";
 import { getWeekRange } from "./calendarUtils";
 import type { ViewMode } from "./calendarUtils";

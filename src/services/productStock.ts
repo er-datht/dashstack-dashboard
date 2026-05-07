@@ -1,7 +1,16 @@
 import type { ProductStock } from '../types/productStock';
 
+// localStorage persistence (D4) — schema-versioned write-through.
+const STORAGE_KEY = 'dashstack-product-stock';
+const SCHEMA_VERSION = 1;
+
+type StoredShape = {
+  version: number;
+  data: ProductStock[];
+};
+
 // Mock product stock data
-const mockProductStockData: ProductStock[] = [
+const seedProductStockData: ProductStock[] = [
   {
     id: '1',
     image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=400&h=400&fit=crop',
@@ -137,26 +146,116 @@ const mockProductStockData: ProductStock[] = [
   },
 ];
 
+// Module-scoped in-memory array — lazily initialized from localStorage on
+// first read. Subsequent calls return the same reference.
+let productStockData: ProductStock[] | null = null;
+
+/**
+ * Read the stored value from localStorage and validate its shape +
+ * schema version. Returns `null` on any failure (missing key, JSON parse
+ * error, version mismatch, malformed shape) so the caller can fall back
+ * to seed.
+ */
+function loadFromStorage(): ProductStock[] | null {
+  try {
+    if (typeof localStorage === 'undefined') return null;
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as StoredShape;
+    if (
+      !parsed ||
+      typeof parsed !== 'object' ||
+      parsed.version !== SCHEMA_VERSION ||
+      !Array.isArray(parsed.data)
+    ) {
+      return null;
+    }
+    return parsed.data;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Serialize the current array under the schema-versioned envelope.
+ * Silently no-ops on storage errors (quota exceeded, disabled storage).
+ */
+function writeToStorage(data: ProductStock[]): void {
+  try {
+    if (typeof localStorage === 'undefined') return;
+    const payload: StoredShape = { version: SCHEMA_VERSION, data };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch {
+    // Persistence is best-effort — never break the UX over a write failure.
+  }
+}
+
+/**
+ * Lazy-init the in-memory array. On first call, hydrates from
+ * localStorage; on miss/error, falls back to a fresh copy of the seed and
+ * persists it so subsequent reads succeed.
+ */
+function ensureLoaded(): ProductStock[] {
+  if (productStockData !== null) return productStockData;
+
+  const stored = loadFromStorage();
+  if (stored) {
+    productStockData = stored;
+  } else {
+    // Clone the seed so consumers can mutate without poisoning the seed.
+    productStockData = seedProductStockData.map((p) => ({
+      ...p,
+      availableColors: p.availableColors.map((c) => ({ ...c })),
+    }));
+    writeToStorage(productStockData);
+  }
+
+  return productStockData;
+}
+
 export const productStockService = {
   /**
    * Get all product stock data
-   * Simulates API call with delay
+   * Simulates API call with delay; hydrates from localStorage on first read.
    */
   async getProductStock(): Promise<ProductStock[]> {
-    // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 500));
-    return mockProductStockData;
+    return ensureLoaded();
   },
 
   /**
    * Delete a product by ID
-   * Simulates API delete operation
+   * Simulates API delete operation; writes through to localStorage.
    */
   async deleteProduct(id: string): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 300));
-    const index = mockProductStockData.findIndex((product) => product.id === id);
+    const current = ensureLoaded();
+    const index = current.findIndex((product) => product.id === id);
     if (index !== -1) {
-      mockProductStockData.splice(index, 1);
+      current.splice(index, 1);
+      writeToStorage(current);
     }
+  },
+
+  /**
+   * Update a product by ID with a partial patch.
+   * Returns the merged entry. Throws if the id is unknown.
+   * Note: `availableColors` is replaced (not merged) to match form semantics.
+   */
+  async updateProduct(
+    id: string,
+    patch: Partial<ProductStock>,
+  ): Promise<ProductStock> {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const current = ensureLoaded();
+    const index = current.findIndex((product) => product.id === id);
+    if (index === -1) {
+      throw new Error(`ProductStock entry with id "${id}" not found`);
+    }
+    const merged: ProductStock = { ...current[index], ...patch };
+    current[index] = merged;
+    writeToStorage(current);
+    return merged;
   },
 };
