@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Upload, X } from "lucide-react";
 import { cn } from "../../utils/cn";
 import DatePickerInput from "../../components/DatePickerInput";
-import ConfirmModal from "./ConfirmModal";
+import ConfirmModal from "../../components/ConfirmModal";
 import type { CalendarEvent, Participant } from "../../types/calendar";
 import styles from "./Calendar.module.scss";
 

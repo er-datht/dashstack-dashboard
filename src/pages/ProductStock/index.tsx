@@ -1,10 +1,13 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { Search, Pencil, Trash2, Archive } from "lucide-react";
-import { productStockService } from "../../services/productStock";
+import { useProductStock } from "../../hooks/useProductStock";
 import type { ProductStock, ProductColor } from "../../types/productStock";
-import TableCommon, { type ColumnDefinition } from "../../components/TableCommon";
+import TableCommon, {
+  type ColumnDefinition,
+} from "../../components/TableCommon";
+import ConfirmModal from "../../components/ConfirmModal";
 
 type ColorDotsProps = {
   colors: ProductColor[];
@@ -37,14 +40,39 @@ function ColorDots({
 
 export default function ProductStock(): React.JSX.Element {
   const { t } = useTranslation("products");
+  const navigate = useNavigate();
+
+  const { products, isLoading, deleteProduct } = useProductStock();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 10;
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [toast, setToast] = useState<{
+    text: string;
+    variant: "success" | "error";
+  } | null>(null);
 
-  const { data: products = [], isLoading } = useQuery({
-    queryKey: ["productStock"],
-    queryFn: productStockService.getProductStock,
-  });
+  const itemsPerPage = 10;
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+    };
+  }, []);
+
+  const showToast = (
+    text: string,
+    variant: "success" | "error" = "success",
+  ) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ text, variant });
+    toastTimerRef.current = setTimeout(() => {
+      setToast(null);
+    }, 3000);
+  };
 
   // Filter products based on search query
   const filteredProducts = useMemo(() => {
@@ -54,7 +82,7 @@ export default function ProductStock(): React.JSX.Element {
 
     const query = searchQuery.toLowerCase();
     return products.filter((product) =>
-      product.name.toLowerCase().includes(query)
+      product.name.toLowerCase().includes(query),
     );
   }, [products, searchQuery]);
 
@@ -65,18 +93,41 @@ export default function ProductStock(): React.JSX.Element {
     return filteredProducts.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredProducts, currentPage]);
 
+  // Page-clamp: when the current page becomes empty (e.g. after deleting the
+  // last item on it, or after a search filter narrows results so the active
+  // page no longer has rows), drop to the last non-empty page.
+  useEffect(() => {
+    if (paginatedProducts.length === 0 && pageCount > 0) {
+      setCurrentPage(pageCount - 1);
+    }
+  }, [paginatedProducts.length, pageCount]);
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
   const handleEdit = (productId: string) => {
-    console.log("Edit product:", productId);
-    // TODO: Navigate to edit page or open edit modal
+    navigate(`/products/${productId}/edit`);
   };
 
   const handleDelete = (productId: string) => {
-    console.log("Delete product:", productId);
-    // TODO: Show confirmation dialog and delete product
+    setConfirmDeleteId(productId);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmDeleteId) return;
+    const idToDelete = confirmDeleteId;
+    setConfirmDeleteId(null);
+    try {
+      await deleteProduct(idToDelete);
+      showToast(t("deleteSuccess"));
+    } catch {
+      showToast(t("updateError"), "error");
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmDeleteId(null);
   };
 
   const formatCurrency = (amount: number): string => {
@@ -100,7 +151,10 @@ export default function ProductStock(): React.JSX.Element {
   ];
 
   // Render cell content
-  const renderCell = (product: ProductStock, column: ColumnDefinition<ProductStock>) => {
+  const renderCell = (
+    product: ProductStock,
+    column: ColumnDefinition<ProductStock>,
+  ) => {
     switch (column.key) {
       case "image":
         return (
@@ -111,38 +165,32 @@ export default function ProductStock(): React.JSX.Element {
             loading="lazy"
           />
         );
-      
+
       case "name":
         return (
           <span className="text-sm font-medium text-primary">
             {product.name}
           </span>
         );
-      
+
       case "category":
         return (
-          <span className="text-sm text-secondary">
-            {product.category}
-          </span>
+          <span className="text-sm text-secondary">{product.category}</span>
         );
-      
+
       case "price":
         return (
           <span className="text-sm font-semibold text-primary">
             {formatCurrency(product.price)}
           </span>
         );
-      
+
       case "amount":
-        return (
-          <span className="text-sm text-secondary">
-            {product.amount}
-          </span>
-        );
-      
+        return <span className="text-sm text-secondary">{product.amount}</span>;
+
       case "colors":
         return <ColorDots colors={product.availableColors} />;
-      
+
       case "actions":
         return (
           <div className="flex items-center gap-2">
@@ -170,7 +218,7 @@ export default function ProductStock(): React.JSX.Element {
             </button>
           </div>
         );
-      
+
       default:
         return null;
     }
@@ -178,6 +226,21 @@ export default function ProductStock(): React.JSX.Element {
 
   return (
     <div className="p-6 bg-page min-h-screen">
+      {/* Toast */}
+      {toast && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 text-on-primary px-4 py-3 rounded-lg shadow-lg ${
+            toast.variant === "success"
+              ? "bg-[var(--color-success-500)]"
+              : "bg-[var(--color-error-500)]"
+          }`}
+          role="status"
+          aria-live="polite"
+        >
+          {toast.text}
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3 me-4">
@@ -219,6 +282,17 @@ export default function ProductStock(): React.JSX.Element {
         pageRangeDisplayed={5}
         marginPagesDisplayed={2}
         className="card"
+      />
+
+      {/* Delete confirmation modal */}
+      <ConfirmModal
+        isOpen={confirmDeleteId !== null}
+        title={t("confirmDeleteTitle")}
+        message={t("deleteConfirm")}
+        confirmLabel={t("delete")}
+        cancelLabel={t("cancel")}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
       />
     </div>
   );

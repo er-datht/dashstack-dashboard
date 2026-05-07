@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef } from "react";
 import { cn } from "../../utils/cn";
-import styles from "./Calendar.module.scss";
+import styles from "./ConfirmModal.module.scss";
 
 type ConfirmModalProps = {
   isOpen: boolean;
