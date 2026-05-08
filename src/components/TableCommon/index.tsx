@@ -29,6 +29,10 @@ export type TableCommonProps<T> = {
   marginPagesDisplayed?: number;
   // Loading state
   loading?: boolean;
+  // Visual modifiers (CSS-only, theme-aware, default false)
+  striped?: boolean;
+  bordered?: boolean;
+  compact?: boolean;
 };
 
 function TableCommon<T>({
@@ -46,6 +50,9 @@ function TableCommon<T>({
   pageRangeDisplayed = 5,
   marginPagesDisplayed = 2,
   loading = false,
+  striped = false,
+  bordered = false,
+  compact = false,
 }: TableCommonProps<T>) {
   const { t } = useTranslation("common");
 
@@ -73,7 +80,13 @@ function TableCommon<T>({
               <Loader2 className={styles.spinner} size={40} />
             </div>
           )}
-          <table className={styles.table}>
+          <table
+            className={classnames(styles.table, {
+              [styles.striped]: striped,
+              [styles.bordered]: bordered,
+              [styles.compact]: compact,
+            })}
+          >
             <thead className={styles.tableHeader}>
               <tr>
                 {columns.map((column) => (

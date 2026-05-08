@@ -1,0 +1,61 @@
+{
+  "title": "Table",
+  "filterBy": {
+    "label": "Filter By Tables",
+    "all": "Tables",
+    "basic": "Basic Tables",
+    "cellContent": "Cell Content",
+    "statesAndInteraction": "States & Interaction"
+  },
+  "sections": {
+    "basic": {
+      "title": "Basic Tables"
+    },
+    "cellContent": {
+      "title": "Cell Content"
+    },
+    "states": {
+      "title": "States & Interaction"
+    }
+  },
+  "variants": {
+    "basic": {
+      "default": "Default",
+      "striped": "Striped",
+      "bordered": "Bordered",
+      "compact": "Compact"
+    },
+    "cellContent": {
+      "avatars": "With Avatars",
+      "statusBadges": "With Status Badges",
+      "colorDots": "With Color Dots",
+      "actions": "With Action Icons"
+    },
+    "states": {
+      "loading": "Loading",
+      "empty": "Empty",
+      "paginated": "Paginated",
+      "clickable": "Clickable Rows"
+    }
+  },
+  "columns": {
+    "name": "Name",
+    "email": "Email",
+    "orderId": "Order ID",
+    "customer": "Customer",
+    "status": "Status",
+    "colors": "Colors",
+    "actions": "Actions",
+    "label": "Label",
+    "value": "Value"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "toast": {
+    "edited": "Row edited",
+    "deleted": "Row deleted",
+    "selected": "Selected: {{label}}"
+  }
+}
