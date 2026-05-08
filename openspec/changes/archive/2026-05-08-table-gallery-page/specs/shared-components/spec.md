@@ -1,9 +1,4 @@
-# shared-components Specification
-
-## Purpose
-Defines the shared UI building blocks: TableCommon, StatusBadge, button variants, Pagination, LoadingWrapper, and the component conventions all new components must follow.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Generic TableCommon component
 The `TableCommon<T>` component SHALL accept typed column definitions (`ColumnDefinition<T>[]`), data array (`T[]`), and a `renderCell(item: T, column: ColumnDefinition<T>)` callback for custom cell rendering. It SHALL support optional pagination, column alignment (left/center/right), column widths, and a loading overlay. It SHALL ALSO accept three optional boolean visual modifier props — `striped`, `bordered`, and `compact` — each defaulting to `false`, each implemented as a CSS modifier class appended to the rendered `<table>` element. The modifiers SHALL be combinable, theme-aware (light / dark / forest) via existing CSS custom properties, and SHALL NOT change runtime behavior or rendered output when their values are `false` or omitted.
@@ -44,6 +39,8 @@ The `TableCommon<T>` component SHALL accept typed column definitions (`ColumnDef
 - **WHEN** the active theme is `dark` or `forest` and any of the modifier props is `true`
 - **THEN** the stripe / border / padding styling renders using the theme's existing CSS custom properties — no hardcoded colors are used and existing consumers (`ProductStock`, `Orders`, `DealDetailsTable`) continue to render identically when they do not opt in to the new props
 
+## ADDED Requirements
+
 ### Requirement: ColorDots shared component
 The application SHALL provide a shared `ColorDots` component at `src/components/ColorDots/index.tsx` that renders a horizontal sequence of small circular swatches representing colors. The component SHALL accept an array of `{ hex: string; name: string }` objects via a `colors` prop and an optional `maxVisible` prop (default `4`). When `colors.length > maxVisible`, the first `maxVisible` swatches SHALL render and a "+N" overflow label SHALL render after them. Each swatch SHALL include the color's `name` as its `title` attribute for hover-tooltip accessibility. The component SHALL follow project component conventions (functional, `type` for props, explicit `React.JSX.Element` return).
 
@@ -66,42 +63,3 @@ The application SHALL provide a shared `ColorDots` component at `src/components/
 #### Scenario: Reused by tables gallery
 - **WHEN** the Tables gallery renders its "With Color Dots" cell-content variant
 - **THEN** the colors cell uses the same shared `src/components/ColorDots` component
-
-### Requirement: StatusBadge component
-The StatusBadge SHALL render color-coded badges for three statuses: Delivered (teal), Pending (yellow), and Rejected (red), with i18n translation support and a fixed width of `w-24`.
-
-#### Scenario: Status color mapping
-- **WHEN** StatusBadge receives status "Pending"
-- **THEN** it renders a yellow badge with the translated "Pending" text
-
-### Requirement: Button variant components
-The application SHALL provide button components including ButtonDefault, ButtonDanger, ButtonGroup, and IconButton for consistent button styling across the application.
-
-#### Scenario: Button rendering
-- **WHEN** ButtonDefault is rendered with children and onClick
-- **THEN** a styled default button renders with the correct theme-aware styling
-
-### Requirement: Pagination component
-The Pagination component SHALL use react-paginate with configurable items per page, page range display, and margin pages.
-
-#### Scenario: Page change
-- **WHEN** a user clicks a page number
-- **THEN** the onPageChange callback is invoked with the selected page index
-
-### Requirement: LoadingWrapper component
-The LoadingWrapper SHALL conditionally render either a loading indicator or its children based on loading state.
-
-#### Scenario: Loading state
-- **WHEN** loading is true
-- **THEN** a loading indicator is displayed instead of children
-
-#### Scenario: Loaded state
-- **WHEN** loading is false
-- **THEN** children are rendered
-
-### Requirement: Component conventions
-All components SHALL follow these conventions: functional components with TypeScript, `type` keyword for props (not `interface`), explicit `React.JSX.Element` return type, `cn()` helper for class composition, and lucide-react icons at standard sizes (w-4 h-4 small, w-5 h-5 default, w-6 h-6 large).
-
-#### Scenario: New component creation
-- **WHEN** a new component is created
-- **THEN** it uses a `type` for props, `cn()` for classes, functional style, and lucide-react icons at standard sizes

@@ -1,0 +1,61 @@
+{
+  "title": "テーブル",
+  "filterBy": {
+    "label": "テーブルでフィルター",
+    "all": "テーブル",
+    "basic": "基本テーブル",
+    "cellContent": "セル内容",
+    "statesAndInteraction": "状態とインタラクション"
+  },
+  "sections": {
+    "basic": {
+      "title": "基本テーブル"
+    },
+    "cellContent": {
+      "title": "セル内容"
+    },
+    "states": {
+      "title": "状態とインタラクション"
+    }
+  },
+  "variants": {
+    "basic": {
+      "default": "デフォルト",
+      "striped": "ストライプ",
+      "bordered": "ボーダー",
+      "compact": "コンパクト"
+    },
+    "cellContent": {
+      "avatars": "アバター付き",
+      "statusBadges": "ステータスバッジ付き",
+      "colorDots": "カラードット付き",
+      "actions": "アクションアイコン付き"
+    },
+    "states": {
+      "loading": "読み込み中",
+      "empty": "空",
+      "paginated": "ページネーション",
+      "clickable": "クリック可能な行"
+    }
+  },
+  "columns": {
+    "name": "名前",
+    "email": "メール",
+    "orderId": "注文ID",
+    "customer": "顧客",
+    "status": "ステータス",
+    "colors": "カラー",
+    "actions": "アクション",
+    "label": "ラベル",
+    "value": "値"
+  },
+  "actions": {
+    "edit": "編集",
+    "delete": "削除"
+  },
+  "toast": {
+    "edited": "行を編集しました",
+    "deleted": "行を削除しました",
+    "selected": "選択しました: {{label}}"
+  }
+}

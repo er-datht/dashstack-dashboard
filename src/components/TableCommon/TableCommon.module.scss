@@ -72,6 +72,42 @@
   vertical-align: middle;
 }
 
+// Striped: alternating row backgrounds.
+// Reuses --color-table-row-hover-secondary so we don't add new theme tokens
+// for what reads as a sibling shade. :hover comes after :nth-child in the
+// cascade, so hover continues to win over the stripe.
+.striped {
+  tbody tr:nth-child(even) {
+    background: var(--color-table-row-hover-secondary);
+  }
+}
+
+// Bordered: full grid via 1px borders on every <th>/<td> plus an outer
+// border on the <table>. The .tableContainer already clips with
+// overflow: hidden so the existing rounded corners stay intact.
+.bordered {
+  border: 1px solid var(--color-border);
+
+  th,
+  td {
+    border: 1px solid var(--color-border);
+  }
+}
+
+// Compact: halves vertical padding only (8px instead of 16px).
+// Horizontal padding is unchanged to keep long strings readable.
+.compact {
+  th {
+    padding-top: var(--spacing-2);
+    padding-bottom: var(--spacing-2);
+  }
+
+  td {
+    padding-top: var(--spacing-2);
+    padding-bottom: var(--spacing-2);
+  }
+}
+
 .emptyState {
   padding: var(--spacing-8) var(--spacing-4);
   text-align: center;

@@ -9,24 +9,17 @@ type FilterByDropdownProps = {
   onChange: (next: FilterValue) => void;
 };
 
-const OPTIONS: FilterValue[] = ["all", "bar", "pie", "donut"];
+const OPTIONS: FilterValue[] = [
+  "all",
+  "basic",
+  "cellContent",
+  "statesAndInteraction",
+];
 
-/**
- * Filter By Charts dropdown rendered in the UI Elements page header.
- *
- * Visual structure: a pill containing a funnel icon, the static "Filter By"
- * label, and a bordered inner trigger that surfaces the currently selected
- * option's label plus a chevron. Clicking the inner trigger toggles a menu
- * listing the four filter options.
- *
- * The component owns its own open/close state. The selected value is fully
- * controlled via `value` + `onChange` props; the parent decides which
- * sections to render based on the value.
- */
 export default function FilterByDropdown({
   value,
   onChange,
-}: FilterByDropdownProps) {
+}: FilterByDropdownProps): React.JSX.Element {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -39,7 +32,7 @@ export default function FilterByDropdown({
     <div className="flex items-center gap-3">
       <Filter className="w-4 h-4 text-secondary" />
       <span className="text-sm font-medium text-secondary">
-        {t("uiElements:filter.label")}
+        {t("tables:filterBy.label")}
       </span>
       <div className="relative">
         <button
@@ -50,12 +43,12 @@ export default function FilterByDropdown({
             "flex items-center gap-2 px-3 py-2",
             "border border-default rounded-md",
             "text-sm text-primary hover-bg-muted",
-            "transition-colors"
+            "transition-colors",
           )}
           aria-haspopup="listbox"
           aria-expanded={isOpen}
         >
-          <span>{t(`uiElements:filter.options.${value}`)}</span>
+          <span>{t(`tables:filterBy.${value}`)}</span>
           <ChevronDown
             className={classnames("w-4 h-4 transition-transform", {
               "rotate-180": isOpen,
@@ -67,9 +60,9 @@ export default function FilterByDropdown({
           <div
             role="listbox"
             className={classnames(
-              "absolute top-full right-0 mt-2 min-w-[160px]",
+              "absolute top-full right-0 mt-2 min-w-[180px]",
               "border border-default rounded-lg shadow-lg",
-              "overflow-hidden z-10"
+              "overflow-hidden z-10",
             )}
             style={{ background: "var(--color-surface)" }}
           >
@@ -87,10 +80,10 @@ export default function FilterByDropdown({
                     "transition-colors",
                     isActive
                       ? "bg-sidebar-menu-active text-sidebar-menu-active font-medium"
-                      : "text-primary hover-bg-muted"
+                      : "text-primary hover-bg-muted",
                   )}
                 >
-                  {t(`uiElements:filter.options.${option}`)}
+                  {t(`tables:filterBy.${option}`)}
                 </button>
               );
             })}

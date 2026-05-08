@@ -39,6 +39,7 @@ i18n
       "invoice",
       "inbox",
       "uiElements",
+      "tables",
     ],
     defaultNS: "common",
 
