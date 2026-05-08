@@ -5,6 +5,7 @@ import {
   groupOverlappingEvents,
   getWeekRange,
   calculateTitleLineClamp,
+  packAllDayRows,
 } from '../calendarUtils'
 import type { CalendarEvent } from '../../../types/calendar'
 
@@ -396,5 +397,123 @@ describe('calculateTitleLineClamp', () => {
     // heightPercent 100 → blockHeightPx = 1440
     // (1440 - 4) / 14.3 = 100.42 → floor = 100
     expect(calculateTitleLineClamp(100)).toBe(100)
+  })
+})
+
+describe('packAllDayRows', () => {
+  // Helper to build the input shape consumed by packAllDayRows.
+  // SPEC: Input is `{ event: CalendarEvent; startCol: number; span: number }[]`,
+  // matching `allDaySpans` produced by WeekView. Output adds `rowIdx: number`.
+  type PackedRow = {
+    event: CalendarEvent
+    startCol: number
+    span: number
+    rowIdx: number
+  }
+
+  function makeSpan(
+    id: string,
+    startCol: number,
+    span: number
+  ): { event: CalendarEvent; startCol: number; span: number } {
+    return {
+      event: makeEvent({
+        id,
+        startDate: new Date(2026, 3, 12 + startCol), // arbitrary anchor; not used by packAllDayRows
+      }),
+      startCol,
+      span,
+    }
+  }
+
+  it('returns an empty array for empty input', () => {
+    expect(packAllDayRows([])).toEqual([])
+  })
+
+  it('assigns rowIdx 0 to a single event', () => {
+    const result = packAllDayRows([makeSpan('a', 2, 1)])
+    expect(result).toHaveLength(1)
+    expect(result[0].rowIdx).toBe(0)
+    // Sanity: original fields preserved.
+    expect(result[0].startCol).toBe(2)
+    expect(result[0].span).toBe(1)
+    expect(result[0].event.id).toBe('a')
+  })
+
+  it('places two non-overlapping spans on the same row (rowIdx 0)', () => {
+    // Mon-only (startCol 1, span 1, endCol 1) and Thu-only (startCol 4, span 1, endCol 4).
+    // No date overlap → both share row 0.
+    const result: PackedRow[] = packAllDayRows([makeSpan('mon', 1, 1), makeSpan('thu', 4, 1)])
+    expect(result).toHaveLength(2)
+    const monRow = result.find((r: PackedRow) => r.event.id === 'mon')
+    const thuRow = result.find((r: PackedRow) => r.event.id === 'thu')
+    expect(monRow?.rowIdx).toBe(0)
+    expect(thuRow?.rowIdx).toBe(0)
+  })
+
+  it('places two same-day overlapping spans on rowIdx 0 and 1', () => {
+    // Both single-day spans on Friday (startCol 5). Greedy → second event spills to row 1.
+    const result: PackedRow[] = packAllDayRows([makeSpan('a', 5, 1), makeSpan('b', 5, 1)])
+    expect(result).toHaveLength(2)
+    const rowIdxs = result.map((r: PackedRow) => r.rowIdx).sort()
+    expect(rowIdxs).toEqual([0, 1])
+  })
+
+  it('places multi-day + single-day overlap on distinct rows', () => {
+    // Mon-Wed (startCol 1, span 3 → endCol 3) and Tue-only (startCol 2, span 1 → endCol 2).
+    // They overlap on Tuesday → must land on different rows.
+    const result: PackedRow[] = packAllDayRows([
+      makeSpan('mon-wed', 1, 3),
+      makeSpan('tue', 2, 1),
+    ])
+    expect(result).toHaveLength(2)
+    const monWed = result.find((r: PackedRow) => r.event.id === 'mon-wed')
+    const tue = result.find((r: PackedRow) => r.event.id === 'tue')
+    expect(monWed?.rowIdx).not.toBe(tue?.rowIdx)
+    // Sort key (startCol asc, span desc, id asc) → mon-wed is sorted first (startCol 1 < 2),
+    // so it lands on row 0; tue spills to row 1.
+    expect(monWed?.rowIdx).toBe(0)
+    expect(tue?.rowIdx).toBe(1)
+  })
+
+  it('forces three rows when three spans overlap on the same day', () => {
+    // Three single-day events all on Friday. Each new event must escape to a fresh row.
+    const result: PackedRow[] = packAllDayRows([
+      makeSpan('a', 5, 1),
+      makeSpan('b', 5, 1),
+      makeSpan('c', 5, 1),
+    ])
+    expect(result).toHaveLength(3)
+    const rowIdxs = result.map((r: PackedRow) => r.rowIdx).sort()
+    expect(rowIdxs).toEqual([0, 1, 2])
+  })
+
+  it('places longer span on the lower rowIdx when startCol ties (span desc tiebreaker)', () => {
+    // Same startCol (1). One spans Mon-Thu (span 4), the other Mon-only (span 1).
+    // Sort key tiebreaker `span desc` → longer one is processed first → lands on row 0.
+    const result: PackedRow[] = packAllDayRows([
+      makeSpan('short', 1, 1),
+      makeSpan('long', 1, 4),
+    ])
+    expect(result).toHaveLength(2)
+    const short = result.find((r: PackedRow) => r.event.id === 'short')
+    const long = result.find((r: PackedRow) => r.event.id === 'long')
+    expect(long?.rowIdx).toBe(0)
+    expect(short?.rowIdx).toBe(1)
+  })
+
+  it('produces rowIdx values 0/1/2 explicitly for an n=3 same-day stack (literals-drift guard)', () => {
+    // SPEC: design.md "literals drift" guard — top is rendered as `rowIdx * 24` in WeekView,
+    // so locking rowIdx 0/1/2 here means top will be 0/24/48 px at the consumer site, and any
+    // change to the 24px stride at the consumer must be reflected without breaking this contract.
+    const result: PackedRow[] = packAllDayRows([
+      makeSpan('a', 3, 1),
+      makeSpan('b', 3, 1),
+      makeSpan('c', 3, 1),
+    ])
+    expect(result).toHaveLength(3)
+    // rowIdx values must be exactly the set {0, 1, 2}.
+    const rowIdxs = result.map((r: PackedRow) => r.rowIdx).sort()
+    expect(rowIdxs).toEqual([0, 1, 2])
   })
 })

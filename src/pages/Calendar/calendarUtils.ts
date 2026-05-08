@@ -236,6 +236,87 @@ export function groupOverlappingEvents(
   }));
 }
 
+type AllDaySpan = {
+  event: CalendarEvent;
+  startCol: number;
+  span: number;
+};
+
+type PackedAllDaySpan = AllDaySpan & { rowIdx: number };
+
+// Binding to .allDayEventBar styles in src/pages/Calendar/Calendar.module.scss.
+// The vertical stride between stacked all-day rows is:
+//   .allDayEventBar { height: 22px } + 2px inter-row gap = 24px
+// The 2px gap is implicit (no SCSS rule carries `gap: 2px` on the host) — bars
+// are absolutely positioned within their host (.weekAllDayGrid in WeekView,
+// .allDayContent in DayView), so the gap is the difference between the bar
+// height and the stride literal. Both consuming views multiply each `rowIdx`
+// returned by `packAllDayRows` by 24 to compute the bar's `top` value. If
+// .allDayEventBar's height ever changes, update the stride literal at all
+// consumer sites in lockstep so test assertions like `top: 0px` / `top: 24px`
+// keep matching the rendered DOM. (Mirrors the `calculateTitleLineClamp`
+// SCSS-JS binding pattern above.)
+
+/**
+ * Greedily packs all-day event spans into the minimum number of
+ * vertical rows so no two visually overlapping bars share a row. Each input
+ * span carries its `startCol` (first visible day-column index — 0..6 in Week
+ * view, always 0 in Day view) and `span` (number of columns it covers — 1..7
+ * in Week view, always 1 in Day view). For Day view the algorithm degenerates
+ * to "every event takes the next free row" since all spans tie on `startCol`
+ * and `span`, falling back to the `event.id asc` tiebreaker. The output
+ * preserves every input field and adds a `rowIdx` per span.
+ *
+ * Algorithm (mirrors `groupOverlappingEvents` transposed onto the row axis):
+ *  1. Sort spans by `(startCol asc, span desc, event.id asc)` for determinism.
+ *     The `span desc` tiebreaker keeps the wider (multi-day) bar on the lower
+ *     row when two spans tie on `startCol`, matching reading order. The
+ *     `event.id asc` final tiebreaker stabilises test assertions.
+ *  2. Walk the sorted list. For each span, place it in the lowest-indexed
+ *     row whose previous occupant's `endCol` (= startCol + span - 1) is
+ *     strictly less than the new span's `startCol`. If no row fits, append
+ *     a new row.
+ *
+ * Pure / deterministic / no side effects. The 24px row stride is documented
+ * in the SCSS-binding comment above and consumed by both `WeekView.tsx` and
+ * `DayView.tsx` as the literal `24` when computing each bar's `top` value.
+ */
+export function packAllDayRows(spans: AllDaySpan[]): PackedAllDaySpan[] {
+  if (spans.length === 0) return [];
+
+  const sorted = [...spans].sort((a, b) => {
+    if (a.startCol !== b.startCol) return a.startCol - b.startCol;
+    if (a.span !== b.span) return b.span - a.span;
+    if (a.event.id < b.event.id) return -1;
+    if (a.event.id > b.event.id) return 1;
+    return 0;
+  });
+
+  // For each row, track the endCol of the last span placed in that row.
+  const rowEndCols: number[] = [];
+  const result: PackedAllDaySpan[] = [];
+
+  for (const span of sorted) {
+    const endCol = span.startCol + span.span - 1;
+    let placedRow = -1;
+    for (let row = 0; row < rowEndCols.length; row++) {
+      if (rowEndCols[row] < span.startCol) {
+        placedRow = row;
+        break;
+      }
+    }
+    if (placedRow === -1) {
+      placedRow = rowEndCols.length;
+      rowEndCols.push(endCol);
+    } else {
+      rowEndCols[placedRow] = endCol;
+    }
+    result.push({ ...span, rowIdx: placedRow });
+  }
+
+  return result;
+}
+
 /**
  * Returns the start (Sunday) and end (Saturday) dates for the week
  * containing the given date.

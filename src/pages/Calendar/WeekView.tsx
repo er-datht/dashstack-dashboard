@@ -10,6 +10,7 @@ import {
   calculateTitleLineClamp,
   groupOverlappingEvents,
   isSameDay,
+  packAllDayRows,
 } from "./calendarUtils";
 import styles from "./Calendar.module.scss";
 
@@ -182,6 +183,16 @@ export default function WeekView({
     return { event, startCol, span };
   });
 
+  // Greedy row-pack so overlapping all-day events stack vertically instead of
+  // painting on top of one another. See `packAllDayRows` for the binding to
+  // `.allDayEventBar` height + `.allDayContent` gap (stride = 24px).
+  const packedAllDaySpans = packAllDayRows(allDaySpans);
+  const rowCount =
+    packedAllDaySpans.reduce((max, s) => Math.max(max, s.rowIdx), -1) + 1 || 1;
+  // 24 = bar height (22px) + inter-row gap (2px); +4 covers .weekAllDayGrid's
+  // 2px top + 2px bottom padding so the bottom row isn't clipped.
+  const allDayGridMinHeight = `${rowCount * 24 + 4}px`;
+
   return (
     <div className={styles.weekViewContainer}>
       {/* Column headers */}
@@ -216,8 +227,11 @@ export default function WeekView({
         <div className={styles.allDayGutter}>
           <span className={styles.allDayLabel}>{t("allDay")}</span>
         </div>
-        <div className={styles.weekAllDayGrid}>
-          {allDaySpans.map(({ event, startCol, span }) => {
+        <div
+          className={styles.weekAllDayGrid}
+          style={{ minHeight: allDayGridMinHeight }}
+        >
+          {packedAllDaySpans.map(({ event, startCol, span, rowIdx }) => {
             const leftPercent = (startCol / 7) * 100;
             const widthPercent = (span / 7) * 100;
             return (
@@ -226,6 +240,7 @@ export default function WeekView({
                 className={styles.allDayEventBar}
                 style={{
                   position: "absolute",
+                  top: `${rowIdx * 24}px`,
                   left: `${leftPercent}%`,
                   width: `calc(${widthPercent}% - 4px)`,
                   borderLeftColor: event.color.border,

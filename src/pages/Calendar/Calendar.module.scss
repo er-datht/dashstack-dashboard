@@ -512,9 +512,7 @@
 .allDayContent {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
+  position: relative;
   padding: 2px 4px;
 }
 
@@ -693,7 +691,10 @@
 .weekAllDayGrid {
   flex: 1;
   position: relative;
-  min-height: 28px;
+  // Floor for the empty-week case; WeekView sets an inline `minHeight`
+  // computed from row-packed all-day events that overrides this when bars
+  // are present (single row → 28px inline, multi-row → larger).
+  min-height: 24px;
   padding: 2px 0;
 }
 
