@@ -4,6 +4,7 @@
  */
 
 import type { LoginCredentials, AuthResponse, RegisterData } from '../types/auth';
+import type { User } from '../types/common';
 import { appConfig } from '../configs/app-config';
 
 /**
@@ -97,14 +98,46 @@ export function storeUser(user: { name: string; email: string; role: string }, s
 /**
  * Retrieve stored user data from localStorage or sessionStorage
  */
-export function getStoredUser(): { name: string; email: string; role: string } | null {
+export function getStoredUser(): User | null {
   const localUser = localStorage.getItem(USER_STORAGE_KEY);
-  if (localUser) return JSON.parse(localUser);
+  if (localUser) return JSON.parse(localUser) as User;
 
   const sessionUser = sessionStorage.getItem(USER_STORAGE_KEY);
-  if (sessionUser) return JSON.parse(sessionUser);
+  if (sessionUser) return JSON.parse(sessionUser) as User;
 
   return null;
+}
+
+/**
+ * Merge a partial patch into the stored user record. Detects existing storage
+ * (localStorage first, then sessionStorage), writes back to the same location,
+ * and dispatches a same-tab `auth-user-changed` CustomEvent on success.
+ */
+export function updateStoredUser(patch: Partial<User>): boolean {
+  const localRaw = localStorage.getItem(USER_STORAGE_KEY);
+  const sessionRaw = localRaw ? null : sessionStorage.getItem(USER_STORAGE_KEY);
+  const raw = localRaw ?? sessionRaw;
+
+  if (!raw) return false;
+
+  let existing: User;
+  try {
+    existing = JSON.parse(raw) as User;
+  } catch {
+    return false;
+  }
+
+  const merged: User = { ...existing, ...patch };
+  const store = localRaw ? localStorage : sessionStorage;
+
+  try {
+    store.setItem(USER_STORAGE_KEY, JSON.stringify(merged));
+  } catch {
+    return false;
+  }
+
+  window.dispatchEvent(new CustomEvent('auth-user-changed'));
+  return true;
 }
 
 /**

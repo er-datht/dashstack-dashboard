@@ -22,4 +22,5 @@ export const ROUTES = {
   TEAM_DETAIL: "/team/:id",
   TABLE: "/table",
   SETTINGS: "/settings",
+  MANAGE_ACCOUNT: "/manage-account",
 } as const;

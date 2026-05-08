@@ -29,6 +29,7 @@ const AddNewMember = lazy(() => import("../pages/Team/AddNewMember"));
 const MemberDetail = lazy(() => import("../pages/Team/MemberDetail"));
 const Table = lazy(() => import("../pages/Table"));
 const Settings = lazy(() => import("../pages/Settings"));
+const ManageAccount = lazy(() => import("../pages/ManageAccount"));
 const Login = lazy(() => import("../pages/Login"));
 const Register = lazy(() => import("../pages/Register"));
 
@@ -79,6 +80,7 @@ export default function AppRoutes() {
             <Route path="team/:id" element={<MemberDetail />} />
             <Route path="table" element={<Table />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="manage-account" element={<ManageAccount />} />
           </Route>
 
           {/* Catch all - redirect to dashboard */}
