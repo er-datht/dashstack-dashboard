@@ -40,6 +40,7 @@ i18n
       "inbox",
       "uiElements",
       "tables",
+      "manageAccount",
     ],
     defaultNS: "common",
 

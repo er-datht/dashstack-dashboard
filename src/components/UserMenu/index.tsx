@@ -19,7 +19,8 @@ type MenuItem = {
   key: string;
   labelKey: string;
   icon: string;
-  action: "placeholder" | "logout";
+  action: "placeholder" | "logout" | "navigate";
+  to?: string;
 };
 
 const menuItems: MenuItem[] = [
@@ -27,7 +28,8 @@ const menuItems: MenuItem[] = [
     key: "manageAccount",
     labelKey: "navigation:userMenu.manageAccount",
     icon: manageAccountIcon,
-    action: "placeholder",
+    action: "navigate",
+    to: ROUTES.MANAGE_ACCOUNT,
   },
   {
     key: "changePassword",
@@ -94,12 +96,21 @@ export default function UserMenu({
     setToast(t("navigation:userMenu.comingSoon"));
   };
 
+  const handleNavigate = (to: string) => {
+    navigate(to);
+    onClose();
+  };
+
   const handleItemClick = (item: MenuItem) => {
     if (item.action === "logout") {
       handleLogout();
-    } else {
-      handlePlaceholder();
+      return;
     }
+    if (item.action === "navigate" && item.to) {
+      handleNavigate(item.to);
+      return;
+    }
+    handlePlaceholder();
   };
 
   return (

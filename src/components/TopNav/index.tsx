@@ -15,10 +15,22 @@ export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  // Same-tab sync: re-read getStoredUser() whenever the user record changes.
+  // We mirror it into local state so renders unambiguously depend on it
+  // (independent of any compile-time memoization of getStoredUser).
+  const [storedUser, setStoredUser] = useState(() => getStoredUser());
+  useEffect(() => {
+    const handler = () => setStoredUser(getStoredUser());
+    window.addEventListener("auth-user-changed", handler);
+    return () => window.removeEventListener("auth-user-changed", handler);
+  }, []);
 
-  const storedUser = getStoredUser();
   const userName = storedUser?.name || "Moni Roy";
   const userRole = storedUser?.role || "Admin";
+  const avatarSrc =
+    storedUser?.avatar && storedUser.avatar.length > 0
+      ? storedUser.avatar
+      : `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=818cf8&color=fff&size=128`;
   const containerRef = useRef<HTMLDivElement>(null);
   const langContainerRef = useRef<HTMLDivElement>(null);
   const notifContainerRef = useRef<HTMLDivElement>(null);
@@ -176,9 +188,9 @@ export default function TopNav({ sidebarCollapsed = false }: TopNavProps) {
               className="flex items-center gap-3 pl-4 border-l border-l-topnav-border cursor-pointer bg-transparent"
             >
               <img
-                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=818cf8&color=fff&size=128`}
+                src={avatarSrc}
                 alt={userName}
-                className="w-9 h-9 rounded-full"
+                className="w-9 h-9 rounded-full object-cover"
               />
               <div className="hidden sm:block text-left">
                 <p className="text-sm font-semibold leading-tight text-topnav-text-primary">
