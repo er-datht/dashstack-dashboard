@@ -78,6 +78,132 @@ describe('DayView', () => {
       const allDaySection = container.querySelector('[class*="allDay"]')
       expect(allDaySection).toBeInTheDocument()
     })
+
+    // SPEC: fix-day-view-all-day-event-stacking — calendar-day-view "Day view
+    // renders all-day events in a pinned row". When two or more all-day events
+    // are present on the displayed day, they SHALL stack into distinct vertical
+    // rows. Implementation reuses `packAllDayRows` with `startCol: 0, span: 1`
+    // per event and renders each bar with `top: ${rowIdx * 24}px` (stride =
+    // 22px bar height + 2px gap), mirroring WeekView.
+    it('renders multiple overlapping all-day events at distinct vertical positions', () => {
+      const evtA = makeEvent({
+        id: 'evt-allday-a',
+        title: 'All Day A',
+        startDate: new Date(2026, 3, 15),
+        endDate: new Date(2026, 3, 15),
+        allDay: true,
+      } as Partial<CalendarEvent> & { startDate: Date })
+      const evtB = makeEvent({
+        id: 'evt-allday-b',
+        title: 'All Day B',
+        startDate: new Date(2026, 3, 15),
+        endDate: new Date(2026, 3, 15),
+        allDay: true,
+      } as Partial<CalendarEvent> & { startDate: Date })
+
+      render(<DayView {...defaultProps} events={[evtA, evtB]} />)
+
+      const barA = screen.getByText('All Day A')
+      const barB = screen.getByText('All Day B')
+      expect(barA).toBeInTheDocument()
+      expect(barB).toBeInTheDocument()
+
+      // Their inline `top` values must be distinct, with one at '0px' and the other at '24px'.
+      const tops = [barA.style.top, barB.style.top].sort()
+      expect(tops).toEqual(['0px', '24px'])
+    })
+
+    it('all-day content minHeight reflects row count for two events', () => {
+      const evtA = makeEvent({
+        id: 'evt-allday-a',
+        title: 'All Day A',
+        startDate: new Date(2026, 3, 15),
+        endDate: new Date(2026, 3, 15),
+        allDay: true,
+      } as Partial<CalendarEvent> & { startDate: Date })
+      const evtB = makeEvent({
+        id: 'evt-allday-b',
+        title: 'All Day B',
+        startDate: new Date(2026, 3, 15),
+        endDate: new Date(2026, 3, 15),
+        allDay: true,
+      } as Partial<CalendarEvent> & { startDate: Date })
+
+      const { container } = render(
+        <DayView {...defaultProps} events={[evtA, evtB]} />
+      )
+
+      // Vitest CSS module classNameStrategy is 'non-scoped' (see vitest.config.ts),
+      // so the rendered class name matches the SCSS source name verbatim.
+      const content = container.querySelector('.allDayContent') as HTMLElement | null
+      expect(content).not.toBeNull()
+
+      // SPEC: minHeight = rowCount * 24 + 4. With 2 rows → 2 * 24 + 4 = 52px.
+      expect(content?.style.minHeight).toBe('52px')
+    })
+
+    it('renders three stacked all-day events at top values 0/24/48', () => {
+      const evtA = makeEvent({
+        id: 'evt-allday-a',
+        title: 'All Day A',
+        startDate: new Date(2026, 3, 15),
+        endDate: new Date(2026, 3, 15),
+        allDay: true,
+      } as Partial<CalendarEvent> & { startDate: Date })
+      const evtB = makeEvent({
+        id: 'evt-allday-b',
+        title: 'All Day B',
+        startDate: new Date(2026, 3, 15),
+        endDate: new Date(2026, 3, 15),
+        allDay: true,
+      } as Partial<CalendarEvent> & { startDate: Date })
+      const evtC = makeEvent({
+        id: 'evt-allday-c',
+        title: 'All Day C',
+        startDate: new Date(2026, 3, 15),
+        endDate: new Date(2026, 3, 15),
+        allDay: true,
+      } as Partial<CalendarEvent> & { startDate: Date })
+
+      const { container } = render(
+        <DayView {...defaultProps} events={[evtA, evtB, evtC]} />
+      )
+
+      const barA = screen.getByText('All Day A')
+      const barB = screen.getByText('All Day B')
+      const barC = screen.getByText('All Day C')
+
+      const tops = [barA.style.top, barB.style.top, barC.style.top].sort()
+      // String sort: '0px' < '24px' < '48px' (lexicographic order matches numeric here).
+      expect(tops).toEqual(['0px', '24px', '48px'])
+
+      const content = container.querySelector('.allDayContent') as HTMLElement | null
+      expect(content).not.toBeNull()
+      // SPEC: minHeight = 3 * 24 + 4 = 76px.
+      expect(content?.style.minHeight).toBe('76px')
+    })
+
+    it('single all-day event renders at top 0px and minHeight 28px', () => {
+      const evtA = makeEvent({
+        id: 'evt-allday-solo',
+        title: 'Solo All Day',
+        startDate: new Date(2026, 3, 15),
+        endDate: new Date(2026, 3, 15),
+        allDay: true,
+      } as Partial<CalendarEvent> & { startDate: Date })
+
+      const { container } = render(
+        <DayView {...defaultProps} events={[evtA]} />
+      )
+
+      const bar = screen.getByText('Solo All Day')
+      expect(bar.style.top).toBe('0px')
+
+      const content = container.querySelector('.allDayContent') as HTMLElement | null
+      expect(content).not.toBeNull()
+      // SPEC: minHeight = 1 * 24 + 4 = 28px.
+      expect(content?.style.minHeight).toBe('28px')
+    })
   })
 
   describe('timed events', () => {

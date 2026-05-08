@@ -8,6 +8,7 @@ import {
   calculateTitleLineClamp,
   groupOverlappingEvents,
   isSameDay,
+  packAllDayRows,
 } from "./calendarUtils";
 import styles from "./Calendar.module.scss";
 
@@ -63,6 +64,21 @@ export default function DayView({
   const timedEvents = dayEvents.filter((evt) => evt.allDay === false);
 
   const groupedTimedEvents = groupOverlappingEvents(timedEvents);
+
+  // Greedy row-pack so overlapping all-day events stack vertically instead of
+  // painting on top of one another. Each Day-view span ties on `startCol: 0`
+  // so the algorithm degenerates to one row per event (mirrors WeekView).
+  const dayAllDaySpans = allDayEvents.map((event) => ({
+    event,
+    startCol: 0,
+    span: 1,
+  }));
+  const packedAllDaySpans = packAllDayRows(dayAllDaySpans);
+  const rowCount =
+    packedAllDaySpans.reduce((max, s) => Math.max(max, s.rowIdx), -1) + 1 || 1;
+  // 24 = bar height (22px) + inter-row gap (2px); +4 covers .allDayContent's
+  // 2px top + 2px bottom padding so the bottom row isn't clipped.
+  const allDayContentMinHeight = `${rowCount * 24 + 4}px`;
 
   // Current time indicator update
   useEffect(() => {
@@ -127,12 +143,19 @@ export default function DayView({
         <div className={styles.allDayGutter}>
           <span className={styles.allDayLabel}>{t("allDay")}</span>
         </div>
-        <div className={styles.allDayContent}>
-          {allDayEvents.map((event) => (
+        <div
+          className={styles.allDayContent}
+          style={{ minHeight: allDayContentMinHeight }}
+        >
+          {packedAllDaySpans.map(({ event, rowIdx }) => (
             <div
               key={event.id}
               className={styles.allDayEventBar}
               style={{
+                position: "absolute",
+                top: `${rowIdx * 24}px`,
+                left: 0,
+                right: 0,
                 borderLeftColor: event.color.border,
                 backgroundColor: event.color.bg,
                 color: event.color.text,

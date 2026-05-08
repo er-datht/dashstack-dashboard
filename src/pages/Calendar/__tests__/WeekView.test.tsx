@@ -143,6 +143,69 @@ describe('WeekView', () => {
       render(<WeekView {...defaultProps} events={[multiDayEvent]} />)
       expect(screen.getByText('Multi Day Retreat')).toBeInTheDocument()
     })
+
+    // SPEC: fix-week-view-all-day-event-stacking — when two or more all-day events
+    // share at least one visible day-column, they SHALL stack into distinct vertical
+    // rows. Implementation renders each bar with `top: ${rowIdx * 24}px` (stride =
+    // 22px bar height + 2px gap) so rowIdx 0/1 → top 0/24px.
+    it('renders multiple overlapping all-day events at distinct vertical positions', () => {
+      // Both events fall on Friday April 17, 2026 in the visible week.
+      const fri1 = makeEvent({
+        id: 'evt-fri-1',
+        title: 'Friday Event A',
+        startDate: new Date(2026, 3, 17),
+        endDate: new Date(2026, 3, 17),
+        allDay: true,
+      } as Partial<CalendarEvent> & { startDate: Date })
+      const fri2 = makeEvent({
+        id: 'evt-fri-2',
+        title: 'Friday Event B',
+        startDate: new Date(2026, 3, 17),
+        endDate: new Date(2026, 3, 17),
+        allDay: true,
+      } as Partial<CalendarEvent> & { startDate: Date })
+
+      render(<WeekView {...defaultProps} events={[fri1, fri2]} />)
+
+      // Both bars present in the DOM.
+      const barA = screen.getByText('Friday Event A')
+      const barB = screen.getByText('Friday Event B')
+      expect(barA).toBeInTheDocument()
+      expect(barB).toBeInTheDocument()
+
+      // Their inline `top` values must be distinct, with one at '0px' and the other at '24px'.
+      const tops = [barA.style.top, barB.style.top].sort()
+      expect(tops).toEqual(['0px', '24px'])
+    })
+
+    it('grows the all-day grid minHeight to reflect stacked row count', () => {
+      const fri1 = makeEvent({
+        id: 'evt-fri-1',
+        title: 'Friday Event A',
+        startDate: new Date(2026, 3, 17),
+        endDate: new Date(2026, 3, 17),
+        allDay: true,
+      } as Partial<CalendarEvent> & { startDate: Date })
+      const fri2 = makeEvent({
+        id: 'evt-fri-2',
+        title: 'Friday Event B',
+        startDate: new Date(2026, 3, 17),
+        endDate: new Date(2026, 3, 17),
+        allDay: true,
+      } as Partial<CalendarEvent> & { startDate: Date })
+
+      const { container } = render(
+        <WeekView {...defaultProps} events={[fri1, fri2]} />
+      )
+
+      // Vitest CSS module classNameStrategy is 'non-scoped' (see vitest.config.ts),
+      // so the rendered class name matches the SCSS source name verbatim.
+      const grid = container.querySelector('.weekAllDayGrid') as HTMLElement | null
+      expect(grid).not.toBeNull()
+
+      // SPEC: minHeight = rowCount * 24 + 4. With 2 rows → 2 * 24 + 4 = 52px.
+      expect(grid?.style.minHeight).toBe('52px')
+    })
   })
 
   describe('current time indicator', () => {
