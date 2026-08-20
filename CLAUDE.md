@@ -314,4 +314,6 @@ Read the relevant entry there before working in that area; this list is only a m
 - **All components must support all 3 themes** — no hardcoded colors
 - **React Compiler handles memoization** — manual `useMemo`/`useCallback` rarely needed
 - **Never delete the `AnimationEvent` polyfill** in `src/test/setup.ts`, and never move it below an import that pulls in react-dom — jsdom lacks the constructor, so React registers the vendor-prefixed `webkitAnimationEnd` and `fireEvent.animationEnd` silently stops reaching `onAnimationEnd`, failing every animation test while the browser stays fine
+- **Never run `playwright install`** — e2e drives the system Chrome via `channel: "chrome"` (a security-review condition: the bundled Chromium lags stable and is an unverified ~350 MB CDN download). Do not add `@playwright/browser-*`; Firefox/WebKit needs a fresh review
+- **`e2e/**` is excluded from vitest** — Playwright specs match vitest's default `**/*.spec.ts` discovery and break `yarn test`; run them with `yarn test:e2e`
 - **Branch naming**: use `bugfix/<kebab-name>` for fixes, `feature/<kebab-name>` for new capabilities; the suffix usually matches the OpenSpec change name
