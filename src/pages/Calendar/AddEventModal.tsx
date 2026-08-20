@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Upload, X } from "lucide-react";
 import { cn } from "../../utils/cn";
+import { useModalTransition } from "../../hooks/useModalTransition";
 import DatePickerInput from "../../components/DatePickerInput";
 import ConfirmModal from "../../components/ConfirmModal";
 import type { CalendarEvent, Participant } from "../../types/calendar";
@@ -67,6 +68,26 @@ export default function AddEventModal({
   const showConfirmRef = useRef(false);
   showConfirmRef.current = showConfirm;
 
+  // Show/hide animation. `isRendered` stays true for the duration of the exit
+  // animation, so the modal is NOT unmounted the moment `isOpen` flips.
+  const { isRendered, isExiting, handleAnimationEnd } = useModalTransition(isOpen);
+
+  // The keydown listener is installed once per open, so it reads the exiting
+  // state through a ref rather than closing over it (same idiom as
+  // showConfirmRef above).
+  const isExitingRef = useRef(false);
+  isExitingRef.current = isExiting;
+
+  // Every close path in Calendar/index.tsx clears `editingEvent` in the SAME
+  // update as `isModalOpen`, so `editEvent` is already undefined while the
+  // modal is still on screen exiting. Rendering the edit-specific bits from the
+  // last value seen while open is what stops the heading flipping
+  // "Edit Event" -> "Add New Event" and the Delete button vanishing mid-fade.
+  const [editContext, setEditContext] = useState(editEvent);
+  if (isOpen && editContext !== editEvent) {
+    setEditContext(editEvent);
+  }
+
   // Image upload state
   const [image, setImage] = useState<string | undefined>(undefined);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -123,13 +144,26 @@ export default function AddEventModal({
     }
   }, [isOpen, initialDate, editEvent, defaultAllDay]);
 
-  // Focus trap, Escape key, and body scroll lock
+  // Focus trap, Escape key, and body scroll lock.
+  //
+  // Gated on `isRendered`, NOT on `isOpen`: keying it on the prop would run the
+  // cleanup at exit START, releasing the body scroll lock while the modal is
+  // still animating. The scrollbar would reappear, the page width would change,
+  // and the exiting card would visibly jump sideways.
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isRendered) return;
+
+    // Captured at setup so the cleanup can exclude this modal's own node from
+    // the handoff check below without depending on when React detaches the ref.
+    const ownDialog = modalRef.current;
 
     document.body.style.overflow = "hidden";
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // An exiting modal is inert. Note it deliberately does NOT stop
+      // propagation, so it does not swallow keys on the way to anything behind it.
+      if (isExitingRef.current) return;
+
       if (e.key === "Escape") {
         if (!showConfirmRef.current) {
           onClose();
@@ -160,11 +194,22 @@ export default function AddEventModal({
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
-    };
-  }, [isOpen, onClose]);
 
-  if (!isOpen) {
+      // Only the LAST modal standing releases the lock. Excluding this modal's
+      // own node makes the check independent of whether React has already
+      // detached it — a stacked ConfirmModal that is still exiting keeps the
+      // lock in place, so the page cannot shift while it animates.
+      const otherModals = Array.from(
+        document.querySelectorAll('[aria-modal="true"]')
+      ).filter((node) => node !== ownDialog);
+
+      if (otherModals.length === 0) {
+        document.body.style.overflow = "";
+      }
+    };
+  }, [isRendered, onClose]);
+
+  if (!isRendered) {
     return null;
   }
 
@@ -332,12 +377,31 @@ export default function AddEventModal({
     e.stopPropagation();
   };
 
+  // An exiting modal is inert. The overlay keeps its pointer-events on purpose:
+  // `pointer-events: none` would let the click fall THROUGH the fading backdrop
+  // onto whatever page control sits underneath, which is worse than swallowing it.
+  const handleOverlayClick = () => {
+    if (isExiting) return;
+    onClose();
+  };
+
   return (
     <>
-    <div className={styles.modalOverlay} onClick={onClose}>
+    <div
+      className={cn(
+        styles.modalOverlay,
+        isExiting ? styles.modalOverlayExit : styles.modalOverlayEnter
+      )}
+      onClick={handleOverlayClick}
+      onAnimationEnd={handleAnimationEnd}
+    >
       <div
         ref={modalRef}
-        className={cn("card", styles.modalCard)}
+        className={cn(
+          "card",
+          styles.modalCard,
+          isExiting ? styles.modalCardExit : styles.modalCardEnter
+        )}
         onClick={handleCardClick}
         role="dialog"
         aria-modal="true"
@@ -345,7 +409,7 @@ export default function AddEventModal({
       >
         <div className={styles.modalHeader}>
           <h2 id="add-event-modal-title" className="font-bold text-xl text-primary">
-            {editEvent ? t("modal.editTitle") : t("modal.title")}
+            {editContext ? t("modal.editTitle") : t("modal.title")}
           </h2>
         </div>
 
@@ -601,7 +665,7 @@ export default function AddEventModal({
 
           {/* Buttons */}
           <div className={styles.modalFooter}>
-            {editEvent && onDelete && (
+            {editContext && onDelete && (
               <button
                 type="button"
                 onClick={() => setShowConfirm(true)}
@@ -657,8 +721,8 @@ export default function AddEventModal({
       cancelLabel={t("modal.cancel")}
       onConfirm={() => {
         setShowConfirm(false);
-        if (editEvent && onDelete) {
-          onDelete(editEvent.id);
+        if (editContext && onDelete) {
+          onDelete(editContext.id);
         }
       }}
       onCancel={() => setShowConfirm(false)}

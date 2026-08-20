@@ -180,6 +180,103 @@
   overflow: hidden;
 }
 
+// ── Modal show/hide animation ──────────────────────────────────────
+//
+// INVARIANT: the overlay and card EXIT durations must stay EQUAL. The
+// component observes `animationend` on the overlay to trigger its unmount, so
+// a card exit that outlasts the overlay's would be truncated mid-animation.
+//
+// The enter and exit classes are applied mutually exclusively by the component
+// (`cn(base, isExiting ? exit : enter)`); carrying both at once would put two
+// competing `animation-name` longhands on a single node.
+//
+// Only `opacity` and `transform` are animated, so both animations stay on the
+// compositor and do no layout or paint work on a card that can be 90vh tall.
+
+@keyframes modal-overlay-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-overlay-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-card-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modal-card-exit {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+}
+
+.modalOverlayEnter {
+  animation-name: modal-overlay-enter;
+  animation-duration: var(--transition-base);
+  animation-timing-function: var(--transition-ease-out);
+  animation-fill-mode: backwards;
+}
+
+.modalOverlayExit {
+  animation-name: modal-overlay-exit;
+  animation-duration: var(--transition-fast);
+  animation-timing-function: var(--transition-ease-in);
+  animation-fill-mode: forwards;
+}
+
+.modalCardEnter {
+  animation-name: modal-card-enter;
+  animation-duration: var(--transition-base);
+  animation-timing-function: var(--transition-ease-out);
+  animation-fill-mode: backwards;
+}
+
+.modalCardExit {
+  animation-name: modal-card-exit;
+  // Must match .modalOverlayExit's duration — see the INVARIANT above.
+  animation-duration: var(--transition-fast);
+  animation-timing-function: var(--transition-ease-in);
+  animation-fill-mode: forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  // Collapse to an imperceptible duration rather than `animation: none`. With
+  // no animation there is no `animationend`, so the deferred unmount would
+  // only ever resolve via the component's 400ms watchdog, leaving
+  // reduced-motion users staring at a frozen modal. Deliberately scoped to
+  // these four classes — a global `!important` motion reset would break the
+  // app's existing spinner and shimmer animations.
+  .modalOverlayEnter,
+  .modalOverlayExit,
+  .modalCardEnter,
+  .modalCardExit {
+    animation-duration: 1ms;
+  }
+}
+
 .modalHeader {
   flex: 0 0 auto;
   padding: 24px 24px 16px;

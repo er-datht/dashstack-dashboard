@@ -125,6 +125,14 @@ describe("ProductStock page", () => {
       });
       fireEvent.click(cancelButton);
 
+      // SPEC: openspec/changes/modal-show-hide-animation — ConfirmModal now
+      // plays a 150ms exit animation and stays mounted until it completes.
+      // jsdom does not run CSS animations, so the exit has to be completed by
+      // hand before asserting the dialog is gone.
+      fireEvent.animationEnd(
+        document.querySelector(".confirmOverlay") as HTMLElement
+      );
+
       expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
       expect(mockDeleteProduct).not.toHaveBeenCalled();
       // Row still present in the table.

@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef } from "react";
 import { cn } from "../../utils/cn";
+import { useModalTransition } from "../../hooks/useModalTransition";
 import styles from "./ConfirmModal.module.scss";
 
 type ConfirmModalProps = {
@@ -23,15 +24,33 @@ export default function ConfirmModal({
 }: ConfirmModalProps): React.JSX.Element | null {
   const cancelRef = useRef<HTMLButtonElement>(null);
   const confirmRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const onCancelRef = useRef(onCancel);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const instanceId = useId();
 
   onCancelRef.current = onCancel;
 
-  // Focus trap, Escape key, and body scroll lock
+  // Show/hide animation. `isRendered` stays true for the duration of the exit
+  // animation, so the modal is NOT unmounted the moment `isOpen` flips.
+  const { isRendered, isExiting, handleAnimationEnd } = useModalTransition(isOpen);
+
+  // The keydown listener is installed once per open, so it reads the exiting
+  // state through a ref rather than closing over it.
+  const isExitingRef = useRef(false);
+  isExitingRef.current = isExiting;
+
+  // Focus trap, Escape key, and body scroll lock.
+  //
+  // Gated on `isRendered`, NOT on `isOpen`: keying it on the prop would run the
+  // cleanup at exit START, releasing the body scroll lock while the modal is
+  // still animating and letting the scrollbar reappear mid-fade.
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isRendered) return;
+
+    // Captured at setup so the cleanup can exclude this modal's own node from
+    // the handoff check below without depending on when React detaches the ref.
+    const ownDialog = dialogRef.current;
 
     previousFocusRef.current = document.activeElement as HTMLElement;
     document.body.style.overflow = "hidden";
@@ -40,6 +59,10 @@ export default function ConfirmModal({
     cancelRef.current?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // An exiting modal is inert. Note it deliberately does NOT stop
+      // propagation here, so it does not swallow keys while fading out.
+      if (isExitingRef.current) return;
+
       if (e.key === "Escape") {
         e.stopImmediatePropagation();
         onCancelRef.current();
@@ -69,15 +92,29 @@ export default function ConfirmModal({
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      // Only restore scroll if no other modal is still open
-      if (!document.querySelector('[aria-modal="true"]')) {
+      // Only restore scroll if no other modal is still open. Excluding this
+      // modal's own node makes the check independent of whether React has
+      // already detached it — a stacked modal that is still exiting keeps the
+      // lock in place, so the page cannot shift while it animates.
+      const otherModals = Array.from(
+        document.querySelectorAll('[aria-modal="true"]')
+      ).filter((node) => node !== ownDialog);
+
+      if (otherModals.length === 0) {
         document.body.style.overflow = "";
       }
-      previousFocusRef.current?.focus();
     };
-  }, [isOpen]);
+  }, [isRendered]);
 
-  if (!isOpen) {
+  // Restore focus at the START of the exit rather than on unmount, so keyboard
+  // focus comes back immediately instead of 150ms later. A moving focus ring
+  // does not visually compete with a fade.
+  useEffect(() => {
+    if (!isExiting) return;
+    previousFocusRef.current?.focus();
+  }, [isExiting]);
+
+  if (!isRendered) {
     return null;
   }
 
@@ -85,15 +122,32 @@ export default function ConfirmModal({
   const descId = `${instanceId}-desc`;
 
   const handleOverlayClick = (e: React.MouseEvent) => {
+    // An exiting modal is inert. The overlay keeps its pointer-events on
+    // purpose: `pointer-events: none` would let the click fall THROUGH the
+    // fading backdrop onto whatever page control sits underneath.
+    if (isExiting) return;
+
     if (e.target === e.currentTarget) {
       onCancel();
     }
   };
 
   return (
-    <div className={styles.confirmOverlay} onClick={handleOverlayClick}>
+    <div
+      className={cn(
+        styles.confirmOverlay,
+        isExiting ? styles.confirmOverlayExit : styles.confirmOverlayEnter
+      )}
+      onClick={handleOverlayClick}
+      onAnimationEnd={handleAnimationEnd}
+    >
       <div
-        className={cn("card", styles.confirmCard)}
+        ref={dialogRef}
+        className={cn(
+          "card",
+          styles.confirmCard,
+          isExiting ? styles.confirmCardExit : styles.confirmCardEnter
+        )}
         role="alertdialog"
         aria-modal="true"
         aria-labelledby={titleId}
