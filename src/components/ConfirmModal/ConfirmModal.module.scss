@@ -17,3 +17,96 @@
   gap: 16px;
   text-align: center;
 }
+
+// ── Show/hide animation ────────────────────────────────────────────
+//
+// Mirrors the AddEventModal animation in src/pages/Calendar/Calendar.module.scss.
+// Keyframes are defined locally because CSS Modules scopes `@keyframes` names,
+// which makes referencing a global keyframe from inside a module fragile —
+// `@keyframes spin` is already duplicated across six module files for the same
+// reason.
+//
+// INVARIANT: the overlay and card EXIT durations must stay EQUAL. The component
+// observes `animationend` on the overlay to trigger its unmount, so a card exit
+// that outlasts the overlay's would be truncated mid-animation.
+
+@keyframes confirm-overlay-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes confirm-overlay-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes confirm-card-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes confirm-card-exit {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+}
+
+.confirmOverlayEnter {
+  animation-name: confirm-overlay-enter;
+  animation-duration: var(--transition-base);
+  animation-timing-function: var(--transition-ease-out);
+  animation-fill-mode: backwards;
+}
+
+.confirmOverlayExit {
+  animation-name: confirm-overlay-exit;
+  animation-duration: var(--transition-fast);
+  animation-timing-function: var(--transition-ease-in);
+  animation-fill-mode: forwards;
+}
+
+.confirmCardEnter {
+  animation-name: confirm-card-enter;
+  animation-duration: var(--transition-base);
+  animation-timing-function: var(--transition-ease-out);
+  animation-fill-mode: backwards;
+}
+
+.confirmCardExit {
+  animation-name: confirm-card-exit;
+  // Must match .confirmOverlayExit's duration — see the INVARIANT above.
+  animation-duration: var(--transition-fast);
+  animation-timing-function: var(--transition-ease-in);
+  animation-fill-mode: forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  // Collapse to an imperceptible duration rather than `animation: none`. With
+  // no animation there is no `animationend`, so the deferred unmount would only
+  // ever resolve via the component's 400ms watchdog.
+  .confirmOverlayEnter,
+  .confirmOverlayExit,
+  .confirmCardEnter,
+  .confirmCardExit {
+    animation-duration: 1ms;
+  }
+}
