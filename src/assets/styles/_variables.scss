@@ -1,5 +1,13 @@
 @use "sass:map";
 
+// NOTE: theme-adaptive tokens are deliberately ABSENT from $colors — they live
+// only as CSS custom properties in src/index.css, because a Sass map value is
+// resolved at build time and cannot vary with [data-theme]. That covers
+// `--color-loading-accent`, `--color-loading-track` and `--color-scrim`; read
+// them as `var(--…)` in SCSS modules, never `color()`.
+// The rule and its rationale are in CLAUDE.md → "Design Token System"; do not
+// re-explain it here, and do not "restore" these to the map.
+
 // Color Palette
 $colors: (
   // Primary Colors - Based on #4880FF

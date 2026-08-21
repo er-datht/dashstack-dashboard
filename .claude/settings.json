@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(openspec status *)",
+      "Bash(openspec validate *)",
+      "Bash(openspec instructions *)",
+      "Bash(./node_modules/.bin/openspec status *)",
+      "Bash(./node_modules/.bin/openspec validate *)",
+      "Bash(./node_modules/.bin/openspec instructions *)",
+      "Bash(./node_modules/.bin/openspec list *)"
+    ]
+  }
+}

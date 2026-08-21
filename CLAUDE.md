@@ -46,12 +46,14 @@ The primary env var is `VITE_API_BASE_URL` (defaults to `http://localhost:3000/a
 
 ### Design Token System
 
-Tokens exist in two parallel formats that **must stay in sync**:
+Tokens exist in two parallel formats that **must stay in sync** — with one deliberate exception:
 
 - **SCSS variables** in `src/assets/styles/_variables.scss` (with helper functions `color()`, `spacing()`, `font-size()`)
 - **CSS custom properties** in `src/index.css` (`:root` and `[data-theme]` selectors for theme-adaptive values)
 
-SCSS mixins are in `src/assets/styles/_mixins.scss` (layout, theming, responsive, effects).
+**Exception — theme-adaptive tokens have NO SCSS twin.** A token whose value changes per theme (e.g. `--color-loading-accent`, `--color-loading-track`, `--color-scrim`) lives *only* in `src/index.css`. A Sass map value is resolved at build time and cannot vary with `[data-theme]`, so mirroring it into `$colors` would silently freeze one theme's colour. In SCSS modules, read these with `var(--token)` — never `color()`. Guarded by `src/assets/styles/__tests__/tokenSync.test.ts`.
+
+SCSS mixins are in `src/assets/styles/_mixins.scss` (layout, theming, responsive, effects) — including `loading-ring`, the shared ring-spinner rule used by the Products, ProductDetail and Favorites modules.
 
 ### Theme System
 
@@ -300,6 +302,7 @@ Read the relevant entry there before working in that area; this list is only a m
 - **TopNav** — user/language/notification dropdowns, toast system, avatar event subscription
 - **i18n** — en/jp only; 19 registered namespaces
 - **Products** — listing, ProductDetail, ProductStock, EditProduct, Favorites, WishlistContext, persistence
+- **Loading Indicators** — `--color-loading-accent` token, per-theme resolution, ring track/scrim as literal `rgba`, `loading-ring` mixin, e2e colour verification
 - **Shared UI** — TableCommon, StatusBadge, Buttons
 
 ## Common Gotchas
@@ -312,6 +315,8 @@ Read the relevant entry there before working in that area; this list is only a m
 - **`i18n.ts` is in project root** — not in `src/`
 - **All pages must be lazy-loaded** in `AppRoutes.tsx`
 - **All components must support all 3 themes** — no hardcoded colors
+- **Theme-adaptive tokens have no `$colors` entry** — read them as `var(--token)` in SCSS modules, never `color()` (see Design Token System above); mirroring one into `$colors` freezes a single theme's colour
+- **`color()` returns `null` for a key `$colors` doesn't have, and Sass then drops the whole declaration silently** — `color(primary-light)` compiled away entirely, leaving forest rendering the inherited blue on Products/ProductDetail. `$colors` has numbered keys (`primary-400`) plus `primary`/`primary-dark`/`primary-light` only as CSS custom properties, not map keys. Verify the key exists in `_variables.scss` before using `color()`
 - **React Compiler handles memoization** — manual `useMemo`/`useCallback` rarely needed
 - **Never delete the `AnimationEvent` polyfill** in `src/test/setup.ts`, and never move it below an import that pulls in react-dom — jsdom lacks the constructor, so React registers the vendor-prefixed `webkitAnimationEnd` and `fireEvent.animationEnd` silently stops reaching `onAnimationEnd`, failing every animation test while the browser stays fine
 - **Never run `playwright install`** — e2e drives the system Chrome via `channel: "chrome"` (a security-review condition: the bundled Chromium lags stable and is an unverified ~350 MB CDN download). Do not add `@playwright/browser-*`; Firefox/WebKit needs a fresh review
