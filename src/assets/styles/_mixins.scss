@@ -277,3 +277,26 @@
     background-position: -200% 0;
   }
 }
+
+// Page-level ring spinner: translucent track on all sides, solid accent on top.
+//
+// Both colours come from CSS custom properties, never `color()` — a Sass map
+// value is frozen at build time and could not follow [data-theme], which is why
+// these spinners were stuck on light-theme blue before `unify-loading-accent-color`.
+//
+// Longhand, not the `border:` shorthand: if a token ever failed to resolve, the
+// shorthand would unset border-style too and the ring would vanish instead of
+// degrading to currentColor.
+//
+// The consuming module must declare its own `@keyframes spin` — CSS Modules
+// scopes animation names per file, so a shared one here would not bind.
+@mixin loading-ring($size: 48px, $width: 4px) {
+  width: $size;
+  height: $size;
+  border-width: $width;
+  border-style: solid;
+  border-color: var(--color-loading-track);
+  border-top-color: var(--color-loading-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}

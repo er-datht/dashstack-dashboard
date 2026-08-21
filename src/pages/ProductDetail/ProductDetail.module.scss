@@ -1,5 +1,6 @@
 @use "sass:map";
 @use "../../assets/styles/variables" as *;
+@use "../../assets/styles/mixins" as *;
 
 .container {
   padding: spacing(6);
@@ -18,12 +19,7 @@
 }
 
 .spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid color(gray-200);
-  border-top-color: color(primary-600);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+  @include loading-ring;
 }
 
 @keyframes spin {
@@ -426,11 +422,6 @@
 }
 
 [data-theme="dark"] {
-  .spinner {
-    border-color: color(gray-700);
-    border-top-color: color(primary-400);
-  }
-
   .errorText {
     color: color(error-400);
   }
@@ -480,11 +471,6 @@
 }
 
 [data-theme="forest"] {
-  .spinner {
-    border-color: color(primary-900);
-    border-top-color: color(primary-light);
-  }
-
   .errorText {
     color: color(error-400);
   }

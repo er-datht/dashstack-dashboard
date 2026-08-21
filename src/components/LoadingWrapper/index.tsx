@@ -14,7 +14,7 @@ export default function LoadingWrapper({
   loadingText = "Loading...",
   children,
   className = "",
-  loadingClassName = "flex items-center justify-center gap-3 text-gray-600 dark:text-gray-400",
+  loadingClassName = "flex items-center justify-center gap-3 text-secondary",
 }: LoadingWrapperProps) {
   return (
     <div className={`relative ${className} min-h-dvh`}>
@@ -25,9 +25,9 @@ export default function LoadingWrapper({
 
       {/* Loading overlay - conditionally rendered */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-surface-dark/80 rounded-lg z-10">
+        <div className="absolute inset-0 flex items-center justify-center bg-scrim rounded-lg z-10">
           <div className={loadingClassName}>
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <Loader2 className="w-5 h-5 animate-spin icon-brand" />
             <p>{loadingText}</p>
           </div>
         </div>

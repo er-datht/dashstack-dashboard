@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { boot, THEMES } from "./helpers";
 
 /**
  * Browser-only verification for the change `modal-show-hide-animation`.
@@ -30,18 +31,6 @@ type Trace = {
   overflowWhileAttached: string[];
   overflowAfterDetach: string | null;
 };
-
-/** Seed auth (withAuth only checks for a non-empty auth_token) and the theme. */
-async function boot(page: Page, theme: "light" | "dark" | "forest") {
-  await page.addInitScript((t) => {
-    localStorage.setItem("auth_token", "e2e-token");
-    localStorage.setItem(
-      "auth_user",
-      JSON.stringify({ name: "E2E", email: "e2e@test.dev", role: "Admin" })
-    );
-    localStorage.setItem("theme", t);
-  }, theme);
-}
 
 async function openAddEventModal(page: Page) {
   await page.getByRole("button", { name: "+ Add New Event" }).click();
@@ -166,7 +155,7 @@ async function closeAndTrace(
 }
 
 // ── 6.4 + 6.5b: every close path, in all three themes ─────────────────
-for (const theme of ["light", "dark", "forest"] as const) {
+for (const theme of THEMES) {
   test(`[6.4] AddEventModal animates in and out in the ${theme} theme`, async ({
     page,
   }) => {

@@ -262,8 +262,23 @@
     background-color: var(--color-primary-50);
   }
 
+  /* Brand icon color. Declared once — the per-theme value lives on
+     --color-loading-accent, not in the [data-theme] blocks.
+     NOTE: most consumers are NOT loading indicators — page-header icons across
+     Dashboard/Products/Table/EditProduct/ProductStock/UiElements and a chart
+     tooltip value all use this. Retuning --color-loading-accent repaints all of
+     them, so treat that token as the theme's brand accent, not a spinner knob. */
   .icon-brand {
-    color: var(--color-primary-600);
+    color: var(--color-loading-accent);
+  }
+
+  /* Translucent scrim over the active theme's page background, for loading
+     overlays that dim the content behind them.
+     NOT a modal backdrop: this is the PAGE BACKGROUND at 80%, so it dims content
+     to a near-blank page rather than darkening it. Modal backdrops use the
+     rgba(0,0,0,.5) in ConfirmModal.module.scss — see --color-scrim below. */
+  .bg-scrim {
+    background-color: var(--color-scrim);
   }
 
   /* Success colors */
@@ -348,6 +363,20 @@
     border-color: var(--color-border);
   }
 
+  /* Ring spinner border: faint track on all sides, solid accent on top. Pair
+     with `animate-spin` and a border width.
+     Do not combine with a generic border utility. Source order keeps this above
+     the copies of `.border-default` / `.border-primary` in THIS layer, but the
+     `[data-theme="dark"|"forest"] .border-primary` rules further down are
+     UNLAYERED, and unlayered declarations beat layered ones regardless of
+     specificity or order — so on `border-primary border-loading` the ring would
+     silently revert to a solid primary-500 border in those two themes and
+     reordering this block would not help. */
+  .border-loading {
+    border-color: var(--color-loading-track);
+    border-top-color: var(--color-loading-accent);
+  }
+
   /* Table utilities */
   .bg-table-header {
     background-color: var(--color-table-header-bg);
@@ -392,6 +421,35 @@
   --color-primary: #4880ff;
   --color-primary-dark: #2b5ff7;
   --color-primary-light: #6691ff;
+
+  /* ===== Loading Accent =====
+     Single source of truth for every page-, panel-, and overlay-level loading
+     indicator. Redefined per theme below.
+     Despite the name it is effectively the theme's BRAND ACCENT: `.icon-brand`
+     consumes it, and most of that utility's call sites are static page-header
+     icons rather than spinners. Changing this repaints them too.
+
+     WHY THE TRANSLUCENT VALUES ARE EXPLICIT rgba AND NOT color-mix:
+     Lightning CSS cannot statically resolve a mix whose input is a custom
+     property, so for `color-mix(in srgb, var(--x) N%, transparent)` it emits a
+     progressive-enhancement fallback of bare `var(--x)` — i.e. the OPAQUE
+     colour — guarded by @supports. On any engine without color-mix (Safari
+     <16.4, Chrome <111, Firefox <113, all inside this project's Vite default
+     target) that fallback is actively harmful here:
+       - track would equal the arc  -> a uniform ring with no visible rotation
+       - scrim would be fully opaque -> the overlay hides the content entirely
+     Writing them as literal rgba is uglier but degrades to the correct visual
+     everywhere. Keep each pair in step with its source colour when changing it —
+     `src/assets/styles/__tests__/tokenSync.test.ts` recomputes the channels from
+     the source hex, so drift fails `yarn test`.
+
+     --color-scrim mixes over --color-background, NOT --color-surface: the only
+     consumer (LoadingWrapper, via Todo) sits on the layout background, and in
+     dark/forest the surface is LIGHTER than the background, so a surface-based
+     scrim would lighten the page instead of dimming it. */
+  --color-loading-accent: var(--color-primary-600);
+  --color-loading-track: rgba(43, 95, 247, 0.2); /* primary-600 @ 20% */
+  --color-scrim: rgba(245, 245, 247, 0.8); /* background @ 80% */
 
   /* ===== Surface/Background Colors ===== */
   --color-background: #f5f5f7;
@@ -593,6 +651,12 @@
 
 /* ===== Dark Theme Overrides ===== */
 [data-theme="dark"] {
+  /* Loading Accent - lighter than light theme's 600, which reads muddy here.
+     Track is an explicit rgba; see the :root block for why not color-mix. */
+  --color-loading-accent: var(--color-primary-400);
+  --color-loading-track: rgba(102, 145, 255, 0.2); /* primary-400 @ 20% */
+  --color-scrim: rgba(43, 53, 68, 0.8); /* background #2b3544 @ 80% */
+
   /* Surface/Background Colors */
   --color-background: #2b3544;
   --color-surface: #344152;
@@ -648,10 +712,6 @@
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 
   /* Dashboard utility class overrides for dark theme */
-  .icon-brand {
-    color: var(--color-primary-400);
-  }
-
   .text-success {
     color: var(--color-success-400);
   }
@@ -741,6 +801,11 @@
   --color-primary-dark: #16a34a;
   --color-primary-light: #4ade80;
 
+  /* Loading Accent. Track is an explicit rgba; see :root for why not color-mix. */
+  --color-loading-accent: var(--color-primary-light);
+  --color-loading-track: rgba(74, 222, 128, 0.2); /* primary-light @ 20% */
+  --color-scrim: rgba(10, 31, 15, 0.8); /* background #0a1f0f @ 80% */
+
   /* Surface/Background Colors - Dark forest tones */
   --color-background: #0a1f0f;
   --color-surface: #0f2817;
@@ -796,10 +861,6 @@
   --shadow-2xl: 0 25px 50px -12px rgba(34, 197, 94, 0.4);
 
   /* Dashboard utility class overrides for forest theme */
-  .icon-brand {
-    color: var(--color-primary-light);
-  }
-
   .text-success {
     color: var(--color-primary-300);
   }
