@@ -17,12 +17,7 @@ The component contract is the **delta spec** in `openspec/changes/<name>/specs/`
 
 ## Hard gates
 
-These are not suggestions. They come from `CLAUDE.md` and override anything below.
-
-- **`security-reviewer` BLOCKS.** New features are where dependencies get added. If this change runs `yarn add`, fetches an external URL, or uses a web-sourced snippet, pause **all** other work until the verdict is ✅ allow.
-- **Never auto-chain `opsx:apply`.** Step 6 is a full stop. Present findings and wait for the user to trigger implementation.
-- **Never commit on `master`.** Ask before any git operation.
-- **Yarn only** — never `npm`.
+Read `.claude/rules/hard-gates.md` and apply it in full. It overrides anything below. In this pipeline the stop it refers to is **step 6**.
 
 ## Steps
 
@@ -62,55 +57,21 @@ These are not suggestions. They come from `CLAUDE.md` and override anything belo
 
    If the spec turns out to be wrong mid-build, stop and revise the spec — the workflow is iterative, not waterfall. Say what changed; do not silently drift from it.
 
-8. **Find violations** — review your own diff against the checklist below and **list every violation. Change nothing in this step.**
-
-   General:
-
-   - No inline styles — **except** the documented tier-2 case: a dynamic value referencing a CSS custom property, e.g. `style={{ color: 'var(--color-primary-600)' }}`. Static styling goes through Tailwind utilities or an SCSS module
-   - Every interactive element has an accessible name
-   - Every image has meaningful `alt`, or `alt=""` if decorative
-   - No user-facing string hardcoded — keys go through `react-i18next`'s `t()`, in both `en` and `jp`
-   - No hardcoded color or spacing value outside `src/index.css` / `src/assets/styles/_variables.scss`
-   - No `console.log` left behind
-   - No `any` / `@ts-ignore` added
-   - Every list render has a stable `key` — not the array index
-   - No direct DOM manipulation where React owns the node
-   - Loading and error states are handled for every new data fetch
-   - No secret, API key, or internal URL added to client-side code
-   - Only files related to this one change are touched
-
-   Repo-specific:
-
-   - Class names composed with the `cn()` helper from `src/utils/cn.ts` (`classnames`), never `clsx`
-   - Imports are relative — this repo has no path aliases
-   - Props typed with `type`, not `interface`; components carry an explicit `React.JSX.Element` return type
-   - The component renders correctly in **all three** themes (light, dark, forest)
-   - Any new page is lazy-loaded in `src/routes/AppRoutes.tsx`, with its constant in `src/routes/routes.ts` and a nav item in `src/components/Sidebar/navigationData.ts`
-   - No manual `useMemo` / `useCallback` added without a stated reason — React Compiler is enabled
-   - Directory is `src/configs/` (plural); `i18n.ts` lives at the project root, not in `src/`
-
-   OpenSpec:
+8. **Find violations** — review your own diff against `.claude/rules/diff-constraints.md` and **list every violation. Change nothing in this step.** Add these feature-specific OpenSpec checks to that list:
 
    - Every task in `tasks.md` is actually done, or explicitly deferred with a reason
    - Everything the design marked out-of-scope is genuinely absent from the diff
    - Every state the delta spec lists is actually reachable and rendered
 
-   Output the violations as a plain numbered list, each with `file:line` and what rule it breaks.
-
 9. **Rewrite** — fix exactly the violations listed in step 8, and nothing else.
 
-10. **Verify**:
-    - Lint: `yarn lint`
-    - Type check: `yarn tsc -b`
-    - Tests: `yarn test`
-    - Build: `yarn build`
-    - E2E: `yarn test:e2e` — Playwright, currently covering the modal show/hide animation. Run it if this feature touches those modals; **add cases** if it has behaviour jsdom cannot verify — real animation timing, `prefers-reduced-motion`, theme parity, or computed layout (Vitest swaps CSS Modules for a non-scoped proxy, so no unit test can read a computed style). New specs go in `e2e/`, which is excluded from vitest. **Never run `playwright install`** — it drives the system Chrome via `channel: "chrome"`, a security-review condition
+10. **Verify** — run everything in `.claude/rules/verify.md`; the build is not optional for a feature. Plus, for this pipeline:
     - View the component in the running app (`yarn dev`) at every breakpoint **and every theme** the spec names
-    - **Report the actual command output.** Never claim a pass without having run it
 
-11. **Review — both passes:**
+11. **Review — both passes, dispatched together.** Both are read-only over the same diff and neither consumes the other's output, so launch them concurrently rather than waiting for the first to finish:
     - **`code-reviewer`** (the OpenSpec stage, never skipped) — holistic review of the diff
     - **`/review-parallel`** — six single-angle reviewers in one message, for the fan-out `code-reviewer` cannot do alone
+    - Dedupe across all seven reports before presenting — several angles will land on the same line
     - Any `HIGH` finding → present it, loop back to step 9. **Cap the loop at 2 iterations**
     - If review exposes a **pre-existing** bug, prefer a new change over bundling it into this one
 
@@ -127,14 +88,14 @@ These are not suggestions. They come from `CLAUDE.md` and override anything belo
 
 ## Rules
 
+`.claude/rules/hard-gates.md` applies in full. On top of it:
+
 - OpenSpec owns the artifacts; this command owns the order and the gates
 - One feature per run — a bug found along the way gets its own change
 - The delta spec is the contract — later steps read it instead of re-deriving the work
 - Steps 8 and 9 stay separate — never merge "find violations" into "fix"
 - `requirements-analyst` and `code-reviewer` are never skipped
-- `security-reviewer` blocks everything when it runs
 - Step 6 is a hard stop — never auto-chain `opsx:apply`
 - Review agents are read-only; every edit happens in the main session
 - The evaluator–optimizer loop in step 11 is capped at 2 iterations
-- Never commit directly on `master`; ask before any git operation
 - Never delete an archived change — the archive is the audit trail

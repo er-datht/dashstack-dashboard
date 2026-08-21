@@ -140,6 +140,8 @@ Copy each body verbatim, substituting every `{{PLACEHOLDER}}` from Part 1 and ev
 
 Where the body says "adapt", replace the example with something true of this repo.
 
+**These bodies are a starting point, not a mirror of any repo's `.claude/commands/`.** Once generated, the real command files are the source of truth and will drift from what is written here — dashstack-dashboard, for instance, has already extracted the shared checklist and gates into `.claude/rules/` per the Part 4 note below. Never treat a body here as authoritative for a repo that has already generated its commands; read that repo's `.claude/commands/` instead.
+
 ## 3a. `.claude/commands/route-ticket.md`
 
 ````markdown

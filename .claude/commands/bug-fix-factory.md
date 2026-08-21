@@ -17,12 +17,7 @@ Everything else — the ticket, the design, the delta specs, the task list, the 
 
 ## Hard gates
 
-These are not suggestions. They come from `CLAUDE.md` and override anything below.
-
-- **`security-reviewer` BLOCKS.** If the fix adds a dependency, fetches an external URL, or uses a web-sourced snippet, pause **all** other work until the verdict is ✅ allow. No `yarn add`, no `unit-test-writer`, no `opsx:apply` before then.
-- **Never auto-chain `opsx:apply`.** Step 7 is a full stop. Present findings and wait for the user to trigger implementation.
-- **Never commit on `master`.** Ask before any git operation.
-- **Yarn only** — never `npm`.
+Read `.claude/rules/hard-gates.md` and apply it in full. It overrides anything below. In this pipeline the stop it refers to is **step 6**.
 
 ## Steps
 
@@ -63,56 +58,23 @@ These are not suggestions. They come from `CLAUDE.md` and override anything belo
    - Target exactly the cause identified in step 1
    - Do not fix anything under `<related>`; do not clean up adjacent code, rename, or reformat untouched lines
 
-8. **Find violations** — review your own diff against the checklist below and **list every violation. Change nothing in this step.**
-
-   General:
-
-   - No inline styles — **except** the documented tier-2 case: a dynamic value referencing a CSS custom property, e.g. `style={{ color: 'var(--color-primary-600)' }}`. Static styling goes through Tailwind utilities or an SCSS module
-   - Every interactive element has an accessible name
-   - Every image has meaningful `alt`, or `alt=""` if decorative
-   - No user-facing string hardcoded — keys go through `react-i18next`'s `t()`, with the key added to **both** `public/locales/en/` and `public/locales/jp/`
-   - No hardcoded color or spacing value outside `src/index.css` / `src/assets/styles/_variables.scss`
-   - No `console.log` left behind
-   - No `any` / `@ts-ignore` added
-   - Every list render has a stable `key` — not the array index
-   - No direct DOM manipulation where React owns the node
-   - Loading and error states are handled for every new data fetch
-   - No secret, API key, or internal URL added to client-side code
-   - Only files related to this one change are touched
-
-   Repo-specific:
-
-   - Class names composed with the `cn()` helper from `src/utils/cn.ts` (`classnames`), never `clsx`
-   - Imports are relative — this repo has no path aliases
-   - Props typed with `type`, not `interface`; components carry an explicit `React.JSX.Element` return type
-   - The change renders correctly in **all three** themes (light, dark, forest)
-   - Any new page is lazy-loaded in `src/routes/AppRoutes.tsx`, with its constant in `src/routes/routes.ts`
-   - No manual `useMemo` / `useCallback` added without a stated reason — React Compiler is enabled
-   - Directory is `src/configs/` (plural); `i18n.ts` lives at the project root, not in `src/`
-
-   OpenSpec:
+8. **Find violations** — review your own diff against `.claude/rules/diff-constraints.md` and **list every violation. Change nothing in this step.** Add these bug-fix-specific OpenSpec checks to that list:
 
    - Every task in `tasks.md` is actually done, or explicitly deferred with a reason
    - The diff does nothing the delta spec does not cover — scope creep shows up here
-
-   Output the violations as a plain numbered list, each with `file:line` and what rule it breaks. If there are none, say so explicitly and continue.
 
 9. **Rewrite** — fix exactly the violations listed in step 8, and nothing else.
    - Do not re-open the root-cause fix in this step
    - Do not introduce new behaviour while clearing violations
 
-10. **Verify**:
-    - Lint: `yarn lint`
-    - Type check: `yarn tsc -b`
-    - Tests: `yarn test`
-    - Build, if the change touches config or imports: `yarn build`
-    - E2E: `yarn test:e2e` — Playwright, currently covering the modal show/hide animation. Run it if the fix touches those modals; **add a regression case** if this is a bug jsdom cannot catch — real animation timing, `prefers-reduced-motion`, theme parity, or computed layout (Vitest swaps CSS Modules for a non-scoped proxy, so no unit test can read a computed style). New specs go in `e2e/`, which is excluded from vitest. **Never run `playwright install`** — it drives the system Chrome via `channel: "chrome"`, a security-review condition
+10. **Verify** — run everything in `.claude/rules/verify.md`. The build is optional here unless the fix touches config or imports; if you skip it, run `yarn tsc -b` on its own. Plus, for this pipeline:
     - Check the fix in the running app (`yarn dev`) for `UI_BUG`, `A11Y`, `RESPONSIVE` and `THEMING` categories — a passing test suite does not prove a visual fix
-    - **Report the actual command output.** Never claim lint, types, or tests pass without having run them; if something fails, say so and show the failure
+    - The regression test from step 5 must fail without the fix and pass with it
 
-11. **Review — both passes:**
+11. **Review — both passes, dispatched together.** Both are read-only over the same diff and neither consumes the other's output, so launch them concurrently rather than waiting for the first to finish:
     - **`code-reviewer`** (the OpenSpec stage, never skipped) — holistic review of the diff
     - **`/review-parallel`** — six single-angle reviewers in one message, for the fan-out `code-reviewer` cannot do alone
+    - Dedupe across all seven reports before presenting — several angles will land on the same line
     - Any `HIGH` finding → present it, loop back to step 9 and clear it. **Cap the loop at 2 iterations**; after that report what remains and let the user decide
     - `MEDIUM` and `LOW` findings go into the PR description as known items unless the user asks for them to be fixed
     - If review exposes a **pre-existing** bug, prefer a new change over bundling it into this one
@@ -131,14 +93,14 @@ These are not suggestions. They come from `CLAUDE.md` and override anything belo
 
 ## Rules
 
+`.claude/rules/hard-gates.md` applies in full. On top of it:
+
 - OpenSpec owns the artifacts; this command owns the order and the gates
 - One bug per change — don't bundle multiple unrelated bugs
 - The router picks the pipeline — do not re-classify mid-run
 - Steps 8 and 9 stay separate — never merge "find violations" into "fix"
 - `requirements-analyst` and `code-reviewer` are never skipped
-- `security-reviewer` blocks everything when it runs
 - Step 6 is a hard stop — never auto-chain `opsx:apply`
 - Review agents are read-only; every edit happens in the main session
 - The evaluator–optimizer loop in step 11 is capped at 2 iterations
-- Never commit directly on `master`; ask before any git operation
 - Never delete an archived change — the archive is the audit trail
