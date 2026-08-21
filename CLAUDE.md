@@ -302,6 +302,7 @@ Read the relevant entry there before working in that area; this list is only a m
 - **TopNav** — user/language/notification dropdowns, toast system, avatar event subscription
 - **i18n** — en/jp only; 19 registered namespaces
 - **Products** — listing, ProductDetail, ProductStock, EditProduct, Favorites, WishlistContext, persistence
+- **Loading Indicators** — `--color-loading-accent` token, per-theme resolution, ring track/scrim as literal `rgba`, `loading-ring` mixin, e2e colour verification
 - **Shared UI** — TableCommon, StatusBadge, Buttons
 
 ## Common Gotchas
