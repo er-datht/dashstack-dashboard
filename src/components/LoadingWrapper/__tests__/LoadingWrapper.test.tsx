@@ -72,15 +72,17 @@ const getScrim = (container: HTMLElement): HTMLElement => {
 };
 
 /** Every test below renders the same tree; only the props vary. */
-const renderLoading = (props: Partial<Parameters<typeof LoadingWrapper>[0]> = {}) =>
+const renderLoading = (
+  props: Partial<Parameters<typeof LoadingWrapper>[0]> = {},
+) =>
   render(
     <LoadingWrapper isLoading {...props}>
       <p>child content</p>
-    </LoadingWrapper>
+    </LoadingWrapper>,
   );
 
 describe("LoadingWrapper", () => {
-  describe("loading behaviour", () => {
+  describe("loading behavior", () => {
     it("renders children and no indicator when isLoading is false", () => {
       const { container } = renderLoading({ isLoading: false });
 

@@ -8,7 +8,7 @@ Shared by `/bug-fix-factory` and `/feature-build-factory`.
   check**. Run `yarn tsc -b` on its own only when skipping the build
 - E2E: `yarn test:e2e` — Playwright, covering the modal show/hide animation and
   the loading accent colour. Run it if the change touches those surfaces, and
-  **add a case** for behaviour jsdom cannot verify: real animation timing,
+  **add a case** for behavior jsdom cannot verify: real animation timing,
   `prefers-reduced-motion`, theme parity, or any computed style (Vitest swaps CSS
   Modules for a non-scoped proxy, so no unit test can read a resolved colour).
   New specs go in `e2e/`, which is excluded from vitest; shared setup lives in

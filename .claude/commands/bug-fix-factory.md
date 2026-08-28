@@ -1,5 +1,5 @@
 ---
-description: End-to-end bug-fix workflow on top of OpenSpec — route, root-cause, propose, gate, test, apply, constraint check, verify, parallel review, archive.
+description: End-to-end bug-fix workflow on top of OpenSpec — route, root-cause, propose, gate, test, apply, constraint check, verify, parallel review, archive, PR description.
 argument-hint: <bug report, ticket text, Sentry excerpt, or path to a report file>
 ---
 
@@ -7,17 +7,19 @@ End-to-end bug-fix workflow for dashstack-dashboard.
 
 **OpenSpec owns the lifecycle. This command owns execution discipline.** `CLAUDE.md` mandates the OpenSpec pipeline for every change; this command does not replace it, it drives it and adds three things the pipeline does not have on its own:
 
-| Added | Where it slots in | Why |
-| --- | --- | --- |
-| **Routing** | Step 0, before `requirements-analyst` | One prompt can't carry rules for eight kinds of defect. The router also picks the model for the work that follows. |
+| Added                    | Where it slots in                            | Why                                                                                                                                                                                                      |
+| ------------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Routing**              | Step 0, before `requirements-analyst`        | One prompt can't carry rules for eight kinds of defect. The router also picks the model for the work that follows.                                                                                       |
 | **Detect/correct split** | Steps 8–9, after `opsx:apply`, before review | A single prompt carrying "fix the bug and don't use inline styles and don't forget the aria-label" reliably drops a constraint. Listing violations first, then fixing exactly those, is far more stable. |
-| **Parallel review** | Step 11, alongside `code-reviewer` | One pass can't weigh a11y, performance, correctness, convention, coverage and client security at once. |
+| **Parallel review**      | Step 11, alongside `code-reviewer`           | One pass can't weigh a11y, performance, correctness, convention, coverage and client security at once.                                                                                                   |
 
 Everything else — the ticket, the design, the delta specs, the task list, the archive — **is** OpenSpec. Do not create a parallel ticket format.
 
 ## Hard gates
 
 Read `.claude/rules/hard-gates.md` and apply it in full. It overrides anything below. In this pipeline the stop it refers to is **step 6**.
+
+Then read `.claude/rules/pipeline-discipline.md` — the rules both factories share. This command adds only what is specific to fixing a bug.
 
 ## Steps
 
@@ -39,13 +41,13 @@ Read `.claude/rules/hard-gates.md` and apply it in full. It overrides anything b
    <related>          Related bugs found while looking (do NOT fix them here)
    ```
 
-   Stay inside the routed `focus`; skip what the router listed under `skip`. **Read `openspec/specs/` for the affected capability first** — the spec is the source of truth for correct behaviour, so `<correct_behavior>` should cite it rather than be invented. Check `openspec/changes/archive/` for prior decisions on the same surface.
+   Stay inside the routed `focus`; skip what the router listed under `skip`. **Read `openspec/specs/` for the affected capability first** — the spec is the source of truth for correct behavior, so `<correct_behavior>` should cite it rather than be invented. Check `openspec/changes/archive/` for prior decisions on the same surface.
 
 2. **`requirements-analyst`** — never skipped, even for a one-line fix. It reads the existing specs first, then resolves ambiguity in the root-cause report. Present its questions to the user and **wait for answers** before step 3. For a trivial fix this may be a zero-question pass.
 
 3. **`/opsx:propose`** — create the change: proposal, design, delta specs, tasks. This **is** the bug ticket; do not write a separate one.
    - Right-size it — a one-line fix gets a one-line proposal
-   - The delta spec states the corrected behaviour as a requirement plus scenarios, not as a diff description
+   - The delta spec states the corrected behavior as a requirement plus scenarios, not as a diff description
    - Anything under `<related>` becomes its own future change, not a task here
 
 4. **`security-reviewer`** — run **only** if this fix adds a dependency, an external URL, or web-sourced code. ⛔ **BLOCKING** — if it runs, nothing else proceeds until the verdict is ✅ allow. Skip when the change adds no external code.
@@ -59,13 +61,12 @@ Read `.claude/rules/hard-gates.md` and apply it in full. It overrides anything b
    - Do not fix anything under `<related>`; do not clean up adjacent code, rename, or reformat untouched lines
 
 8. **Find violations** — review your own diff against `.claude/rules/diff-constraints.md` and **list every violation. Change nothing in this step.** Add these bug-fix-specific OpenSpec checks to that list:
-
    - Every task in `tasks.md` is actually done, or explicitly deferred with a reason
    - The diff does nothing the delta spec does not cover — scope creep shows up here
 
 9. **Rewrite** — fix exactly the violations listed in step 8, and nothing else.
    - Do not re-open the root-cause fix in this step
-   - Do not introduce new behaviour while clearing violations
+   - Do not introduce new behavior while clearing violations
 
 10. **Verify** — run everything in `.claude/rules/verify.md`. The build is optional here unless the fix touches config or imports; if you skip it, run `yarn tsc -b` on its own. Plus, for this pipeline:
     - Check the fix in the running app (`yarn dev`) for `UI_BUG`, `A11Y`, `RESPONSIVE` and `THEMING` categories — a passing test suite does not prove a visual fix
@@ -88,19 +89,14 @@ Read `.claude/rules/hard-gates.md` and apply it in full. It overrides anything b
 
 14. **`/opsx:archive`** — finalize the change.
     - Add the domain detail to `openspec/SPECS-CATALOG.md` (NOT `CLAUDE.md` — the per-domain history was extracted out of it); add a one-line entry to CLAUDE.md's **Existing Specs** index only if the domain is new, and put any constraint that must hold for future work in **Common Gotchas** instead, since the catalogue is only read on demand
-    - Generate the **PR description file**: summary, before/after behaviour, screenshots placeholder for visual changes, and the step 11 findings that were accepted rather than fixed
-    - The generated `.md` file is the deliverable — do NOT push or open a PR
+
+15. **Run the `pr` skill** — it owns the PR description format; do not restate it here. Hand it the step 11 findings that were accepted rather than fixed, so they land as **Known items**. The generated `.md` file is the deliverable.
 
 ## Rules
 
-`.claude/rules/hard-gates.md` applies in full. On top of it:
+`.claude/rules/hard-gates.md` and `.claude/rules/pipeline-discipline.md` apply in full. Specific to this pipeline:
 
-- OpenSpec owns the artifacts; this command owns the order and the gates
-- One bug per change — don't bundle multiple unrelated bugs
-- The router picks the pipeline — do not re-classify mid-run
-- Steps 8 and 9 stay separate — never merge "find violations" into "fix"
-- `requirements-analyst` and `code-reviewer` are never skipped
-- Step 6 is a hard stop — never auto-chain `opsx:apply`
-- Review agents are read-only; every edit happens in the main session
-- The evaluator–optimizer loop in step 11 is capped at 2 iterations
-- Never delete an archived change — the archive is the audit trail
+- **One bug per change** — don't bundle multiple unrelated bugs
+- **The router picks the pipeline** — do not re-classify mid-run
+- **Fix the cause, not the surroundings** — nothing under `<related>`, no adjacent cleanup, no reformatting untouched lines
+- **A passing test suite does not prove a visual fix** — `UI_BUG`, `A11Y`, `RESPONSIVE` and `THEMING` get checked in the running app
