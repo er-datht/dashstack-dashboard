@@ -24,6 +24,8 @@ Why it exists: a single "fix this bug" prompt has to describe all eight situatio
 
 ## Categories
 
+The gate in the last column is what the downstream pipeline **must** honour — copy it into `must_do`.
+
 | Category | Focus | Model | Gate the pipeline must honour |
 | --- | --- | --- | --- |
 | `UI_BUG` | Render output, CSS, layout, visual regression in `src/components/` or `src/pages/` | sonnet | Reproduce visually in `yarn dev` before editing — screenshot or exact DOM/CSS at fault |
@@ -36,19 +38,6 @@ Why it exists: a single "fix this bug" prompt has to describe all eight situatio
 | `NEW_COMPONENT` | Net-new component, page, or feature | opus | Hand off to the task factory |
 
 Repo adjustment: `THEMING` replaces the template's default `CONFIG_BUILD` category. This repo's archive contains three separate theme-contrast bugfixes (`fix-calendar-dark-forest-contrast`, `fix-edit-product-button-contrast`, the FilterByDropdown active-option fix) and no build/config defects — the 3-theme axis is where this codebase actually breaks. If a genuine build or env bug arrives, route it `UI_BUG` with `area: vite.config.ts`, or restore `CONFIG_BUILD` here.
-
-## Category gates
-
-Each category carries rules the downstream pipeline **must** honour. Put them in `must_do`.
-
-- `UI_BUG` — reproduce visually in `yarn dev` before editing; capture a screenshot or the exact DOM/CSS at fault
-- `STATE_BUG` — trace the full state path (write → store/query → select → render) before changing any one step
-- `API_INTEGRATION` — confirm the real response shape against the network payload, mock data, or localStorage record, not the TypeScript type alone
-- `A11Y` — name the WCAG criterion; verify with keyboard only before claiming a fix
-- `PERFORMANCE` — measure first, fix second; profile or bundle-analyze before proposing any change
-- `RESPONSIVE` — check every breakpoint the design defines, not only the reported one
-- `THEMING` — verify in all three themes (light, dark, forest) before claiming a fix
-- `NEW_COMPONENT` — hand off to `/feature-build-factory`
 
 ## Output format
 

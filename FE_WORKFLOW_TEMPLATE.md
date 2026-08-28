@@ -6,12 +6,12 @@ This file is **executable instructions**, not background reading. Point Claude C
 
 It is the frontend counterpart of a backend command set built on the same three workflow patterns:
 
-| Pattern | What it solves | Where it lands |
-| --- | --- | --- |
-| **Routing** | One prompt can't carry rules for six different kinds of ticket | `route-ticket.md`, step 0 of both factories |
-| **Chaining** | Long constraint-heavy prompts reliably drop constraints | Steps 1–7 of both factories, especially the split between *find violations* and *rewrite* |
-| **Parallelization** | One review pass can't weigh a11y, performance, correctness, convention and coverage at once | `review-parallel.md` |
-| **Evaluator–optimizer** | Producer and evaluator loop until the evaluator is quiet | Step 4 of the reviewer, step 8 of both factories — capped at 2 iterations |
+| Pattern                 | What it solves                                                                              | Where it lands                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **Routing**             | One prompt can't carry rules for six different kinds of ticket                              | `route-ticket.md`, step 0 of both factories                                               |
+| **Chaining**            | Long constraint-heavy prompts reliably drop constraints                                     | Steps 1–7 of both factories, especially the split between _find violations_ and _rewrite_ |
+| **Parallelization**     | One review pass can't weigh a11y, performance, correctness, convention and coverage at once | `review-parallel.md`                                                                      |
+| **Evaluator–optimizer** | Producer and evaluator loop until the evaluator is quiet                                    | Step 4 of the reviewer, step 8 of both factories — capped at 2 iterations                 |
 
 ---
 
@@ -31,43 +31,43 @@ Claude then works through Parts 1 → 5 below. Parts 1 and 2 are decisions; Part
 
 Read these files and record what you find. Do not guess; if a value genuinely cannot be determined, mark it `<!-- TODO: confirm -->` and tell the user at the end rather than inventing a plausible answer.
 
-| Source | What to extract |
-| --- | --- |
-| `package.json` | Framework and version; test runner; testing library; state library; i18n library; styling approach; router; every script under `"scripts"` |
-| Lockfile | `package-lock.json` → npm, `yarn.lock` → yarn, `pnpm-lock.yaml` → pnpm |
-| `tsconfig.json` | TypeScript or JavaScript; `strict` on or off; path aliases |
-| ESLint config | Which ruleset is in force (`airbnb`, `next/core-web-vitals`, `plugin:vue/*`, custom) |
-| Framework config | `next.config.*`, `vite.config.*`, `nuxt.config.*`, `angular.json` |
-| Directory listing | Where components, pages/routes, state, API clients, styles, and tests actually live |
-| `.git` | Default integration branch — `develop` if it exists, else `main`/`master` |
-| Existing `CLAUDE.md` / `README.md` | Conventions already written down; reuse them rather than restating |
+| Source                             | What to extract                                                                                                                            |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `package.json`                     | Framework and version; test runner; testing library; state library; i18n library; styling approach; router; every script under `"scripts"` |
+| Lockfile                           | `package-lock.json` → npm, `yarn.lock` → yarn, `pnpm-lock.yaml` → pnpm                                                                     |
+| `tsconfig.json`                    | TypeScript or JavaScript; `strict` on or off; path aliases                                                                                 |
+| ESLint config                      | Which ruleset is in force (`airbnb`, `next/core-web-vitals`, `plugin:vue/*`, custom)                                                       |
+| Framework config                   | `next.config.*`, `vite.config.*`, `nuxt.config.*`, `angular.json`                                                                          |
+| Directory listing                  | Where components, pages/routes, state, API clients, styles, and tests actually live                                                        |
+| `.git`                             | Default integration branch — `develop` if it exists, else `main`/`master`                                                                  |
+| Existing `CLAUDE.md` / `README.md` | Conventions already written down; reuse them rather than restating                                                                         |
 
 Fill this table. It is the contract for everything in Part 3.
 
-| Placeholder | Meaning | Example values |
-| --- | --- | --- |
-| `{{REPO_NAME}}` | Repo directory name | `efcmc-storefront` |
-| `{{FRAMEWORK}}` | UI framework | `React`, `Vue 3`, `Next.js (App Router)`, `Svelte` |
-| `{{LANG}}` | Language | `TypeScript`, `JavaScript` |
-| `{{COMPONENT_EXT}}` | Component file extension | `.tsx`, `.vue`, `.jsx` |
-| `{{DEV_CMD}}` | Dev server | `yarn dev` |
-| `{{LINT_CMD}}` | Lint | `yarn lint` |
-| `{{TYPECHECK_CMD}}` | Type check, or `n/a` for plain JS | `yarn tsc --noEmit` |
-| `{{TEST_CMD}}` | Unit/component tests | `yarn test` |
-| `{{BUILD_CMD}}` | Production build | `yarn build` |
-| `{{E2E_CMD}}` | E2E tests, or `n/a` | `yarn playwright test` |
-| `{{COMPONENT_DIR}}` | Components | `src/components/` |
-| `{{PAGE_DIR}}` | Pages / routes | `app/`, `src/pages/` |
-| `{{STATE_DIR}}` | Global state | `src/store/`, `src/context/` |
-| `{{API_DIR}}` | API clients / data fetching | `src/api/`, `configs/api.ts` |
-| `{{STYLE_SYSTEM}}` | Styling approach | `Tailwind`, `CSS Modules`, `styled-components`, `SCSS` |
-| `{{TOKEN_SOURCE}}` | Where design tokens live | `tailwind.config.js`, `src/styles/tokens.css` |
-| `{{I18N_LIB}}` | i18n library and key location, or `none` | `react-i18next`, keys in `src/locales/` |
-| `{{STATE_LIB}}` | State library | `Zustand`, `Redux Toolkit`, `Pinia`, `React Context` |
-| `{{TEST_LIB}}` | Component test library | `React Testing Library`, `Vue Test Utils` |
-| `{{LINT_RULESET}}` | Lint ruleset in force | `airbnb`, `next/core-web-vitals` |
-| `{{BASE_BRANCH}}` | Integration branch | `develop`, `main` |
-| `{{TICKET_PREFIX}}` | Issue key prefix, or `n/a` | `WEB`, `FE` |
+| Placeholder         | Meaning                                  | Example values                                         |
+| ------------------- | ---------------------------------------- | ------------------------------------------------------ |
+| `{{REPO_NAME}}`     | Repo directory name                      | `efcmc-storefront`                                     |
+| `{{FRAMEWORK}}`     | UI framework                             | `React`, `Vue 3`, `Next.js (App Router)`, `Svelte`     |
+| `{{LANG}}`          | Language                                 | `TypeScript`, `JavaScript`                             |
+| `{{COMPONENT_EXT}}` | Component file extension                 | `.tsx`, `.vue`, `.jsx`                                 |
+| `{{DEV_CMD}}`       | Dev server                               | `yarn dev`                                             |
+| `{{LINT_CMD}}`      | Lint                                     | `yarn lint`                                            |
+| `{{TYPECHECK_CMD}}` | Type check, or `n/a` for plain JS        | `yarn tsc --noEmit`                                    |
+| `{{TEST_CMD}}`      | Unit/component tests                     | `yarn test`                                            |
+| `{{BUILD_CMD}}`     | Production build                         | `yarn build`                                           |
+| `{{E2E_CMD}}`       | E2E tests, or `n/a`                      | `yarn playwright test`                                 |
+| `{{COMPONENT_DIR}}` | Components                               | `src/components/`                                      |
+| `{{PAGE_DIR}}`      | Pages / routes                           | `app/`, `src/pages/`                                   |
+| `{{STATE_DIR}}`     | Global state                             | `src/store/`, `src/context/`                           |
+| `{{API_DIR}}`       | API clients / data fetching              | `src/api/`, `configs/api.ts`                           |
+| `{{STYLE_SYSTEM}}`  | Styling approach                         | `Tailwind`, `CSS Modules`, `styled-components`, `SCSS` |
+| `{{TOKEN_SOURCE}}`  | Where design tokens live                 | `tailwind.config.js`, `src/styles/tokens.css`          |
+| `{{I18N_LIB}}`      | i18n library and key location, or `none` | `react-i18next`, keys in `src/locales/`                |
+| `{{STATE_LIB}}`     | State library                            | `Zustand`, `Redux Toolkit`, `Pinia`, `React Context`   |
+| `{{TEST_LIB}}`      | Component test library                   | `React Testing Library`, `Vue Test Utils`              |
+| `{{LINT_RULESET}}`  | Lint ruleset in force                    | `airbnb`, `next/core-web-vitals`                       |
+| `{{BASE_BRANCH}}`   | Integration branch                       | `develop`, `main`                                      |
+| `{{TICKET_PREFIX}}` | Issue key prefix, or `n/a`               | `WEB`, `FE`                                            |
 
 Also record, for the reviewer's constraint list:
 
@@ -81,20 +81,20 @@ Also record, for the reviewer's constraint list:
 
 ## 2a. Routing categories
 
-A router classifies the incoming ticket, then hands it to a pipeline whose prompt, tools and model are tuned for that one category. The benefit is what each pipeline can *force*: the `PERFORMANCE` prompt can require a profile before any fix is proposed, while the `CONFIG_BUILD` prompt never needs to open a component at all. Merge them into one "fix this bug" prompt and you must describe all eight situations in one place — quality drops measurably. The router is also the cheapest place to pick the model for the work that follows.
+A router classifies the incoming ticket, then hands it to a pipeline whose prompt, tools and model are tuned for that one category. The benefit is what each pipeline can _force_: the `PERFORMANCE` prompt can require a profile before any fix is proposed, while the `CONFIG_BUILD` prompt never needs to open a component at all. Merge them into one "fix this bug" prompt and you must describe all eight situations in one place — quality drops measurably. The router is also the cheapest place to pick the model for the work that follows.
 
 Eight is the working default below. **Keep six to eight.** Fewer and the router stops earning its keep; more and the boundaries blur.
 
-| Category | Focus | Model | Gate the pipeline must honour |
-| --- | --- | --- | --- |
-| `UI_BUG` | Render output, CSS, layout, visual regression in `{{COMPONENT_DIR}}` or `{{PAGE_DIR}}` | sonnet | Reproduce visually in `{{DEV_CMD}}` before editing — screenshot or exact DOM/CSS at fault |
-| `STATE_BUG` | Stale state, wrong derived value, effect loop, cache invalidation in `{{STATE_DIR}}` | sonnet | Trace the full state path (write → store → select → render) before changing one step |
-| `API_INTEGRATION` | Fetch, error/loading states, response shape, auth headers | sonnet | Confirm the real response shape against the network payload or API contract, not the type alone |
-| `A11Y` | Keyboard, screen reader, focus, contrast, semantics | opus | Name the WCAG criterion; test with keyboard only before claiming a fix |
-| `PERFORMANCE` | Re-renders, bundle size, LCP/INP/CLS | sonnet | **Measure first, fix second** — profile or bundle-analyze before proposing any change |
-| `RESPONSIVE` | Breakpoints, overflow, touch targets | sonnet | Check every breakpoint the design defines, not just the one that was reported |
-| `NEW_COMPONENT` | Net-new component, page, or feature | opus | Hand off to the task factory |
-| `CONFIG_BUILD` | Env vars, build config, bundler, deploy target | haiku | Diff the environment configs; do not change component code |
+| Category          | Focus                                                                                  | Model  | Gate the pipeline must honour                                                                   |
+| ----------------- | -------------------------------------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------- |
+| `UI_BUG`          | Render output, CSS, layout, visual regression in `{{COMPONENT_DIR}}` or `{{PAGE_DIR}}` | sonnet | Reproduce visually in `{{DEV_CMD}}` before editing — screenshot or exact DOM/CSS at fault       |
+| `STATE_BUG`       | Stale state, wrong derived value, effect loop, cache invalidation in `{{STATE_DIR}}`   | sonnet | Trace the full state path (write → store → select → render) before changing one step            |
+| `API_INTEGRATION` | Fetch, error/loading states, response shape, auth headers                              | sonnet | Confirm the real response shape against the network payload or API contract, not the type alone |
+| `A11Y`            | Keyboard, screen reader, focus, contrast, semantics                                    | opus   | Name the WCAG criterion; test with keyboard only before claiming a fix                          |
+| `PERFORMANCE`     | Re-renders, bundle size, LCP/INP/CLS                                                   | sonnet | **Measure first, fix second** — profile or bundle-analyze before proposing any change           |
+| `RESPONSIVE`      | Breakpoints, overflow, touch targets                                                   | sonnet | Check every breakpoint the design defines, not just the one that was reported                   |
+| `NEW_COMPONENT`   | Net-new component, page, or feature                                                    | opus   | Hand off to the task factory                                                                    |
+| `CONFIG_BUILD`    | Env vars, build config, bundler, deploy target                                         | haiku  | Diff the environment configs; do not change component code                                      |
 
 Adjust to the repo: drop `RESPONSIVE` if the app is desktop-only; add `FORM_VALIDATION` if forms dominate; add `SEO` if it is a marketing or content site.
 
@@ -102,14 +102,14 @@ Adjust to the repo: drop `RESPONSIVE` if the app is desktop-only; add `FORM_VALI
 
 Five to six parallel branches. Security matters less for a pure frontend than for an API, but it does not vanish — it shifts to XSS, secrets in the client bundle, and unsafe HTML injection.
 
-| # | Angle | Model | Looks for |
-| --- | --- | --- | --- |
-| A | Accessibility | opus | Missing labels on interactive elements; non-semantic elements carrying click handlers; keyboard traps and lost focus; missing `alt`; contrast below AA; ARIA that contradicts the role |
-| B | Performance | sonnet | Unnecessary re-renders (unstable props, unmemoized callbacks, effect dependency churn); barrel imports pulling in the world; missing code-splitting; unvirtualized long lists; layout thrash and CLS sources |
-| C | Correctness | sonnet | Unhandled loading and error states; race conditions between requests; null/undefined on optional data; stale closures; missing list keys; off-by-one at boundaries |
-| D | Convention | sonnet | `{{LINT_RULESET}}` violations; inline styles where `{{STYLE_SYSTEM}}` is the convention; hardcoded strings that belong in `{{I18N_LIB}}`; hardcoded colors and spacing outside `{{TOKEN_SOURCE}}`; component/prop naming; business logic sitting in a presentational component |
-| E | Test coverage | sonnet | Missing `{{TEST_LIB}}` cases for changed behaviour; untested error and empty states; whether a bug fix has a regression test that fails without the fix; queries that assert implementation detail instead of user-visible behaviour |
-| F | Client security | opus | `dangerouslySetInnerHTML` / `v-html` on unsanitized input; secrets or API keys reaching the client bundle; user input interpolated into URLs or `href`; token storage choice; overly broad CORS or CSP assumptions |
+| #   | Angle           | Model  | Looks for                                                                                                                                                                                                                                                                      |
+| --- | --------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A   | Accessibility   | opus   | Missing labels on interactive elements; non-semantic elements carrying click handlers; keyboard traps and lost focus; missing `alt`; contrast below AA; ARIA that contradicts the role                                                                                         |
+| B   | Performance     | sonnet | Unnecessary re-renders (unstable props, unmemoized callbacks, effect dependency churn); barrel imports pulling in the world; missing code-splitting; unvirtualized long lists; layout thrash and CLS sources                                                                   |
+| C   | Correctness     | sonnet | Unhandled loading and error states; race conditions between requests; null/undefined on optional data; stale closures; missing list keys; off-by-one at boundaries                                                                                                             |
+| D   | Convention      | sonnet | `{{LINT_RULESET}}` violations; inline styles where `{{STYLE_SYSTEM}}` is the convention; hardcoded strings that belong in `{{I18N_LIB}}`; hardcoded colors and spacing outside `{{TOKEN_SOURCE}}`; component/prop naming; business logic sitting in a presentational component |
+| E   | Test coverage   | sonnet | Missing `{{TEST_LIB}}` cases for changed behavior; untested error and empty states; whether a bug fix has a regression test that fails without the fix; queries that assert implementation detail instead of user-visible behavior                                             |
+| F   | Client security | opus   | `dangerouslySetInnerHTML` / `v-html` on unsanitized input; secrets or API keys reaching the client bundle; user input interpolated into URLs or `href`; token storage choice; overly broad CORS or CSP assumptions                                                             |
 
 Optional extra branches for a content or marketing site: **SEO / meta tags** and **Core Web Vitals** as their own angles rather than folded into Performance. Auditing a page across four independent lenses at once — SEO, WCAG, responsive breakpoints, Core Web Vitals — is the case this pattern was built for.
 
@@ -117,7 +117,7 @@ Optional extra branches for a content or marketing site: **SEO / meta tags** and
 
 ## 2c. Constraint checklist
 
-This is the list the *find violations* step checks against. Build it from what the repo actually enforces — a constraint nobody enforces is noise. Defaults:
+This is the list the _find violations_ step checks against. Build it from what the repo actually enforces — a constraint nobody enforces is noise. Defaults:
 
 - No inline styles where `{{STYLE_SYSTEM}}` is the convention
 - Every interactive element has an accessible name
@@ -125,7 +125,7 @@ This is the list the *find violations* step checks against. Build it from what t
 - No user-facing string hardcoded — keys go through `{{I18N_LIB}}`
 - No hardcoded color or spacing value outside `{{TOKEN_SOURCE}}`
 - No `console.log` left behind
-- No `any` / `@ts-ignore` added *(TypeScript repos only)*
+- No `any` / `@ts-ignore` added _(TypeScript repos only)_
 - Every list render has a stable `key` — not the array index
 - No direct DOM manipulation where the framework owns the node
 - Loading and error states are handled for every new data fetch
@@ -360,7 +360,7 @@ The flow is a chain: each step consumes the previous step's output. Two properti
 
 6. **Rewrite** — fix exactly the violations listed in step 5, and nothing else.
    - Do not re-open the root-cause fix in this step
-   - Do not introduce new behaviour while clearing violations
+   - Do not introduce new behavior while clearing violations
 
 7. **Verify**:
    - Lint: `{{LINT_CMD}}`
@@ -386,7 +386,7 @@ The flow is a chain: each step consumes the previous step's output. Two properti
 11. **Ask the user to commit** the changed files.
 
 12. **After the commit succeeds**, generate the **PR description file**:
-    - Summary, before/after behaviour, screenshots placeholder for visual changes
+    - Summary, before/after behavior, screenshots placeholder for visual changes
     - Include the step 8 findings that were accepted rather than fixed
     - The generated `.md` file is the deliverable — do NOT push or open a PR
 
@@ -403,7 +403,7 @@ The flow is a chain: each step consumes the previous step's output. Two properti
 
 ## 3d. `.claude/commands/feature-build-factory.md`
 
-This is the classic frontend chain — extract spec → generate code → find violations → rewrite → generate tests — with routing and parallel review wrapped around it. Steps 5 and 6 exist because a prompt of the form *"write this component and **don't** use inline styles, **don't** hardcode text, **don't** forget the aria-label"* almost always drops one of the negatives. Splitting into a *find the violations* pass and then a *fix these specific violations* pass is markedly more reliable than repeating the constraints harder.
+This is the classic frontend chain — extract spec → generate code → find violations → rewrite → generate tests — with routing and parallel review wrapped around it. Steps 5 and 6 exist because a prompt of the form _"write this component and **don't** use inline styles, **don't** hardcode text, **don't** forget the aria-label"_ almost always drops one of the negatives. Splitting into a _find the violations_ pass and then a _fix these specific violations_ pass is markedly more reliable than repeating the constraints harder.
 
 ````markdown
 ---
@@ -438,10 +438,17 @@ The flow is a chain: request → spec → markup and styles → state and data �
      "states": ["loading", "empty", "error", "loaded"],
      "events": ["cancel clicked", "row expanded"],
      "data": { "source": "{{API_DIR}}orders", "fetched_by": "parent" },
-     "a11y": ["cancel button needs an accessible name", "expanded state needs aria-expanded"],
+     "a11y": [
+       "cancel button needs an accessible name",
+       "expanded state needs aria-expanded"
+     ],
      "responsive": ["stacks below 768px"],
      "i18n_keys": ["orders.summary.title", "orders.summary.cancel"],
-     "tests": ["renders each state", "cancel fires once", "keyboard reaches every control"],
+     "tests": [
+       "renders each state",
+       "cancel fires once",
+       "keyboard reaches every control"
+     ],
      "out_of_scope": ["order editing", "print view"]
    }
    ```
@@ -454,12 +461,11 @@ The flow is a chain: request → spec → markup and styles → state and data �
    - If "keep as plan" → stop here and report the ticket path.
 
 4. **Build in chained order.** Each sub-step reads the step 1 spec; complete one before starting the next.
-
    - **4a. Markup and structure** — semantic elements, correct heading level, accessible names. No styling yet.
    - **4b. Styles** — via `{{STYLE_SYSTEM}}`, values from `{{TOKEN_SOURCE}}`, responsive rules from the spec.
    - **4c. State and data** — local state, then `{{STATE_LIB}}` only if the value is genuinely shared; data through `{{API_DIR}}`. Every state in the spec's `states` is handled.
    - **4d. Strings** — every user-facing string through `{{I18N_LIB}}`, using the keys named in the spec.
-   - **4e. Tests** — the cases named in the spec's `tests` field, with `{{TEST_LIB}}`, asserting user-visible behaviour rather than implementation detail.
+   - **4e. Tests** — the cases named in the spec's `tests` field, with `{{TEST_LIB}}`, asserting user-visible behavior rather than implementation detail.
 
    If the spec turns out to be wrong mid-build, stop, correct the spec, and say what changed — do not silently drift from it.
 
@@ -514,7 +520,7 @@ The flow is a chain: request → spec → markup and styles → state and data �
 Optional, and worth doing if the repo will accumulate more of this configuration: add a `.claude/rules/` set and reference it from the commands instead of restating rules inline. Three files carry most of the weight:
 
 - `accuracy.md` — name real components, props, hooks and routes; never invent an API shape or claim a test passes without running it; use placeholders for anything the user must supply
-- `writing-style.md` — one idea per bullet; state behaviour before and after, not just the code change; write for a reader who has not seen the diff
+- `writing-style.md` — one idea per bullet; state behavior before and after, not just the code change; write for a reader who has not seen the diff
 - `git-safety.md` — never commit on `{{BASE_BRANCH}}`; ask before any git operation; show what will be staged; never `git add -A` blindly
 
 ---

@@ -1,5 +1,5 @@
 ---
-description: End-to-end feature workflow on top of OpenSpec — route, explore, propose, gate, test, chained build, constraint check, verify, parallel review, archive.
+description: End-to-end feature workflow on top of OpenSpec — route, explore, propose, gate, test, chained build, constraint check, verify, parallel review, archive, PR description.
 argument-hint: <feature description, ticket text, mockup path, or requirements file>
 ---
 
@@ -7,17 +7,19 @@ End-to-end feature workflow for dashstack-dashboard.
 
 **OpenSpec owns the lifecycle. This command owns execution discipline.** `CLAUDE.md` mandates the OpenSpec pipeline for every change; this command does not replace it, it drives it and adds three things the pipeline does not have on its own:
 
-| Added | Where it slots in | Why |
-| --- | --- | --- |
-| **Routing** | Step 0, before `requirements-analyst` | Confirms this is net-new work and picks the model for it, instead of one prompt describing every kind of request. |
-| **Chained build order** | Step 7, inside `opsx:apply` | markup → styles → state/data → strings → tests. Each sub-step reads the delta spec instead of re-deriving the component from the original request. |
-| **Detect/correct split + parallel review** | Steps 8–9 and 11 | *"write this component and **don't** use inline styles, **don't** hardcode text, **don't** forget the aria-label"* almost always drops one of the negatives. Find violations first, then fix exactly those, then fan review out across six angles. |
+| Added                                      | Where it slots in                     | Why                                                                                                                                                                                                                                                |
+| ------------------------------------------ | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Routing**                                | Step 0, before `requirements-analyst` | Confirms this is net-new work and picks the model for it, instead of one prompt describing every kind of request.                                                                                                                                  |
+| **Chained build order**                    | Step 7, inside `opsx:apply`           | markup → styles → state/data → strings → tests. Each sub-step reads the delta spec instead of re-deriving the component from the original request.                                                                                                 |
+| **Detect/correct split + parallel review** | Steps 8–9 and 11                      | _"write this component and **don't** use inline styles, **don't** hardcode text, **don't** forget the aria-label"_ almost always drops one of the negatives. Find violations first, then fix exactly those, then fan review out across six angles. |
 
 The component contract is the **delta spec** in `openspec/changes/<name>/specs/`, not a separate JSON blob. Do not create a parallel ticket or spec format.
 
 ## Hard gates
 
 Read `.claude/rules/hard-gates.md` and apply it in full. It overrides anything below. In this pipeline the stop it refers to is **step 6**.
+
+Then read `.claude/rules/pipeline-discipline.md` — the rules both factories share. This command adds only what is specific to building a feature.
 
 ## Steps
 
@@ -48,17 +50,15 @@ Read `.claude/rules/hard-gates.md` and apply it in full. It overrides anything b
 6. **⏸ WAIT for the user.** Present the proposal, the security verdict, and the tests. **Stop here.** Do not proceed to step 7 until the user explicitly triggers apply.
 
 7. **`/opsx:apply` via `react-frontend-specialist`** — implement in chained order. Each sub-step reads the delta spec; complete one before starting the next.
-
    - **7a. Markup and structure** — semantic elements, correct heading level, accessible names. No styling yet.
    - **7b. Styles** — Tailwind utilities first (the theme-aware classes in `src/index.css`), an SCSS module only for animations and pseudo-elements; every color and spacing value from `src/index.css` or `src/assets/styles/_variables.scss`; responsive rules from the spec. Verify all three themes.
    - **7c. State and data** — local `useState`/`useReducer` first, then React Context (`src/contexts/`) only if the value is genuinely shared; server state through TanStack React Query via `src/hooks/useReactQuery.ts`; data through `src/services/`. Every state the spec names is handled.
    - **7d. Strings** — every user-facing string through `react-i18next`'s `t()`, using the keys named in the spec, added to **both** `public/locales/en/` and `public/locales/jp/` with key parity. Register any new namespace in the root `i18n.ts`.
-   - **7e. Tests** — make the step 5 tests pass; add any case the spec names that they missed. React Testing Library + Vitest in a co-located `__tests__/` directory, asserting user-visible behaviour rather than implementation detail.
+   - **7e. Tests** — make the step 5 tests pass; add any case the spec names that they missed. React Testing Library + Vitest in a co-located `__tests__/` directory, asserting user-visible behavior rather than implementation detail.
 
    If the spec turns out to be wrong mid-build, stop and revise the spec — the workflow is iterative, not waterfall. Say what changed; do not silently drift from it.
 
 8. **Find violations** — review your own diff against `.claude/rules/diff-constraints.md` and **list every violation. Change nothing in this step.** Add these feature-specific OpenSpec checks to that list:
-
    - Every task in `tasks.md` is actually done, or explicitly deferred with a reason
    - Everything the design marked out-of-scope is genuinely absent from the diff
    - Every state the delta spec lists is actually reachable and rendered
@@ -83,19 +83,14 @@ Read `.claude/rules/hard-gates.md` and apply it in full. It overrides anything b
 
 14. **`/opsx:archive`** — finalize the change.
     - Add the domain detail to `openspec/SPECS-CATALOG.md` (NOT `CLAUDE.md` — the per-domain history was extracted out of it); add a one-line entry to CLAUDE.md's **Existing Specs** index only if the domain is new, and put any constraint that must hold for future work in **Common Gotchas** instead, since the catalogue is only read on demand
-    - Generate the **PR description file**: summary, screenshots placeholder, states covered, accepted findings from step 11
-    - The generated `.md` file is the deliverable — do NOT push or open a PR
+
+15. **Run the `pr` skill** — it owns the PR description format; do not restate it here. Hand it the states the delta spec named, so they reach **How to Test?**, and the step 11 findings that were accepted rather than fixed, so they land as **Known items**. The generated `.md` file is the deliverable.
 
 ## Rules
 
-`.claude/rules/hard-gates.md` applies in full. On top of it:
+`.claude/rules/hard-gates.md` and `.claude/rules/pipeline-discipline.md` apply in full. Specific to this pipeline:
 
-- OpenSpec owns the artifacts; this command owns the order and the gates
-- One feature per run — a bug found along the way gets its own change
-- The delta spec is the contract — later steps read it instead of re-deriving the work
-- Steps 8 and 9 stay separate — never merge "find violations" into "fix"
-- `requirements-analyst` and `code-reviewer` are never skipped
-- Step 6 is a hard stop — never auto-chain `opsx:apply`
-- Review agents are read-only; every edit happens in the main session
-- The evaluator–optimizer loop in step 11 is capped at 2 iterations
-- Never delete an archived change — the archive is the audit trail
+- **One feature per run** — a bug found along the way gets its own change
+- **The delta spec is the contract** — later steps read it instead of re-deriving the work from the original request
+- **Build in chained order** (step 7) — markup → styles → state/data → strings → tests, one sub-step finished before the next starts
+- **If the spec turns out to be wrong mid-build, revise the spec** — say what changed; never silently drift from it
